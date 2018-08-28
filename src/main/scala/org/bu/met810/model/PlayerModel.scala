@@ -1,7 +1,8 @@
 package org.bu.met810.model
 
+import org.bu.met810.types.boardassets.Board
 import org.bu.met810.types.moves.Move
 
 trait PlayerModel{
-  def selectMove(possibleMoves: Seq[Move]): Move
+  def selectMove(possibleMoves: Set[Move], board: Board): Move
 }
