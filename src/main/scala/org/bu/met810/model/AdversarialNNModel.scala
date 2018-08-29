@@ -11,7 +11,7 @@ import org.bu.met810.types.moves.Move
 
 import scala.io.Source
 
-class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: Option[String] = None) extends NNPlayerModel{
+class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: Option[String] = None) extends NNPlayerModel[Board, Player, Move]{
 
   private type NNVector = _root_.neuroflow.core.Network.Vector[Double]
 
@@ -54,12 +54,12 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
   }
 
   override def selectMove(player: Player, board: Board): Move = {
-    val inputVector = ->(vectorizeBoard(board) ++ vectorizeMovesForPlayer(player):_*)
+    val inputVector = ->(vectorizeEnvironment(board) ++ vectorizeAsset(player):_*)
     val outputVector = net.apply(inputVector)
     vectorToMove(outputVector.data.toSeq)
   }
 
-  override def vectorizeBoard(board: Board): Seq[Double] = ???
-  override def vectorizeMovesForPlayer(player: Player): Seq[Double] = ???
+  override def vectorizeEnvironment(e: Board): Seq[Double] = ???
+  override def vectorizeAsset(a: Player): Seq[Double] = ???
   override def vectorToMove(vector: Seq[Double]): Move = ???
 }
