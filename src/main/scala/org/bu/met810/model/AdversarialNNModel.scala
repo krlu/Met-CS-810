@@ -7,7 +7,7 @@ import neuroflow.core._
 import neuroflow.dsl.{Dense, Vector}
 import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.moves.{Down, Left, Move, Right, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
 
 import scala.io.Source
 
@@ -53,13 +53,20 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
     (trainingInput, trainingOutput)
   }
 
-  override def selectMove(player: Player, board: Board): Move = {
+  override def selectMove(playerId: Int, board: Board): Move = {
+    val player = if(board.p1.id == playerId) board.p1 else board.p2
     val inputVector = ->(vectorizeEnvironment(board) ++ vectorizeAsset(player):_*)
     val outputVector = net.apply(inputVector)
     vectorToMove(outputVector.data.toSeq)
   }
 
-  override def vectorizeEnvironment(e: Board): Seq[Double] = ???
-  override def vectorizeAsset(a: Player): Seq[Double] = ???
-  override def vectorToMove(vector: Seq[Double]): Move = ???
+  override def vectorizeEnvironment(b: Board): Seq[Double] = {
+    vectorizeAsset(b.p1, b.p2)
+  }
+  override def vectorizeAsset(players: Player*): Seq[Double] = players.flatMap(p => Seq(p.position._1.toDouble, p.position._2.toDouble))
+  override def vectorToMove(vector: Seq[Double]): Move =
+    Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight).find(_.id == vector.head.toInt) match {
+      case Some(move) => move
+      case None => throw new NoSuchElementException(s"unable to find move with id ${vector.head}!")
+    }
 }
