@@ -8,11 +8,18 @@ import org.bu.met810.types.moves._
   */
 class RandomMoveModel extends PlayerModel[Board, Move] {
   override def selectMove(playerId: Int, board: Board): Move = {
-    val player = if(board.p1.id == playerId) board.p1 else board.p2
+    val player = Set(board.p1, board.p2).find(_.id == playerId) match {
+      case Some(p) => p
+      case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")
+    }
     choose(player.moves.iterator)
   }
   private def choose[A](it: Iterator[A]): A =
     it.zip(Iterator.iterate(1)(_ + 1)).reduceLeft((row, col) =>
       if (util.Random.nextInt(col._2) == 0) col else row
     )._1
+}
+
+object RandomMoveModel{
+  def apply(): RandomMoveModel = new RandomMoveModel()
 }

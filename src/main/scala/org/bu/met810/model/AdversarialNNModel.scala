@@ -54,16 +54,10 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
   }
 
   override def selectMove(playerId: Int, board: Board): Move = {
-    val player = if(board.p1.id == playerId) board.p1 else board.p2
-    val inputVector = ->(vectorizeEnvironment(board) ++ vectorizeAsset(player):_*)
+    val inputVector = ->(board.toVector ++ Seq(playerId.toDouble):_*)
     val outputVector = net.apply(inputVector)
     vectorToMove(outputVector.data.toSeq)
   }
-
-  override def vectorizeEnvironment(b: Board): Seq[Double] = {
-    vectorizeAsset(b.p1, b.p2)
-  }
-  override def vectorizeAsset(players: Player*): Seq[Double] = players.flatMap(p => Seq(p.position._1.toDouble, p.position._2.toDouble))
   override def vectorToMove(vector: Seq[Double]): Move =
     Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight).find(_.id == vector.head.toInt) match {
       case Some(move) => move
