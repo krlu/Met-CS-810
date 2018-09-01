@@ -26,7 +26,11 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Move],
   private def updateBoard(turn: Int, move: Move): Board = {
     val player: Player = if(board.p1.id == turn) board.p1 else board.p2
     val (x,y) = player.position
-    val updatedPlayer = player.copy(position = move(x,y))
+    val updatedPlayer = player match {
+      case c: Cop => c.copy(position = move(x,y))
+      case r: Robber => r.copy(position = move(x,y))
+    }
+    println(turn, board.p1.id)
     if(board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
   }
 }

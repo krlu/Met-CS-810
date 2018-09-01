@@ -12,7 +12,13 @@ class RandomMoveModel extends PlayerModel[Board, Move] {
       case Some(p) => p
       case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")
     }
-    choose(player.moves.iterator)
+    val (x,y) = player.position
+    val validMoves = player.moves.filter{ m =>
+      val (x1, y1) = m(x,y)
+      x1 >= 0 && x1 < board.width && y1 >= 0 && y1 < board.length
+    }
+    println(player, validMoves)
+    choose(validMoves.iterator)
   }
   private def choose[A](it: Iterator[A]): A =
     it.zip(Iterator.iterate(1)(_ + 1)).reduceLeft((row, col) =>
