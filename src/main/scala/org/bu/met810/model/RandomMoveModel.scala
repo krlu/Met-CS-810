@@ -17,7 +17,6 @@ class RandomMoveModel extends PlayerModel[Board, Move] {
       val (x1, y1) = m(x,y)
       x1 >= 0 && x1 < board.width && y1 >= 0 && y1 < board.length
     }
-    println(player, validMoves)
     choose(validMoves.iterator)
   }
   private def choose[A](it: Iterator[A]): A =

@@ -8,7 +8,7 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Move],
                 model2: PlayerModel[Board, Move], private var turn: Int = 0){
   private var board: Board = initialBoard
   private var winner: Option[Player] = None
-  def runSimulator(): Option[(Board, Move)] = (board.p1, board.p2) match {
+  def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
     case (p1, p2) if p1.position == p2.position =>
       winner = Some(board.p2)
       None
@@ -20,7 +20,7 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Move],
       val oldBoard = board
       board = updateBoard(turn, move)
       turn = if (turn == 0) 1 else 0
-      Some(oldBoard, move)
+      Some(oldBoard, move, board)
   }
 
   private def updateBoard(turn: Int, move: Move): Board = {
@@ -30,9 +30,9 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Move],
       case c: Cop => c.copy(position = move(x,y))
       case r: Robber => r.copy(position = move(x,y))
     }
-    println(turn, board.p1.id)
     if(board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
   }
+  def getWinner: Option[Player] = winner
 }
 
 object Simulator{
