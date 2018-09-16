@@ -2,7 +2,6 @@ package org.bu.met810.model
 
 import neuroflow.application.plugin.IO.File
 import neuroflow.application.plugin.Notation.->
-import neuroflow.core.Activators.Double.Sigmoid
 import neuroflow.core._
 import neuroflow.dsl.{Dense, Vector}
 import neuroflow.nets.cpu.DenseNetwork._
@@ -19,15 +18,15 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
     case Some(file) =>  File.weightBreeder[Double](file)
     case None =>  WeightBreeder[Double].normal {
       Map (
-        1 -> (0.0, 1.0),
-        2 -> (0.0, 0.1)
+        1 -> (1.1, 0.1),
+        2 -> (1.1, 0.1)
       )}
   }
 
   private val settings: Settings[Double] = Settings[Double](
-    learningRate = { case (_, _) => 1.0 },
+    learningRate = { case (_, _) => 0.00000001 },
     iterations = 100000)
-  private val fn: Activator.Sigmoid[Double] = Sigmoid
+  private val fn = Activators.Double.LeakyReLU(0.0)
   private val net = Network(
     layout = Vector(inputDim) :: Dense(inputDim, fn) :: Dense(outputDim, fn) :: SquaredError(),
     settings = settings
@@ -54,13 +53,13 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
   }
 
   override def selectMove(playerId: Int, board: Board): Move = {
-    val inputVector = ->(board.toVector ++ Seq(playerId.toDouble):_*)
+    val inputVector = ->(board.toVector:_*)
     val outputVector = net.apply(inputVector)
-    vectorToMove(outputVector.data.toSeq)
+    vectorToMove(outputVector.data.toList)
   }
   override def vectorToMove(vector: Seq[Double]): Move =
-    Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight).find(_.id == vector.head.toInt) match {
+    Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight).find(_.toVector == vector.map(_.ceil.toInt)) match {
       case Some(move) => move
-      case None => throw new NoSuchElementException(s"unable to find move with id ${vector.head}!")
+      case None => throw new NoSuchElementException(s"unable to find move with vector ${vector.map(_.ceil.toInt)}!")
     }
 }

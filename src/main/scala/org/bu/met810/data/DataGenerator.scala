@@ -17,12 +17,12 @@ object DataGenerator {
   def main(args: Array[String]): Unit = {
     val playerId = 0
     val outputFilePath: String = "training_data.csv"
-    for(_ <- 1 to 10000)
+    for(_ <- 1 to 1000)
       generateDataPoint(playerId, outputFilePath)
   }
 
   def generateDataPoint(playerId: Int, outputFilePath: String): Unit ={
-    val board = Board(Robber((0, 0)), Cop((9, 9)), 10, 10, Seq.empty[Building])
+    val board = Board(Robber((6, 6)), Cop((9, 9)), 10, 10, Seq.empty[Building])
     var data = getTrainingStates(outputFilePath, board.toVector.size)
     val sim = Simulator(board, RandomMoveModel(), RandomMoveModel())
     var mostRecentResult: Option[(Board, Move)] = None
@@ -41,7 +41,6 @@ object DataGenerator {
           }
       }
     } while(result.nonEmpty)
-    println(sim.getWinner, mostRecentResult)
     (mostRecentResult, sim.getWinner) match{
       case (Some((b, m)), Some(w)) =>
         val (boardVector, moveVector) = (b.toVector, m.toVector)
