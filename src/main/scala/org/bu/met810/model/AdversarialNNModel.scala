@@ -1,10 +1,13 @@
 package org.bu.met810.model
 
-import neuroflow.application.plugin.IO.File
+import breeze.linalg.DenseMatrix
+import neuroflow.application.plugin.IO.{File, _}
 import neuroflow.application.plugin.Notation.->
+import neuroflow.application.processor.Image.TensorRGB
 import neuroflow.core._
-import neuroflow.dsl.{Dense, Vector}
-import neuroflow.nets.cpu.DenseNetwork._
+import neuroflow.dsl.Convolution.autoTupler
+import neuroflow.dsl.{Convolution, Dense}
+import neuroflow.nets.cpu.ConvNetwork._
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves.{Down, Left, Move, Right, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
 
@@ -14,22 +17,28 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
 
   private type NNVector = _root_.neuroflow.core.Network.Vector[Double]
 
-  private implicit val weights: WeightBreeder[Double] = savedWeights match {
-    case Some(file) =>  File.weightBreeder[Double](file)
-    case None =>  WeightBreeder[Double].normal {
-      Map (
-        1 -> (1.1, 0.1),
-        2 -> (1.1, 0.1)
-      )}
-  }
+  val μ = 0.0
+  implicit val weights: WeightBreeder[Double] = WeightBreeder[Double].normal(Map(
+    0 -> (μ, 0.1),  1 -> (μ, 0.1), 2 -> (μ, 0.1), 3 -> (μ, 0.01)
+  ))
 
-  private val settings: Settings[Double] = Settings[Double](
-    learningRate = { case (_, _) => 0.00000001 },
-    iterations = 100000)
-  private val fn = Activators.Double.LeakyReLU(0.0)
+  private val f = Activators.Double.LeakyReLU(0.0)
+  val c0 = Convolution(dimIn = (inputDim, inputDim, 1),  padding = 1, field = 3, stride = 1, filters = 128, activator = f)
+  val c1 = Convolution(dimIn = c0.dimOut, padding = 1, field = 3, stride = 1, filters = 128, activator = f)
+  val c2 = Convolution(dimIn = c1.dimOut, padding = 1, field = 4, stride = 2, filters = 128, activator = f)
+
   private val net = Network(
-    layout = Vector(inputDim) :: Dense(inputDim, fn) :: Dense(outputDim, fn) :: SquaredError(),
-    settings = settings
+    layout = c0 :: c1 :: c2  :: Dense(10, f) :: SoftmaxLogEntropy(),
+    Settings[Double](
+      prettyPrint     = true,
+      learningRate    = {
+        case (i, _) if i < 4000 => 1E-5
+        case (_, _)             => 1E-6
+      },
+      updateRule      = Momentum(μ = 0.8f),
+      iterations      = Int.MaxValue,
+      precision       = 1E-2
+    )
   )
 
   def train(trainingDataPath: String, outputPath: String): Unit ={
@@ -37,13 +46,16 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
     net.train(xs, ys)
     File.writeWeights(net.weights, outputPath)
   }
-  private def setupTrainingData(fileName: String): (Seq[NNVector], Seq[NNVector]) ={
-    var trainingInput: Seq[NNVector] = Seq()
+  private def setupTrainingData(fileName: String): (Seq[Tensor3D[Double]], Seq[NNVector]) ={
+    var trainingInput: Seq[Tensor3D[Double]] = Seq()
     var trainingOutput: Seq[NNVector] = Seq()
     val bufferedSource = Source.fromFile(fileName)
     for (line <- bufferedSource.getLines) {
       val cols = line.split(",").map(_.trim.toDouble)
-      val input = ->(cols.dropRight(outputDim):_*)
+      val matrix = DenseMatrix(List.fill(inputDim)(cols.dropRight(outputDim)):_*)
+      println(matrix)
+      println()
+      val input = new TensorRGB[Double](inputDim, inputDim, matrix)
       val output = ->(cols.drop(inputDim):_*)
       trainingInput = trainingInput :+ input
       trainingOutput = trainingOutput :+ output
@@ -54,7 +66,7 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
 
   override def selectMove(playerId: Int, board: Board): Move = {
     val inputVector = ->(board.toVector:_*)
-    val outputVector = net.apply(inputVector)
+    val outputVector = net.evaluate(new TensorRGB[Double](1,1, DenseMatrix(List(0.0))))
     vectorToMove(outputVector.data.toList)
   }
   override def vectorToMove(vector: Seq[Double]): Move =
