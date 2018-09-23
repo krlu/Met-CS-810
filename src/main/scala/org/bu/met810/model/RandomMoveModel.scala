@@ -1,12 +1,12 @@
 package org.bu.met810.model
 
-import org.bu.met810.types.boardassets.Board
+import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves._
 
 /**
   * Selects a move at uniform random from a set of possible moves
   */
-class RandomMoveModel extends PlayerModel[Board, Move] {
+class RandomMoveModel extends PlayerModel[Board, Player, Move] {
   override def selectMove(playerId: Int, board: Board): Move = {
     val player = Set(board.p1, board.p2).find(_.id == playerId) match {
       case Some(p) => p

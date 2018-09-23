@@ -1,8 +1,9 @@
 package org.bu.met810
 
 import org.bu.met810.data.Simulator
-import org.bu.met810.model.{AdversarialNNModel, PlayerModel, RandomMoveModel}
-import org.bu.met810.types.boardassets.{Board, Building, Cop, Robber}
+import org.bu.met810.model.neuralnets.AdversarialNNModel
+import org.bu.met810.model.{PlayerModel, RandomMoveModel}
+import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -20,7 +21,7 @@ class PlayerModelTest extends FlatSpec with Matchers {
     println(runExperiment(nnModel, board))
   }
 
-  private def runExperiment(model: PlayerModel[Board, Move], board: Board): Int = {
+  private def runExperiment(model: PlayerModel[Board, Player, Move], board: Board): Int = {
     val winners = for(_ <- 1 to 1000) yield{
       val sim = Simulator(board, model, RandomMoveModel())
       sim.runFullGame()

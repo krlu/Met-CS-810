@@ -1,4 +1,4 @@
-package org.bu.met810.model
+package org.bu.met810.model.neuralnets
 
 import breeze.linalg.DenseMatrix
 import neuroflow.application.plugin.IO.{File, _}
@@ -28,7 +28,7 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
   val c2 = Convolution(dimIn = c1.dimOut, padding = 1, field = 4, stride = 2, filters = 128, activator = f)
 
   private val net = Network(
-    layout = c0 :: c1 :: c2  :: Dense(10, f) :: SoftmaxLogEntropy(),
+    layout = c0 :: c1 :: c2 :: Dense(outputDim, f) :: SoftmaxLogEntropy(),
     Settings[Double](
       prettyPrint     = true,
       learningRate    = {
@@ -53,9 +53,7 @@ class AdversarialNNModel(inputDim: Int = 10, outputDim: Int = 10, savedWeights: 
     for (line <- bufferedSource.getLines) {
       val cols = line.split(",").map(_.trim.toDouble)
       val matrix = DenseMatrix(List.fill(inputDim)(cols.dropRight(outputDim)):_*)
-      println(matrix)
-      println()
-      val input = new TensorRGB[Double](inputDim, inputDim, matrix)
+      val input = new Tensor3DImpl[Double](matrix, inputDim, inputDim, 1)
       val output = ->(cols.drop(inputDim):_*)
       trainingInput = trainingInput :+ input
       trainingOutput = trainingOutput :+ output

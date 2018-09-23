@@ -1,4 +1,4 @@
-package org.bu.met810.model
+package org.bu.met810.model.neuralnets
 
 import breeze.linalg.{DenseVector, max}
 import neuroflow.application.plugin.Extensions._
@@ -7,8 +7,8 @@ import neuroflow.application.plugin.Notation._
 import neuroflow.application.processor.Image._
 import neuroflow.common.~>
 import neuroflow.core.Activators.Float._
-import neuroflow.dsl.Convolution.autoTupler
 import neuroflow.core._
+import neuroflow.dsl.Convolution.autoTupler
 import neuroflow.dsl._
 import neuroflow.nets.gpu.ConvNetwork._
 

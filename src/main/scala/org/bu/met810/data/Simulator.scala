@@ -4,8 +4,8 @@ import org.bu.met810.model.PlayerModel
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 
-class Simulator(initialBoard: Board, model1: PlayerModel[Board, Move],
-                model2: PlayerModel[Board, Move], private var turn: Int = 0){
+class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
+                model2: PlayerModel[Board, Player, Move], private var turn: Int = 0){
   private var board: Board = initialBoard
   private var winner: Option[Player] = None
   def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
@@ -42,6 +42,6 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Move],
 }
 
 object Simulator{
-  def apply(board: Board, p1: PlayerModel[Board, Move], p2: PlayerModel[Board, Move]): Simulator =
+  def apply(board: Board, p1: PlayerModel[Board, Player, Move], p2: PlayerModel[Board, Player, Move]): Simulator =
     new Simulator(board, p1,p2)
 }
