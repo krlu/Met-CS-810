@@ -13,7 +13,7 @@ class RandomMoveModel extends PlayerModel[Board, Player, Move] {
       case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")
     }
     val (x,y) = player.position
-    val validMoves = player.moves.filter{ m =>
+    val validMoves: List[Move] = player.moves.filter{ m =>
       val (x1, y1) = m(x,y)
       x1 >= 0 && x1 < board.width && y1 >= 0 && y1 < board.length
     }
