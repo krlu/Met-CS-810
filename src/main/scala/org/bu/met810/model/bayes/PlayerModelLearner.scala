@@ -2,13 +2,15 @@ package org.bu.met810.model.bayes
 
 import java.io.PrintWriter
 
-import argonaut._
-import Argonaut._
+import argonaut.Argonaut._
 import com.cra.figaro.algorithm.learning.EMWithVE
 import com.cra.figaro.language.Select
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
-import org.bu.met810.types.moves._
+import org.bu.met810.types.boardassets.{Board, Cop, Robber}
+import org.bu.met810.types.moves.{Move, _}
+
+import scala.io.Source
 
 
 /** Given the dimensions of the board we build up our initial distributions
@@ -60,20 +62,48 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2){
 
 object PlayerModelLearner{
   def main(args: Array[String]): Unit = {
-    val numRows = 2
-    val numCols = 1
+    val numRows = 3
+    val numCols = 3
     val numPlayers = 2
     val pml = new PlayerModelLearner(numRows, numCols, numPlayers)
-    val data: List[(List[(Int, Int)], Move)] = List.fill(10){
-      val x1 = (Math.random() * numCols).toInt
-      val y1 = (Math.random() * numRows).toInt
-      val x2 = (Math.random() * numCols).toInt
-      val y2 = (Math.random() * numRows).toInt
-      (List((x1,y1), (x2,y2)), Up)
-    }
-    val paramsString = pml.train(data)
+    val data = setupTrainingData("training_data.csv")
+    val p1Data = data.filter(_._3 == P1TURN).map{ case (board, move, _) =>
+      (List(board.p1.position, board.p2.position), move)
+    }.toList
+    println(p1Data.size)
+    val paramsString = pml.train(p1Data)
     val pw = new PrintWriter("model.json")
     pw.println(paramsString)
     pw.close()
   }
+
+  val boardVectorDim = 6
+  val moveVectorDim = 2
+  private val P1TURN = 0
+  private val P2TURN = 1
+  type Turn = Int
+
+  private def setupTrainingData(fileName: String): Seq[(Board, Move, Turn)] ={
+    var trainingData = Seq.empty[(Board, Move, Turn)]
+    val bufferedSource = Source.fromFile(fileName)
+    for (line <- bufferedSource.getLines){
+      val cols = line.split(",").map(_.trim.toDouble.toInt)
+      val board = vectorToBoard(cols.dropRight(moveVectorDim).toSeq)
+      val move = vectorToMove(cols.drop(boardVectorDim).dropRight(1).toSeq)
+      val turn = cols.lastOption.getOrElse(-1)
+      trainingData = trainingData :+ (board, move, turn)
+    }
+    bufferedSource.close
+    trainingData
+  }
+  def vectorToBoard(vector: Seq[Int]): Board = {
+    val p1 = Robber((vector.head, vector(1)))
+    val p2 = Cop((vector(2), vector(3)))
+    Board(p1, p2, vector(4), vector(5), Seq())
+  }
+  def vectorToMove(vector: Seq[Int]): Move =
+    Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight).find(_.toVector == vector.map(_.ceil.toInt)) match {
+      case Some(move) => move
+      case None => throw new NoSuchElementException(s"unable to find move with vector ${vector.map(_.ceil.toInt)}!")
+    }
 }

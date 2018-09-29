@@ -5,7 +5,11 @@ import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 
 class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
-                model2: PlayerModel[Board, Player, Move], private var turn: Int = 0){
+                model2: PlayerModel[Board, Player, Move], var turn: Int = 0){
+
+  private val P1TURN = 0
+  private val P2TURN = 1
+
   private var board: Board = initialBoard
   private var winner: Option[Player] = None
   def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
@@ -16,10 +20,10 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
       winner = Some(board.p1)
       None
     case _ =>
-      val move = if (turn == 0) model1.selectMove(board.p1.id, board) else model2.selectMove(board.p2.id, board)
+      val move = if(turn == P1TURN) model1.selectMove(board.p1.id, board) else model2.selectMove(board.p2.id, board)
       val oldBoard = board
       board = updateBoard(turn, move)
-      turn = if (turn == 0) 1 else 0
+      turn = if (turn == P1TURN) P2TURN else P1TURN
       Some(oldBoard, move, board)
   }
 

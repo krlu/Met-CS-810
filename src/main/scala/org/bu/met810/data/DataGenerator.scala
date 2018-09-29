@@ -22,22 +22,28 @@ object DataGenerator {
   }
 
   def generateDataPoint(playerId: Int, outputFilePath: String): Unit ={
-    val board = Board(Robber((6, 6)), Cop((9, 9)), 10, 10, Seq.empty[Building])
+    val board = Board(Robber((0, 0)), Cop((2, 2)), 3, 3, Seq.empty[Building])
     var data = getTrainingStates(outputFilePath, board.toVector.size)
     val sim = Simulator(board, RandomMoveModel(), RandomMoveModel())
     var mostRecentResult: Option[(Board, Move)] = None
     var result: Option[(Board, Move, Board)] = None
+    var prevTurn = if(sim.turn == 0) 1 else 0
     do{
       result = sim.runSimulator()
+      prevTurn = if(sim.turn == 0) 1 else 0
       result match{
         case None =>
         case Some((b, m, newB)) =>
           val (boardVector, moveVector, newBoardVector) = (b.toVector, m.toVector, newB.toVector)
           mostRecentResult = Some((b, m))
           if(data.contains(newBoardVector) && !data.contains(boardVector)) {
-            saveVectors(outputFilePath, boardVector, moveVector)
+            saveVectors(outputFilePath, boardVector, moveVector, prevTurn)
             data = data :+ boardVector
             return
+          }
+          else if(data.contains(newBoardVector) && data.contains(boardVector)) {
+            saveVectors(outputFilePath, boardVector, moveVector, prevTurn)
+            data = data :+ boardVector
           }
       }
     } while(result.nonEmpty)
@@ -45,14 +51,14 @@ object DataGenerator {
       case (Some((b, m)), Some(w)) =>
         val (boardVector, moveVector) = (b.toVector, m.toVector)
         if(w.id == playerId && !data.contains(boardVector))
-          saveVectors(outputFilePath, boardVector, moveVector)
+          saveVectors(outputFilePath, boardVector, moveVector, if(sim.turn == 0) 1 else 0)
       case _ =>
     }
   }
 
-  private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double]): Unit ={
+  private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int): Unit ={
     val pw = new FileWriter(new File(filePath), true)
-    pw.append(s"${boardVec.mkString(",")},${moveVec.mkString(",")}\n")
+    pw.append(s"${boardVec.mkString(",")},${moveVec.mkString(",")},$turn\n")
     pw.close()
   }
 
