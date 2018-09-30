@@ -7,11 +7,23 @@ import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810.model.PlayerModel
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves.Move
+import play.api.libs.json._
 
-class BayesianPlayerModel(paramsMap: Map[String, List[Double]])extends PlayerModel[Board, Player, Move]{
+import scala.io.Source
 
+class BayesianPlayerModel(paramsFile: String) extends PlayerModel[Board, Player, Move]{
+
+  val paramsMap: Map[String, List[Double]] = {
+    val source: String = Source.fromFile(paramsFile).getLines.mkString
+    val json = Json.parse(source).as[JsObject]
+    json.value("allParameters").as[JsArray].value.map{ x: JsValue =>
+      val dirichletObj = x.as[JsObject].value("Dirichlet").as[JsObject]
+      val dirichletMap = dirichletObj.value
+      dirichletMap("name").as[JsString].value -> dirichletMap("alphaValues").as[JsArray].value.toList.map(_.toString().toDouble)
+    }.toMap
+  }
   val modelParams = ModelParameters()
-  paramsMap.map{ case(k,v) => Dirichlet(v:_*)(k, modelParams)}
+  paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}
 
   override def selectMove(playerId: Int, board: Board): Move = {
     val player: Player = Set(board.p1, board.p2).find(_.id == playerId) match {
@@ -20,13 +32,14 @@ class BayesianPlayerModel(paramsMap: Map[String, List[Double]])extends PlayerMod
     }
     val (x1, y1) = board.p1.position
     val (x2, y2) = board.p2.position
-    val params = modelParams.getElementByReference(s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}").asInstanceOf[AtomicDirichlet]
+    val params = modelParams.getElementByReference(s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}_move").asInstanceOf[AtomicDirichlet]
     val moveDist = Select(params, player.moves:_*)
     val alg = Importance(1000, moveDist)
     alg.start()
     val computedDist = alg.distribution(moveDist).sortWith(_._1 > _._1)
     val desiredMove = computedDist.head._2
     alg.stop()
+    alg.kill()
     desiredMove
   }
 }

@@ -17,12 +17,14 @@ object DataGenerator {
   def main(args: Array[String]): Unit = {
     val playerId = 0
     val outputFilePath: String = "training_data.csv"
+    val numRows = 3
+    val numCols = 3
     for(_ <- 1 to 1000)
-      generateDataPoint(playerId, outputFilePath)
+      generateDataPoint(playerId, outputFilePath, numRows, numCols)
   }
 
-  def generateDataPoint(playerId: Int, outputFilePath: String): Unit ={
-    val board = Board(Robber((0, 0)), Cop((2, 2)), 3, 3, Seq.empty[Building])
+  def generateDataPoint(playerId: Int, outputFilePath: String, numRows: Int, numCols: Int): Unit ={
+    val board = Board(Robber((0, 0)), Cop((2, 2)), numRows, numCols, Seq.empty[Building])
     var data = getTrainingStates(outputFilePath, board.toVector.size)
     val sim = Simulator(board, RandomMoveModel(), RandomMoveModel())
     var mostRecentResult: Option[(Board, Move)] = None

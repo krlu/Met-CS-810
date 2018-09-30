@@ -11,7 +11,8 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-math3" % "3.6.1",
   "org.typelevel" %% "cats-core" % "1.1.0" ,
   "com.cra.figaro" %% "figaro" % "5.0.0.0",
-  "io.argonaut" %% "argonaut" % "6.2.2"
+  "io.argonaut" %% "argonaut" % "6.2.2",
+  "com.typesafe.play" %% "play-json" % "2.6.10"
 )
 
 resolvers ++= Seq("neuroflow-libs" at "https://github.com/zenecture/neuroflow-libs/raw/master/")
