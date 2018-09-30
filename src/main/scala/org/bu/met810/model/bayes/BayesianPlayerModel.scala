@@ -18,8 +18,9 @@ class BayesianPlayerModel(paramsMap: Map[String, List[Double]])extends PlayerMod
       case Some(p) => p
       case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")
     }
-    val (x,y) = player.position
-    val params = modelParams.getElementByReference(s"${playerId}_${x}_$y").asInstanceOf[AtomicDirichlet]
+    val (x1, y1) = board.p1.position
+    val (x2, y2) = board.p2.position
+    val params = modelParams.getElementByReference(s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}").asInstanceOf[AtomicDirichlet]
     val moveDist = Select(params, player.moves:_*)
     val alg = Importance(1000, moveDist)
     alg.start()

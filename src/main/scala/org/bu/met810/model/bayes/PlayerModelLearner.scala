@@ -18,7 +18,7 @@ import scala.io.Source
   * @param numCols - number of columns on the board
   * @param numPlayers - number of active players
   */
-class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2){
+class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, playerId: Int = 0){
   val allMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
   val modelParams = ModelParameters()
 
@@ -30,7 +30,7 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2){
 
   val initialMoveParams: Seq[AtomicDirichlet] =
     permutationsWithRepetitions(possiblePositions(), numPlayers).map{ positions =>
-      val name = s"${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
+      val name = s"${playerId}_${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
       Dirichlet(Array.fill(allMoves.size)(1.0):_*)(name, modelParams)
     }
 
@@ -46,7 +46,7 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2){
 
   private def generateTrial(positions: List[(Int, Int)], move: Move): Unit = {
     val posVector = positions.flatMap{case (x,y) => List(x,y)}
-    val params = modelParams.getElementByReference(posVector.mkString("_") + "_move").asInstanceOf[AtomicDirichlet]
+    val params = modelParams.getElementByReference(s"${playerId}_${posVector.mkString("_")}_move").asInstanceOf[AtomicDirichlet]
     val moveDist = Select(params, allMoves:_*)
     moveDist.observe(move)
   }
@@ -65,22 +65,24 @@ object PlayerModelLearner{
     val numRows = 3
     val numCols = 3
     val numPlayers = 2
-    val pml = new PlayerModelLearner(numRows, numCols, numPlayers)
-    val data = setupTrainingData("training_data.csv")
-    val p1Data = data.filter(_._3 == P1TURN).map{ case (board, move, _) =>
-      (List(board.p1.position, board.p2.position), move)
-    }.toList
-    println(p1Data.size)
-    val paramsString = pml.train(p1Data)
-    val pw = new PrintWriter("model.json")
-    pw.println(paramsString)
-    pw.close()
+
+    def trainForPlayer(playerId: Int): Unit ={
+      val pml = new PlayerModelLearner(numRows, numCols, numPlayers, playerId)
+      val data = setupTrainingData("training_data.csv")
+      val p1Data = data.filter(_._3 == playerId).map{ case (board, move, _) =>
+        (List(board.p1.position, board.p2.position), move)
+      }.toList
+      println(p1Data.size)
+      val paramsString = pml.train(p1Data)
+      val pw = new PrintWriter(s"model_$playerId.json")
+      pw.println(paramsString)
+      pw.close()
+    }
+    trainForPlayer(1)
   }
 
   val boardVectorDim = 6
   val moveVectorDim = 2
-  private val P1TURN = 0
-  private val P2TURN = 1
   type Turn = Int
 
   private def setupTrainingData(fileName: String): Seq[(Board, Move, Turn)] ={
