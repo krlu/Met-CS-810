@@ -2,6 +2,7 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
+import org.bu.met810.{Turn, WinnerId}
 import org.bu.met810.model.RandomMoveModel
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
@@ -14,66 +15,41 @@ import org.bu.met810.types.moves.Move
   *  - if game not needed move leads to state that is in training set
   */
 object DataGenerator {
+
   def main(args: Array[String]): Unit = {
     val playerId = 0
     val outputFilePath: String = "training_data.csv"
     val numRows = 3
     val numCols = 3
-    for(_ <- 1 to 1000)
+    for(i <- 1 to 1000) {
       generateDataPoint(playerId, outputFilePath, numRows, numCols)
+      println(i)
+    }
   }
 
   def generateDataPoint(playerId: Int, outputFilePath: String, numRows: Int, numCols: Int): Unit ={
-    val board = Board(Robber((0, 0)), Cop((2, 2)), numRows, numCols, Seq.empty[Building])
-    var data = getTrainingStates(outputFilePath, board.toVector.size)
-    val sim = Simulator(board, RandomMoveModel(), RandomMoveModel())
-    var mostRecentResult: Option[(Board, Move)] = None
+    val initialBoard = Board(Robber((0, 0)), Cop((2, 2)), numRows, numCols, Seq.empty[Building])
+    var data = List.empty[(Board, Move, Turn)]
+    val sim = Simulator(initialBoard, RandomMoveModel(), RandomMoveModel())
     var result: Option[(Board, Move, Board)] = None
     var prevTurn = if(sim.turn == 0) 1 else 0
-    do{
+    while(!sim.isGameOver){
       result = sim.runSimulator()
+      if(result.nonEmpty) {
+        val (prevBoard, move, _) = result.get
+        data = data :+ (prevBoard, move, prevTurn)
+      }
       prevTurn = if(sim.turn == 0) 1 else 0
-      result match{
-        case None =>
-        case Some((b, m, newB)) =>
-          val (boardVector, moveVector, newBoardVector) = (b.toVector, m.toVector, newB.toVector)
-          mostRecentResult = Some((b, m))
-          if(data.contains(newBoardVector) && !data.contains(boardVector)) {
-            saveVectors(outputFilePath, boardVector, moveVector, prevTurn)
-            data = data :+ boardVector
-            return
-          }
-          else if(data.contains(newBoardVector) && data.contains(boardVector)) {
-            saveVectors(outputFilePath, boardVector, moveVector, prevTurn)
-            data = data :+ boardVector
-          }
-      }
-    } while(result.nonEmpty)
-    (mostRecentResult, sim.getWinner) match{
-      case (Some((b, m)), Some(w)) =>
-        val (boardVector, moveVector) = (b.toVector, m.toVector)
-        if(w.id == playerId && !data.contains(boardVector))
-          saveVectors(outputFilePath, boardVector, moveVector, if(sim.turn == 0) 1 else 0)
-      case _ =>
+    }
+    val winnerId: WinnerId = sim.getWinner.get.id
+    data.foreach{ case (board, move, turn) =>
+      saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
     }
   }
 
-  private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int): Unit ={
+  private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int, winnerId: WinnerId): Unit ={
     val pw = new FileWriter(new File(filePath), true)
-    pw.append(s"${boardVec.mkString(",")},${moveVec.mkString(",")},$turn\n")
+    pw.append(s"${boardVec.mkString(",")},${moveVec.mkString(",")},$turn,$winnerId \n")
     pw.close()
-  }
-
-  private def getTrainingStates(filePath: String, boardVecSize: Int): Seq[Seq[Double]] ={
-    val bufferedSource = scala.io.Source.fromFile(filePath)
-    val lines = bufferedSource.getLines().toList
-    val data = {
-      for (line <- lines) yield {
-        val cols = line.split(",").map(_.trim.toDouble)
-        cols.take(boardVecSize).toList
-      }
-    }
-    bufferedSource.close()
-    data
   }
 }

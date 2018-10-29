@@ -7,6 +7,7 @@ import com.cra.figaro.algorithm.learning.EMWithVE
 import com.cra.figaro.language.Select
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
+import org.bu.met810.Turn
 import org.bu.met810.types.boardassets.{Board, Cop, Robber}
 import org.bu.met810.types.moves.{Move, _}
 
@@ -78,12 +79,11 @@ object PlayerModelLearner{
       pw.println(paramsString)
       pw.close()
     }
-    trainForPlayer(1)
+    trainForPlayer(0)
   }
 
   val boardVectorDim = 6
   val moveVectorDim = 2
-  type Turn = Int
 
   private def setupTrainingData(fileName: String): Seq[(Board, Move, Turn)] ={
     var trainingData = Seq.empty[(Board, Move, Turn)]

@@ -12,6 +12,7 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
 
   private var board: Board = initialBoard
   private var winner: Option[Player] = None
+
   def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
     case (p1, p2) if p1.position == p2.position =>
       winner = Some(board.p2)
@@ -42,7 +43,9 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
     }
     if(board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
   }
+
   def getWinner: Option[Player] = winner
+  def isGameOver: Boolean = winner.nonEmpty
 }
 
 object Simulator{
