@@ -19,16 +19,16 @@ object DataGenerator {
   def main(args: Array[String]): Unit = {
     val playerId = 0
     val outputFilePath: String = "training_data.csv"
-    val numRows = 3
-    val numCols = 3
-    for(i <- 1 to 1000) {
+    val numRows = 4
+    val numCols = 4
+    for(i <- 1 to 2000) {
       generateDataPoint(playerId, outputFilePath, numRows, numCols)
       println(i)
     }
   }
 
   def generateDataPoint(playerId: Int, outputFilePath: String, numRows: Int, numCols: Int): Unit ={
-    val initialBoard = Board(Robber((0, 0)), Cop((2, 2)), numRows, numCols, Seq.empty[Building])
+    val initialBoard = Board(Robber((0, 0)), Cop((3, 3)), numRows, numCols, Seq.empty[Building])
     var data = List.empty[(Board, Move, Turn)]
     val sim = Simulator(initialBoard, RandomMoveModel(), RandomMoveModel())
     var result: Option[(Board, Move, Board)] = None

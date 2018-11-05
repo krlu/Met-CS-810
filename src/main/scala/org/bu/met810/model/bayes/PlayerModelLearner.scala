@@ -7,7 +7,7 @@ import com.cra.figaro.algorithm.learning.EMWithVE
 import com.cra.figaro.language.Select
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
-import org.bu.met810.Turn
+import org.bu.met810.{Turn, WinnerId}
 import org.bu.met810.types.boardassets.{Board, Cop, Robber}
 import org.bu.met810.types.moves.{Move, _}
 
@@ -63,14 +63,16 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, player
 
 object PlayerModelLearner{
   def main(args: Array[String]): Unit = {
-    val numRows = 3
-    val numCols = 3
+    val numRows = 4
+    val numCols = 4
     val numPlayers = 2
 
     def trainForPlayer(playerId: Int): Unit ={
       val pml = new PlayerModelLearner(numRows, numCols, numPlayers, playerId)
       val data = setupTrainingData("training_data.csv")
-      val p1Data = data.filter(_._3 == playerId).map{ case (board, move, _) =>
+      val p1Data = data.filter{ case (_, _, turn, winnerId) =>
+        turn == playerId && winnerId == playerId
+      }.map{ case (board, move, _, _) =>
         (List(board.p1.position, board.p2.position), move)
       }.toList
       println(p1Data.size)
@@ -85,15 +87,16 @@ object PlayerModelLearner{
   val boardVectorDim = 6
   val moveVectorDim = 2
 
-  private def setupTrainingData(fileName: String): Seq[(Board, Move, Turn)] ={
-    var trainingData = Seq.empty[(Board, Move, Turn)]
+  private def setupTrainingData(fileName: String): Seq[(Board, Move, Turn, WinnerId)] ={
+    var trainingData = Seq.empty[(Board, Move, Turn, WinnerId)]
     val bufferedSource = Source.fromFile(fileName)
     for (line <- bufferedSource.getLines){
-      val cols = line.split(",").map(_.trim.toDouble.toInt)
-      val board = vectorToBoard(cols.dropRight(moveVectorDim).toSeq)
-      val move = vectorToMove(cols.drop(boardVectorDim).dropRight(1).toSeq)
-      val turn = cols.lastOption.getOrElse(-1)
-      trainingData = trainingData :+ (board, move, turn)
+      val cols = line.split(",").map(_.trim.toDouble.toInt).toList
+      val board = vectorToBoard(cols.dropRight(moveVectorDim))
+      val move = vectorToMove(cols.drop(boardVectorDim).dropRight(2))
+      val turn = cols(cols.size - 2)
+      val winner = cols.last
+      trainingData = trainingData :+ (board, move, turn, winner)
     }
     bufferedSource.close
     trainingData
