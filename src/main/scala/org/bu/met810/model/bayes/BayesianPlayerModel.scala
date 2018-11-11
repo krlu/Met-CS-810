@@ -40,7 +40,7 @@ class BayesianPlayerModel(paramsFile: String) extends PlayerModel[Board, Player,
     val (x2, y2) = board.p2.position
     val params = modelParams.getElementByReference(s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}_move").asInstanceOf[AtomicDirichlet]
     val moveDist = Select(params, player.moves:_*)
-    val alg = Importance(1000, moveDist)
+    val alg = Importance(200, moveDist)
     alg.start()
     val computedDist = alg.distribution(moveDist).toList
     val desiredMove = computedDist.filter{case (_ ,m) => validMoves.contains(m)}.sortWith(_._1 > _._1).head._2

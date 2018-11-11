@@ -14,7 +14,7 @@ case class Robber(override val position: (Int, Int), override val id: Int = 0) e
 }
 
 case class Cop(override val position: (Int, Int), override val id: Int = 1) extends Player(position){
-  override val moves: List[Move] = List(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight)
+  override val moves: List[Move] = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
 }
 
 

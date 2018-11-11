@@ -1,5 +1,6 @@
 package org.bu.met810
 
+import com.cra.figaro.language.Universe
 import org.bu.met810.data.Simulator
 import org.bu.met810.model.bayes.BayesianPlayerModel
 import org.bu.met810.model.{PlayerModel, RandomMoveModel}
@@ -9,20 +10,20 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class PlayerModelTest extends FlatSpec with Matchers {
 
+  val board = Board(Robber((0, 0)), Cop((3, 3)), 4, 4, Seq.empty[Building])
   "Random robber model" should "win infrequently" in {
-    val board = Board(Robber((0, 0)), Cop((2, 2)), 4, 4, Seq.empty[Building])
     println(runExperiment(RandomMoveModel(), board))
   }
 
   "Bayesian robber model" should "win often" in {
-    val board = Board(Robber((0, 0)), Cop((2, 2)), 4, 4, Seq.empty[Building])
-    val model = new BayesianPlayerModel("model_0_4by4_v2.json")
+    val model = new BayesianPlayerModel("model_0_4by4_v3.json")
     println(runExperiment(model, board))
   }
 
   private def runExperiment(model: PlayerModel[Board, Player, Move], board: Board): (Int, Int) = {
     val start = System.currentTimeMillis()
-    val winners: Seq[Player] = for(i <- 1 to 200) yield {
+    val winners: Seq[Player] = for(i <- 1 to 1000) yield {
+      Universe.createNew()
       val sim = Simulator(board, model, RandomMoveModel())
       println(i)
       sim.runFullGame()

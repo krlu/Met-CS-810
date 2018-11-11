@@ -65,6 +65,7 @@ object PlayerModelLearner{
   def main(args: Array[String]): Unit = {
     val numRows = 4
     val numCols = 4
+    val playerId = 0
     val numPlayers = 2
 
     def trainForPlayer(playerId: Int): Unit ={
@@ -77,11 +78,14 @@ object PlayerModelLearner{
       }.toList
       println(p1Data.size)
       val paramsString = pml.train(p1Data)
-      val pw = new PrintWriter(s"model_$playerId.json")
+      val pw = new PrintWriter(s"model_${playerId}_${numRows}by${numCols}_v5.json")
       pw.println(paramsString)
       pw.close()
     }
-    trainForPlayer(0)
+    val start = System.currentTimeMillis()
+    trainForPlayer(playerId)
+    val end = System.currentTimeMillis()
+    println(s"Training time: ${(end - start)/1000.0}s")
   }
 
   val boardVectorDim = 6

@@ -2,10 +2,11 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
-import org.bu.met810.{Turn, WinnerId}
-import org.bu.met810.model.RandomMoveModel
+import com.cra.figaro.language.Universe
+import org.bu.met810.model.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
+import org.bu.met810.{Turn, WinnerId}
 
 
 /**
@@ -17,20 +18,32 @@ import org.bu.met810.types.moves.Move
 object DataGenerator {
 
   def main(args: Array[String]): Unit = {
-    val playerId = 0
     val outputFilePath: String = "training_data.csv"
+    val playerId = 0
     val numRows = 4
     val numCols = 4
-    for(i <- 1 to 2000) {
-      generateDataPoint(playerId, outputFilePath, numRows, numCols)
-      println(i)
+    var numRobberWins = 0
+    for{_ <- 1 to 6000} {
+//      val cX = (Math.random() * 2).round.toInt + 1
+//      val cY = (Math.random() * 2).round.toInt + 1
+      Universe.createNew()
+      val p1Model = RandomMoveModel()
+      val p2Model = RandomMoveModel()
+      val initialBoard = Board(Robber((0, 0)), Cop((3, 3)), numRows, numCols, Seq.empty[Building])
+      val winner = generateDataPoint(playerId, outputFilePath, initialBoard, p1Model, p2Model)
+      if(winner == 0) {
+        numRobberWins += 1
+        println(numRobberWins)
+      }
     }
   }
 
-  def generateDataPoint(playerId: Int, outputFilePath: String, numRows: Int, numCols: Int): Unit ={
-    val initialBoard = Board(Robber((0, 0)), Cop((3, 3)), numRows, numCols, Seq.empty[Building])
+  def generateDataPoint(playerId: Int, outputFilePath: String, initialBoard: Board,
+                        p1Model: PlayerModel[Board, Player, Move],
+                        p2Model: PlayerModel[Board, Player, Move]): WinnerId ={
     var data = List.empty[(Board, Move, Turn)]
-    val sim = Simulator(initialBoard, RandomMoveModel(), RandomMoveModel())
+
+    val sim = Simulator(initialBoard, p1Model, p2Model)
     var result: Option[(Board, Move, Board)] = None
     var prevTurn = if(sim.turn == 0) 1 else 0
     while(!sim.isGameOver){
@@ -42,9 +55,12 @@ object DataGenerator {
       prevTurn = if(sim.turn == 0) 1 else 0
     }
     val winnerId: WinnerId = sim.getWinner.get.id
-    data.foreach{ case (board, move, turn) =>
-      saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
+    if(winnerId == 0) {
+      data.foreach { case (board, move, turn) =>
+        saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
+      }
     }
+    winnerId
   }
 
   private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int, winnerId: WinnerId): Unit ={
