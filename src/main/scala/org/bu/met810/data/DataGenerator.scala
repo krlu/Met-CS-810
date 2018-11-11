@@ -2,11 +2,11 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
-import com.cra.figaro.language.Universe
+import org.bu.met810.model.bayes.BayesianPlayerModel
 import org.bu.met810.model.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
-import org.bu.met810.{Turn, WinnerId}
+import org.bu.met810.{Turn, WinnerId, choose}
 
 
 /**
@@ -24,12 +24,13 @@ object DataGenerator {
     val numCols = 4
     var numRobberWins = 0
     for{_ <- 1 to 6000} {
-//      val cX = (Math.random() * 2).round.toInt + 1
-//      val cY = (Math.random() * 2).round.toInt + 1
-      Universe.createNew()
-      val p1Model = RandomMoveModel()
+      val rX = choose(List(0,1,2,3).iterator)
+      val rY = choose(List(0,1,2,3).iterator)
+      val cX = choose(List(0,1,2,3).filter(_ != rX).iterator)
+      val cY = choose(List(0,1,2,3).filter(_ != rY).iterator)
+      val p1Model = new BayesianPlayerModel("model_0_4by4_v1.json")
       val p2Model = RandomMoveModel()
-      val initialBoard = Board(Robber((0, 0)), Cop((3, 3)), numRows, numCols, Seq.empty[Building])
+      val initialBoard = Board(Robber((rX, rY)), Cop((cX, cY)), numRows, numCols, Seq.empty[Building])
       val winner = generateDataPoint(playerId, outputFilePath, initialBoard, p1Model, p2Model)
       if(winner == 0) {
         numRobberWins += 1

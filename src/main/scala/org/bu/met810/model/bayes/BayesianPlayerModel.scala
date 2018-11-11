@@ -1,7 +1,7 @@
 package org.bu.met810.model.bayes
 
 import com.cra.figaro.algorithm.sampling.Importance
-import com.cra.figaro.language.Select
+import com.cra.figaro.language.{Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810.model.PlayerModel
@@ -26,6 +26,8 @@ class BayesianPlayerModel(paramsFile: String) extends PlayerModel[Board, Player,
   paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}
 
   override def selectMove(playerId: Int, board: Board): Move = {
+    Universe.createNew()
+
     val player: Player = Set(board.p1, board.p2).find(_.id == playerId) match {
       case Some(p) => p
       case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")

@@ -78,7 +78,7 @@ object PlayerModelLearner{
       }.toList
       println(p1Data.size)
       val paramsString = pml.train(p1Data)
-      val pw = new PrintWriter(s"model_${playerId}_${numRows}by${numCols}_v5.json")
+      val pw = new PrintWriter(s"model_${playerId}_${numRows}by${numCols}_v3.json")
       pw.println(paramsString)
       pw.close()
     }
