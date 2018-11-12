@@ -17,29 +17,28 @@ import org.bu.met810.{Turn, WinnerId, choose}
   */
 object DataGenerator {
 
-  def main(args: Array[String]): Unit = {
-    val outputFilePath: String = "training_data.csv"
+  def generateData(outputFilePath: String): Unit ={
     val playerId = 0
     val numRows = 4
     val numCols = 4
     var numRobberWins = 0
-    for{_ <- 1 to 6000} {
-      val rX = choose(List(0,1,2,3).iterator)
-      val rY = choose(List(0,1,2,3).iterator)
-      val cX = choose(List(0,1,2,3).filter(_ != rX).iterator)
-      val cY = choose(List(0,1,2,3).filter(_ != rY).iterator)
-      val p1Model = new BayesianPlayerModel("model_0_4by4_v1.json")
+    for{_ <- 1 to 4000} {
+//      val rX = choose(List(0,1,2,3).iterator)
+//      val rY = choose(List(0,1,2,3).iterator)
+//      val cX = choose(List(0,1,2,3).filter(_ != rX).iterator)
+//      val cY = choose(List(0,1,2,3).filter(_ != rY).iterator)
+      val p1Model = RandomMoveModel()
       val p2Model = RandomMoveModel()
-      val initialBoard = Board(Robber((rX, rY)), Cop((cX, cY)), numRows, numCols, Seq.empty[Building])
+      val initialBoard = Board(Robber((0, 0)), Cop((3, 3)), numRows, numCols, Seq.empty[Building])
       val winner = generateDataPoint(playerId, outputFilePath, initialBoard, p1Model, p2Model)
       if(winner == 0) {
         numRobberWins += 1
-        println(numRobberWins)
+//        println(numRobberWins)
       }
     }
   }
 
-  def generateDataPoint(playerId: Int, outputFilePath: String, initialBoard: Board,
+  private def generateDataPoint(playerId: Int, outputFilePath: String, initialBoard: Board,
                         p1Model: PlayerModel[Board, Player, Move],
                         p2Model: PlayerModel[Board, Player, Move]): WinnerId ={
     var data = List.empty[(Board, Move, Turn)]

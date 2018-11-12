@@ -62,7 +62,7 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, player
 }
 
 object PlayerModelLearner{
-  def main(args: Array[String]): Unit = {
+  def learn(inputFile: String): Unit = {
     val numRows = 4
     val numCols = 4
     val playerId = 0
@@ -70,15 +70,14 @@ object PlayerModelLearner{
 
     def trainForPlayer(playerId: Int): Unit ={
       val pml = new PlayerModelLearner(numRows, numCols, numPlayers, playerId)
-      val data = setupTrainingData("training_data.csv")
+      val data = setupTrainingData(inputFile)
       val p1Data = data.filter{ case (_, _, turn, winnerId) =>
         turn == playerId && winnerId == playerId
       }.map{ case (board, move, _, _) =>
         (List(board.p1.position, board.p2.position), move)
       }.toList
-      println(p1Data.size)
       val paramsString = pml.train(p1Data)
-      val pw = new PrintWriter(s"model_${playerId}_${numRows}by${numCols}_v3.json")
+      val pw = new PrintWriter(s"model_${playerId}_${numRows}by$numCols.json")
       pw.println(paramsString)
       pw.close()
     }
