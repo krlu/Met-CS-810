@@ -20,13 +20,15 @@ class PlayerModelTest extends FlatSpec with Matchers {
   }
 
   private def runExperiment(model: PlayerModel[Board, Player, Move]): (Int, Int) = {
+    val boardSize = 4
+    val positions = 0 until boardSize
     val start = System.currentTimeMillis()
     val winners: Seq[Player] = for(i <- 1 to 1000) yield {
-      val rX = choose(List(0,1,2,3).iterator)
-      val rY = choose(List(0,1,2,3).iterator)
-      val cX = choose(List(0,1,2,3).filter(_ != rX).iterator)
-      val cY = choose(List(0,1,2,3).filter(_ != rY).iterator)
-      val board = Board(Robber((rX, rY)), Cop((cX, cY)), 4, 4, Seq.empty[Building])
+      val rX = choose(positions.iterator)
+      val rY = choose(positions.iterator)
+      val cX = choose(positions.filter(_ != rX).iterator)
+      val cY = choose(positions.filter(_ != rY).iterator)
+      val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
       val sim = Simulator(board, model, RandomMoveModel())
       println(i)
       sim.runFullGame()

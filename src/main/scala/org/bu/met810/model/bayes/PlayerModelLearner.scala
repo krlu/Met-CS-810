@@ -62,10 +62,9 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, player
 }
 
 object PlayerModelLearner{
-  def learn(inputFile: String): Unit = {
-    val numRows = 4
-    val numCols = 4
-    val playerId = 0
+  def learn(inputFile: String, boardSize: Int, playerId: Int): Unit = {
+    val numRows = boardSize
+    val numCols = boardSize
     val numPlayers = 2
 
     def trainForPlayer(playerId: Int): Unit ={

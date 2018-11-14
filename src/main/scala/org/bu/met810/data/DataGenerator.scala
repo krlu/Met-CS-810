@@ -17,19 +17,20 @@ import org.bu.met810.{Turn, WinnerId, choose}
   */
 object DataGenerator {
 
-  def generateData(outputFilePath: String): Unit ={
+  def generateData(outputFilePath: String, boardSize: Int): Unit ={
     val playerId = 0
-    val numRows = 4
-    val numCols = 4
+    val numRows = boardSize
+    val numCols = boardSize
     var numRobberWins = 0
-    for{_ <- 1 to 4000} {
-//      val rX = choose(List(0,1,2,3).iterator)
-//      val rY = choose(List(0,1,2,3).iterator)
-//      val cX = choose(List(0,1,2,3).filter(_ != rX).iterator)
-//      val cY = choose(List(0,1,2,3).filter(_ != rY).iterator)
+    val positions = 0 until boardSize
+    for{_ <- 1 to 2000} {
+      val rX = choose(positions.iterator)
+      val rY = choose(positions.iterator)
+      val cX = choose(positions.filter(_ != rX).iterator)
+      val cY = choose(positions.filter(_ != rY).iterator)
       val p1Model = RandomMoveModel()
       val p2Model = RandomMoveModel()
-      val initialBoard = Board(Robber((0, 0)), Cop((3, 3)), numRows, numCols, Seq.empty[Building])
+      val initialBoard = Board(Robber((rX, rY)), Cop((cX, cY)), numRows, numCols, Seq.empty[Building])
       val winner = generateDataPoint(playerId, outputFilePath, initialBoard, p1Model, p2Model)
       if(winner == 0) {
         numRobberWins += 1
