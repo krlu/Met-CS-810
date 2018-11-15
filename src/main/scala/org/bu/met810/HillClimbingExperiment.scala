@@ -4,7 +4,7 @@ import java.io.PrintWriter
 
 import argonaut.Argonaut._
 import org.bu.met810.data.{DataGenerator, Simulator}
-import org.bu.met810.model.bayes.{BayesianPlayerModel, PlayerModelLearner}
+import org.bu.met810.model.bayes.{BayesianPlayerModel, BayesianModelLearner}
 import org.bu.met810.model.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
@@ -18,7 +18,7 @@ object HillClimbingExperiment {
     val trainingFile = s"training_data_$boardSize.csv"
     for(_ <- 1 to 1000) {
       DataGenerator.generateData(trainingFile, boardSize)
-      PlayerModelLearner.learn(trainingFile, boardSize, playerId = 0)
+      BayesianModelLearner.learn(trainingFile, boardSize, playerId = 0)
       val model = new BayesianPlayerModel(s"model_0_${boardSize}by$boardSize.json")
       val (numRobberWins, _) = runTest(model)
       if(numRobberWins > maxWins) {

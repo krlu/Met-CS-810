@@ -19,7 +19,7 @@ import scala.io.Source
   * @param numCols - number of columns on the board
   * @param numPlayers - number of active players
   */
-class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, playerId: Int = 0){
+class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, playerId: Int = 0){
   val allMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
   val modelParams = ModelParameters()
 
@@ -61,14 +61,14 @@ class PlayerModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, player
   }
 }
 
-object PlayerModelLearner{
+object BayesianModelLearner{
   def learn(inputFile: String, boardSize: Int, playerId: Int): Unit = {
     val numRows = boardSize
     val numCols = boardSize
     val numPlayers = 2
 
     def trainForPlayer(playerId: Int): Unit ={
-      val pml = new PlayerModelLearner(numRows, numCols, numPlayers, playerId)
+      val pml = new BayesianModelLearner(numRows, numCols, numPlayers, playerId)
       val data = setupTrainingData(inputFile)
       val p1Data = data.filter{ case (_, _, turn, winnerId) =>
         turn == playerId && winnerId == playerId
