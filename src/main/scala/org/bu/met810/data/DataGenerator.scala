@@ -2,8 +2,7 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
-import org.bu.met810.model.bayes.BayesianPlayerModel
-import org.bu.met810.model.{PlayerModel, RandomMoveModel}
+import org.bu.met810.models.{BayesianPlayerModel, PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 import org.bu.met810.{Turn, WinnerId, choose}
@@ -23,12 +22,12 @@ object DataGenerator {
     val numCols = boardSize
     var numRobberWins = 0
     val positions = 0 until boardSize
-    for{_ <- 1 to 2000} {
+    for{_ <- 1 to 4000} {
       val rX = choose(positions.iterator)
       val rY = choose(positions.iterator)
       val cX = choose(positions.filter(_ != rX).iterator)
       val cY = choose(positions.filter(_ != rY).iterator)
-      val p1Model = RandomMoveModel()
+      val p1Model = new BayesianPlayerModel("current_best_params_4by4.json", useGenerativeParams = false)
       val p2Model = RandomMoveModel()
       val initialBoard = Board(Robber((rX, rY)), Cop((cX, cY)), numRows, numCols, Seq.empty[Building])
       val winner = generateDataPoint(playerId, outputFilePath, initialBoard, p1Model, p2Model)

@@ -1,4 +1,4 @@
-package com.cra.graymatter.models
+package org.bu.met810.models
 
 import play.api.libs.json.{JsArray, JsNumber, JsObject}
 
@@ -21,6 +21,12 @@ class BipartiteModel[T, U](val edges: List[((T, U), Double)], val domain: Seq[T]
         case tuple: (Any, Any, Any) =>
           val (a, b, c) = tuple
           s"${a}_${b}_$c"
+        case tuple: (Any, Any, Any, Any) =>
+          val (a, b, c, d) = tuple
+          s"${a}_${b}_${c}_$d"
+        case tuple: (Any, Any, Any, Any, Any) =>
+          val (a, b, c, d, e) = tuple
+          s"${a}_${b}_${c}_${d}_$e"
         case _ => v.toString
       }
       keyName + keySuffix -> JsArray(codomain.map(v1 => JsNumber(pairs.find(_._1 == v1).get._2)))

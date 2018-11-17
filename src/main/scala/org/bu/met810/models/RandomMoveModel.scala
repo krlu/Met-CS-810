@@ -1,4 +1,4 @@
-package org.bu.met810.model
+package org.bu.met810.models
 
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves._

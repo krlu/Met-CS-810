@@ -1,4 +1,4 @@
-package com.cra.graymatter.models
+package org.bu.met810.models
 
 /**
   * Predicts discrete events via un-supervised learning by building a complete graph over all possible events

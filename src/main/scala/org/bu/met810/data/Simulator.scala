@@ -1,6 +1,6 @@
 package org.bu.met810.data
 
-import org.bu.met810.model.PlayerModel
+import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 

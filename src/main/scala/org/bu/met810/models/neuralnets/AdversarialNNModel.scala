@@ -1,4 +1,4 @@
-package org.bu.met810.model.neuralnets
+package org.bu.met810.models.neuralnets
 
 import breeze.linalg.DenseMatrix
 import neuroflow.application.plugin.IO.{File, _}
