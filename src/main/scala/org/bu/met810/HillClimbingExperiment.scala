@@ -11,7 +11,7 @@ import org.bu.met810.types.moves.Move
 
 object HillClimbingExperiment {
 
-  val boardSize = 4
+  val boardSize = 8
 
   def main(args: Array[String]): Unit = {
     var maxWins = 0
