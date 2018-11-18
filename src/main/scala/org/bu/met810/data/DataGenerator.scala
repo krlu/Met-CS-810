@@ -2,7 +2,7 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
-import org.bu.met810.models.{BayesianPlayerModel, PlayerModel, RandomMoveModel}
+import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 import org.bu.met810.{Turn, WinnerId, choose}
@@ -17,9 +17,8 @@ import org.bu.met810.{Turn, WinnerId, choose}
 object DataGenerator {
 
   def generateData(outputFilePath: String, boardSize: Int): Unit ={
+    val start = System.currentTimeMillis()
     val playerId = 0
-    val numRows = boardSize
-    val numCols = boardSize
     var numRobberWins = 0
     val positions = 0 until boardSize
     for{_ <- 1 to 4000} {
@@ -27,15 +26,16 @@ object DataGenerator {
       val rY = choose(positions.iterator)
       val cX = choose(positions.filter(_ != rX).iterator)
       val cY = choose(positions.filter(_ != rY).iterator)
-      val p1Model = new BayesianPlayerModel("current_best_params_4by4.json", useGenerativeParams = false)
+      val p1Model = RandomMoveModel()
       val p2Model = RandomMoveModel()
-      val initialBoard = Board(Robber((rX, rY)), Cop((cX, cY)), numRows, numCols, Seq.empty[Building])
-      val winner = generateDataPoint(playerId, outputFilePath, initialBoard, p1Model, p2Model)
+      val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
+      val winner = generateDataPoint(playerId, outputFilePath, board, p1Model, p2Model)
       if(winner == 0) {
         numRobberWins += 1
-//        println(numRobberWins)
       }
     }
+    val end = System.currentTimeMillis()
+    println(s"Data generation time: ${(end - start)/1000.0}s")
   }
 
   private def generateDataPoint(playerId: Int, outputFilePath: String, initialBoard: Board,

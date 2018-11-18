@@ -27,7 +27,7 @@ class PlayerModelTest extends FlatSpec with Matchers {
       val rY = choose(positions.iterator)
       val cX = choose(positions.filter(_ != rX).iterator)
       val cY = choose(positions.filter(_ != rY).iterator)
-      val board = Board(Robber((0, 0)), Cop((3, 3)), boardSize, boardSize, Seq.empty[Building])
+      val board = Board(Robber((0,0)), Cop((3,3)), boardSize, boardSize, Seq.empty[Building])
       val sim = Simulator(board, model, RandomMoveModel())
       println(i)
       sim.runFullGame()
