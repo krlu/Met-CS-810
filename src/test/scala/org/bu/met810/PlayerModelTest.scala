@@ -1,7 +1,8 @@
 package org.bu.met810
 
 import org.bu.met810.data.Simulator
-import org.bu.met810.models.{BayesianPlayerModel, PlayerModel, RandomMoveModel}
+import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
+import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 import org.scalatest.{FlatSpec, Matchers}
@@ -13,8 +14,13 @@ class PlayerModelTest extends FlatSpec with Matchers {
     println(runExperiment(RandomMoveModel()))
   }
 
-  "Bayesian robber model" should "win often" in {
+  "Bayesian robber model" should "win often with Bayesian model" in {
     val model = new BayesianPlayerModel("current_best_params_4by4.json", useGenerativeParams = false)
+    println(runExperiment(model))
+  }
+
+  "Bayesian robber model" should "win often with Deterministic Model" in {
+    val model = new DeterministicPlayerModel("current_best_params_4by4.json", useGenerativeParams = false)
     println(runExperiment(model))
   }
 
@@ -22,7 +28,7 @@ class PlayerModelTest extends FlatSpec with Matchers {
     val boardSize = 4
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()
-    val winners: Seq[Player] = for(_ <- 1 to 10000) yield {
+    val winners: Seq[Player] = for(_ <- 1 to 1000) yield {
       val rX = choose(positions.iterator)
       val rY = choose(positions.iterator)
       val cX = choose(positions.filter(_ != rX).iterator)
@@ -35,7 +41,7 @@ class PlayerModelTest extends FlatSpec with Matchers {
     val robbers = winners.filter(p => p.isInstanceOf[Robber])
     val cops = winners.filter(p => p.isInstanceOf[Cop])
     val end = System.currentTimeMillis()
-    println(s"runtime: ${(end - start)/1000}")
+    println(s"runtime: ${(end - start)/1000.0}")
     (robbers.size, cops.size)
   }
 }

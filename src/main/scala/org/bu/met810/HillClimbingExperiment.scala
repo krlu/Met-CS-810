@@ -4,8 +4,9 @@ import java.io.PrintWriter
 
 import argonaut.Argonaut._
 import org.bu.met810.data.{DataGenerator, Simulator}
+import org.bu.met810.models.generative.BayesianPlayerModel
 import org.bu.met810.models.inference.GenerativeModelLearner
-import org.bu.met810.models.{BayesianPlayerModel, PlayerModel, RandomMoveModel}
+import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 
