@@ -12,10 +12,12 @@ import play.api.libs.json._
 
 object GenerativeModelLearner extends Learner{
 
-  def learn(inputFile: String, boardSize: Int, playerId: Int): Unit = {
+  override def learn(trainingDataFilePath: String, boardSize: Turn, numPlayers: Turn, playerId: Turn): Unit = {
     val start = System.currentTimeMillis()
-    val dataFile = inputFile
-    val data: Seq[(Board, Move, Turn, WinnerId)] = setupTrainingData(dataFile)
+    val boardDim = numPlayers * 2 + 2
+    val moveDim = 2
+
+    val data: Seq[(Board, Move, Turn, WinnerId)] = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
 
     val numRows = boardSize
     val numCols = boardSize
@@ -52,4 +54,5 @@ object GenerativeModelLearner extends Learner{
     pw.append(s"$json\n")
     pw.close()
   }
+
 }

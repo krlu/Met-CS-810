@@ -53,14 +53,16 @@ class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, play
 }
 
 object BayesianModelLearner extends Learner{
-  def learn(inputFile: String, boardSize: Int, playerId: Int): Unit = {
+
+  def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int): Unit = {
     val numRows = boardSize
     val numCols = boardSize
-    val numPlayers = 2
+    val boardDim = numPlayers * 2 + 2
+    val moveDim = 2
 
     def trainForPlayer(playerId: Int): Unit ={
       val pml = new BayesianModelLearner(numRows, numCols, numPlayers, playerId)
-      val data = setupTrainingData(inputFile)
+      val data = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
       val p1Data: List[(List[(Int, Int)], Move)] = data.filter{ case (_, _, turn, winnerId) =>
         turn == playerId && winnerId == playerId
       }.map{ case (board, move, _, _) =>

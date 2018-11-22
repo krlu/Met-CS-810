@@ -16,12 +16,12 @@ import org.bu.met810.{Turn, WinnerId, choose}
   */
 object DataGenerator {
 
-  def generateData(outputFilePath: String, boardSize: Int): Unit ={
+  def generateData(outputFilePath: String, boardSize: Int, numSamples: Int = 4000): Unit ={
     val start = System.currentTimeMillis()
     val playerId = 0
     var numRobberWins = 0
     val positions = 0 until boardSize
-    for{_ <- 1 to 4000} {
+    for(_ <- 1 to numSamples) {
       val rX = choose(positions.iterator)
       val rY = choose(positions.iterator)
       val cX = choose(positions.filter(_ != rX).iterator)
@@ -55,7 +55,7 @@ object DataGenerator {
       prevTurn = if(sim.turn == 0) 1 else 0
     }
     val winnerId: WinnerId = sim.getWinner.get.id
-    if(winnerId == 0) {
+    if(winnerId == playerId) {
       data.foreach { case (board, move, turn) =>
         saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
       }

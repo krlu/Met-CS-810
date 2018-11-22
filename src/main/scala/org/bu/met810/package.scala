@@ -3,6 +3,7 @@ package org.bu
 package object met810 {
   type Turn = Int
   type WinnerId = Int
+  type NNVector = _root_.neuroflow.core.Network.Vector[Double]
 
   def choose[A](it: Iterator[A]): A =
     it.zip(Iterator.iterate(1)(_ + 1)).reduceLeft((row, col) =>

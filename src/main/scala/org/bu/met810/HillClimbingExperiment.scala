@@ -5,27 +5,32 @@ import java.io.PrintWriter
 import argonaut.Argonaut._
 import org.bu.met810.data.{DataGenerator, Simulator}
 import org.bu.met810.models.generative.BayesianPlayerModel
-import org.bu.met810.models.inference.GenerativeModelLearner
+import org.bu.met810.models.inference.{GenerativeModelLearner, Learner}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 
 object HillClimbingExperiment {
 
-  val boardSize = 8
+  val boardSize = 4
 
   def main(args: Array[String]): Unit = {
+
     var maxWins = 0
+    val numPlayers = 2
+    val playerIdToTrainFor = 0
     val trainingFile = s"training_data_$boardSize.csv"
+    val learner: Learner = GenerativeModelLearner
+
     for(_ <- 1 to 1000) {
-      DataGenerator.generateData(trainingFile, boardSize)
-      GenerativeModelLearner.learn(trainingFile, boardSize, playerId = 0)
+      DataGenerator.generateData(trainingFile, boardSize, numSamples = 2000)
+      learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor)
       val model = new BayesianPlayerModel(s"gen_model_0_${boardSize}by$boardSize.json", useGenerativeParams = true)
       val (numRobberWins, _) = runTest(model)
       if(numRobberWins > maxWins) {
         maxWins = numRobberWins
         println(maxWins)
-        val pw = new PrintWriter(s"current_best_params_${boardSize}by$boardSize.json")
+        val pw = new PrintWriter(s"current_best_params2_${boardSize}by$boardSize.json")
         val savedParams = model.modelParams.asJson.toString()
         pw.write(savedParams)
         pw.close()
