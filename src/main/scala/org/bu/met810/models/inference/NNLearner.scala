@@ -6,7 +6,7 @@ import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.NNVector
 
-protected class NNLearner(inputDim: Int = 10, outputDim: Int = 10, savedWeights: Option[String] = None) extends Learner {
+protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[String]) extends Learner {
 
   //  private val f1 = Activators.Double.Sigmoid
   private val f2 = Activators.Double.Linear
@@ -20,11 +20,11 @@ protected class NNLearner(inputDim: Int = 10, outputDim: Int = 10, savedWeights:
     layout = Vector (inputDim) :: Dense  (outputDim, f2)  :: Dense  (outputDim, f2)  ::  SquaredError(),
     settings = Settings[Double](
       updateRule = Vanilla(),
-      batchSize = Some(4),
+      batchSize = Some(100),
       iterations = 10000,
       learningRate = {
-        case (iter, _) if iter < 128 => 1.0
-        case (_, _)  => 0.5
+        case (iter, _) if iter < 128 => 0.00001
+        case (_, _)  => 0.00001
       },
       precision = 1E-4
     )
@@ -33,12 +33,12 @@ protected class NNLearner(inputDim: Int = 10, outputDim: Int = 10, savedWeights:
   override def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int): Unit = {
     val (xs, ys) = getNNTrainingData(trainingDataFilePath).map{ case (x,y, _, _) => (x,y)}.unzip[NNVector, NNVector]
     net.train(xs, ys)
-    File.writeWeights(net.weights, "")
+    File.writeWeights(net.weights, "savedWeights")
   }
 }
 
 object NNLearner{
-  def apply(inputDim: Int = 10, outputDim: Int = 10, savedWeights: Option[String] = None): NNLearner = new NNLearner(
+  def apply(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None): NNLearner = new NNLearner(
     inputDim,
     outputDim,
     savedWeights

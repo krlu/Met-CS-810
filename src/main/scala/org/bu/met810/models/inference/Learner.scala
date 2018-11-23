@@ -26,16 +26,16 @@ trait Learner {
 
   private def setupTrainingData(filePath: String, boardDim: Int, moveDim: Int): List[(Seq[Int], Seq[Int], Turn, WinnerId)] = {
     val bufferedSource = Source.fromFile(filePath)
-    val data = for (line <- bufferedSource.getLines) yield {
+    val data = {for (line <- bufferedSource.getLines) yield {
       val cols = line.split(",").map(_.trim.toDouble.toInt).toList
       val input = cols.take(boardDim)
       val output = cols.slice(boardDim, boardDim + moveDim)
       val turn = cols(cols.size - 2)
       val winner = cols.last
       (input, output, turn, winner)
-    }
+    }}.toList
     bufferedSource.close
-    data.toList
+    data
   }
 
   private def vectorToBoard(vector: Seq[Int]): Board = {

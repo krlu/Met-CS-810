@@ -1,11 +1,8 @@
 package org.bu.met810
 
-import java.io.PrintWriter
-
-import argonaut.Argonaut._
-import org.bu.met810.data.{DataGenerator, Simulator}
-import org.bu.met810.models.generative.BayesianPlayerModel
-import org.bu.met810.models.inference.{GenerativeModelLearner, Learner}
+import org.bu.met810.data.Simulator
+import org.bu.met810.models.inference.{Learner, NNLearner}
+import org.bu.met810.models.neuralnets.NNModel
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
@@ -20,23 +17,24 @@ object HillClimbingExperiment {
     val numPlayers = 2
     val playerIdToTrainFor = 0
     val trainingFile = s"training_data_$boardSize.csv"
-    val learner: Learner = GenerativeModelLearner
+    val learner: Learner = NNLearner()
 
-    for(_ <- 1 to 1000) {
-      DataGenerator.generateData(trainingFile, boardSize, numSamples = 2000)
-      learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor)
-      val model = new BayesianPlayerModel(s"gen_model_0_${boardSize}by$boardSize.json", useGenerativeParams = true)
+    for(_ <- 1 to 1) {
+//      DataGenerator.generateData(trainingFile, boardSize, numSamples = 20000)
+//      learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor)
+      val model = new NNModel(savedWeights = Some("savedWeights"))
       val (numRobberWins, _) = runTest(model)
-      if(numRobberWins > maxWins) {
-        maxWins = numRobberWins
-        println(maxWins)
-        val pw = new PrintWriter(s"current_best_params2_${boardSize}by$boardSize.json")
-        val savedParams = model.modelParams.asJson.toString()
-        pw.write(savedParams)
-        pw.close()
-      }
-      val pw = new PrintWriter(trainingFile)
-      pw.write("")
+//      println(numRobberWins)
+//      if(numRobberWins > maxWins) {
+//        maxWins = numRobberWins
+//        println(maxWins)
+//        val pw = new PrintWriter(s"current_best_params2_${boardSize}by$boardSize.json")
+//        val savedParams = model.modelParams.asJson.toString()
+//        pw.write(savedParams)
+//        pw.close()
+//      }
+//      val pw = new PrintWriter(trainingFile)
+//      pw.write("")
     }
   }
 
