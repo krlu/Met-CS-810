@@ -17,7 +17,7 @@ protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[St
   }
 
   val net = Network(
-    layout = Vector (inputDim) :: Dense  (outputDim, f2)  :: Dense  (outputDim, f2)  ::  SquaredError(),
+    layout = Vector (inputDim) :: Dense  (outputDim, f2)  ::  SquaredError(),
     settings = Settings[Double](
       updateRule = Vanilla(),
       batchSize = Some(100),

@@ -41,12 +41,13 @@ object HillClimbingExperiment {
   private def runTest(model: PlayerModel[Board, Player, Move]): (Int, Int) = {
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()
-    val winners: Seq[Player] = for(_ <- 1 to 1000) yield {
+    val winners: Seq[Player] = for(_ <- 1 to 10) yield {
       val rX = choose(positions.iterator)
       val rY = choose(positions.iterator)
       val cX = choose(positions.filter(_ != rX).iterator)
       val cY = choose(positions.filter(_ != rY).iterator)
-      val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
+      println(s"Starting positions: ${(rX, rY, cX, cY)}")
+      val board = Board(Robber((0, 0)), Cop((3, 3)), boardSize, boardSize, Seq.empty[Building])
       val sim = Simulator(board, model, RandomMoveModel())
       sim.runFullGame()
     }

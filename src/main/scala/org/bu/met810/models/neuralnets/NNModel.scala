@@ -8,6 +8,7 @@ import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves.{Down, Left, Move, Right, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
+import org.bu.met810.choose
 
 class NNModel(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None) extends PlayerModel[Board, Player, Move]{
 
@@ -26,11 +27,8 @@ class NNModel(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String
     val possibleMoves = Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight)
     val outputVector = net.evaluate(inputVector)
     var moveOpt: Option[Move] = possibleMoves.find(_.toVector == outputVector.data.toList.map(_.ceil.toInt))
-//    while(moveOpt.isEmpty){
-//      moveOpt = Some(choose(possibleMoves.iterator))
-//    }
     println(outputVector.data.toList.map(_.ceil.toInt))
-    println(moveOpt.get)
-    moveOpt.get
+    println(moveOpt.getOrElse(choose(possibleMoves.iterator)))
+    moveOpt.getOrElse(choose(possibleMoves.iterator))
   }
 }
