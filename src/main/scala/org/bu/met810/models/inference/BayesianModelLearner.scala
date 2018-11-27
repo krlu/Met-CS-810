@@ -4,12 +4,12 @@ import java.io.PrintWriter
 
 import argonaut.Argonaut._
 import com.cra.figaro.algorithm.learning.EMWithVE
-import com.cra.figaro.language.{Select, Universe}
+import com.cra.figaro.language.{Element, Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
-import org.bu.met810.types.moves.{Move, _}
 import org.bu.met810._
 import org.bu.met810.models.JsonModelLoader
+import org.bu.met810.types.moves.{Move, _}
 
 
 /** Given the dimensions of the board we build up our initial distributions
@@ -52,12 +52,29 @@ class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, play
     savedParams
   }
 
+  /**
+    * @param positions - position of player model
+    * @param move - observed move for player model
+    */
   private def generateTrial(positions: List[(Int, Int)], move: Move): Unit = {
-    val posVector = positions.flatMap{case (x,y) => List(x,y)}
-    val params = modelParams.getElementByReference(s"${playerId}_${posVector.mkString("_")}_move").asInstanceOf[AtomicDirichlet]
-    val moveDist = Select(params, allMoves:_*)
+    val possiblePositions: List[(Double, (Int, Int))] = applyNoise(positions(1), positionRadius = 1, minFactor = 0.5)
+    val posVector: Seq[Int] = positions.flatMap{case (x,y) => List(x,y)}.take(2)
+    val positionDist: Element[(Int, Int)] = Select(possiblePositions:_*)
+    val moveDist: Element[Move] = positionDist.flatMap{ p =>
+      val queryString = s"${playerId}_${posVector.mkString("_")}_${p._1}_${p._2}_move"
+      val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
+      Select(params, allMoves:_*)
+    }
     moveDist.observe(move)
   }
+
+  private def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
+    val (x, y) = pos
+    for{
+      xDelta <- -positionRadius to positionRadius
+      yDelta <- -positionRadius to positionRadius
+    } yield (1.0/ Math.max(minFactor, Math.hypot(xDelta, yDelta)), (x + xDelta, y + yDelta))
+  }.toList
 }
 
 object BayesianModelLearner extends Learner{
