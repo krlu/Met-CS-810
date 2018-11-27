@@ -30,10 +30,10 @@ protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[St
     )
   )
 
-  override def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int): Unit = {
+  override def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit = {
     val (xs, ys) = getNNTrainingData(trainingDataFilePath).map{ case (x,y, _, _) => (x,y)}.unzip[NNVector, NNVector]
     net.train(xs, ys)
-    File.writeWeights(net.weights, "savedWeights")
+    File.writeWeights(net.weights, paramsFile)
   }
 }
 

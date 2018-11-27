@@ -9,10 +9,9 @@ import org.bu.met810.{Turn, WinnerId}
 import play.api.libs.json._
 
 
-
 object GenerativeModelLearner extends Learner{
 
-  override def learn(trainingDataFilePath: String, boardSize: Turn, numPlayers: Turn, playerId: Turn): Unit = {
+  override def learn(trainingDataFilePath: String, boardSize: Turn, numPlayers: Turn, playerId: Turn, paramsFile: String = ""): Unit = {
     val start = System.currentTimeMillis()
     val boardDim = numPlayers * 2 + 2
     val moveDim = 2
@@ -45,7 +44,8 @@ object GenerativeModelLearner extends Learner{
     println("training player model...")
     val playerModel = BipartiteModel(Seq(playerData), possiblePositions, possibleMoves)
     val combinedJson: JsValue = JsObject(playerModel.asJson("_move").value)
-    printJsonString(combinedJson, s"gen_model_${playerId}_${numRows}by$numCols.json", append = false)
+    val paramsFileName = if(paramsFile == "") s"gen_model_${playerId}_${numRows}by$numCols.json" else paramsFile
+    printJsonString(combinedJson, paramsFileName, append = false)
     val end = System.currentTimeMillis()
     println(s"Training time: ${(end - start)/1000.0}s")
   }

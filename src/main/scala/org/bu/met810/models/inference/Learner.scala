@@ -9,7 +9,7 @@ import scala.io.Source
 
 trait Learner {
 
-  def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int): Unit
+  def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit
 
   def getNNTrainingData(filePath: String, boardDim: Int = 6, moveDim: Int = 2):
   List[(NNVector, NNVector, Turn, WinnerId)] =

@@ -4,6 +4,10 @@ import org.bu.met810.models.{BoardValidation, JsonModelLoader, PlayerModel}
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves.Move
 
+/**
+  * Predicts discrete events via un-supervised learning by building a complete graph over all possible events
+  */
+
 class DeterministicPlayerModel(val paramsFile: String, val useGenerativeParams: Boolean)
   extends PlayerModel[Board, Player, Move] with JsonModelLoader with BoardValidation{
   override def selectMove(playerId: Int, board: Board): Move = {
