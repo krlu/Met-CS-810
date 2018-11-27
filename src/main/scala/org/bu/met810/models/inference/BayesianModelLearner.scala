@@ -18,7 +18,7 @@ import org.bu.met810.types.moves.{Move, _}
   * @param numPlayers - number of active players
   */
 class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, playerId: Int = 0,
-                           val paramsFile: String, useLearnedParams: Boolean) extends JsonModelLoader{
+                           val paramsFile: String, useLearnedParams: Boolean) extends JsonModelLoader {
 
   override val useGenerativeParams: Boolean = false
 

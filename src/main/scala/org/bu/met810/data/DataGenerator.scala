@@ -16,11 +16,11 @@ import org.bu.met810.{Turn, WinnerId, choose}
   */
 object DataGenerator {
 
-  def generateData(outputFilePath: String, boardSize: Int, numSamples: Int = 4000): Unit ={
+  def generateData(outputFilePath: String, boardSize: Int, numSamples: Int = 4000, shouldApplyNoise: Boolean = false): Unit ={
     val start = System.currentTimeMillis()
     val playerId = 0
-    var numRobberWins = 0
     val positions = 0 until boardSize
+
     for(_ <- 1 to numSamples) {
       val rX = choose(positions.iterator)
       val rY = choose(positions.iterator)
@@ -29,18 +29,16 @@ object DataGenerator {
       val p1Model = RandomMoveModel()
       val p2Model = RandomMoveModel()
       val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
-      val winner = generateDataPoint(playerId, outputFilePath, board, p1Model, p2Model)
-      if(winner == 0) {
-        numRobberWins += 1
-      }
+      generateDataPoint(playerId, outputFilePath, board, p1Model, p2Model, shouldApplyNoise)
     }
     val end = System.currentTimeMillis()
     println(s"Data generation time: ${(end - start)/1000.0}s")
   }
 
   private def generateDataPoint(playerId: Int, outputFilePath: String, initialBoard: Board,
-                        p1Model: PlayerModel[Board, Player, Move],
-                        p2Model: PlayerModel[Board, Player, Move]): WinnerId ={
+                                p1Model: PlayerModel[Board, Player, Move],
+                                p2Model: PlayerModel[Board, Player, Move],
+                                shouldApplyNoise: Boolean): Unit = {
     var data = List.empty[(Board, Move, Turn)]
 
     val sim = Simulator(initialBoard, p1Model, p2Model)
@@ -57,11 +55,24 @@ object DataGenerator {
     val winnerId: WinnerId = sim.getWinner.get.id
     if(winnerId == playerId) {
       data.foreach { case (board, move, turn) =>
-        saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
+        if(shouldApplyNoise){
+          applyNoise(board.p2.position, 1, 0.5).foreach{ case (_, pos) =>
+            val newP2 = board.p2.copy(pos)
+            val newBoard = board.copy(p2 = newP2)
+            saveVectors(outputFilePath, newBoard.toVector, move.toVector, turn, winnerId)          }
+        }
+        else saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
       }
     }
-    winnerId
   }
+
+  private def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
+    val (x, y) = pos
+    for{
+      xDelta <- -positionRadius to positionRadius
+      yDelta <- -positionRadius to positionRadius
+    } yield (1.0/ Math.max(minFactor, Math.hypot(xDelta, yDelta)), (x + xDelta, y + yDelta))
+  }.toList
 
   private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int, winnerId: WinnerId): Unit ={
     val pw = new FileWriter(new File(filePath), true)
