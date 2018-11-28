@@ -9,7 +9,7 @@ import org.bu.met810.{Turn, WinnerId}
 import play.api.libs.json._
 
 
-object GenerativeModelLearner extends Learner{
+class GenerativeModelLearner extends Learner{
 
   override def learn(trainingDataFilePath: String, boardSize: Turn, numPlayers: Turn, playerId: Turn, paramsFile: String = ""): Unit = {
     val start = System.currentTimeMillis()
@@ -54,5 +54,8 @@ object GenerativeModelLearner extends Learner{
     pw.append(s"$json\n")
     pw.close()
   }
+}
 
+object GenerativeModelLearner{
+  def apply(): GenerativeModelLearner = new GenerativeModelLearner()
 }

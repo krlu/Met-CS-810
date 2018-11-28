@@ -5,7 +5,7 @@ import java.io.PrintWriter
 import argonaut.Argonaut._
 import org.bu.met810.data.{DataGenerator, Simulator}
 import org.bu.met810.models.generative.BayesianPlayerModel
-import org.bu.met810.models.inference.{BayesianModelLearner, Learner}
+import org.bu.met810.models.inference.{GenerativeModelLearner, Learner}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
@@ -20,13 +20,14 @@ object HillClimbingExperiment {
     val numPlayers = 2
     val playerIdToTrainFor = 0
     val trainingFile = s"training_data_$boardSize.csv"
-    val learner: Learner = BayesianModelLearner
+    val learner: Learner = GenerativeModelLearner()
+    val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
     val paramsFile = s"bayes_model_${boardSize}by$boardSize.json"
 
     for(_ <- 1 to 1000) {
       DataGenerator.generateData(trainingFile, boardSize, numSamples = 2000)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
-      val model = new BayesianPlayerModel(paramsFile, useGenerativeParams = false)
+      val model = new BayesianPlayerModel(paramsFile, useGenerativeParams)
       val (numRobberWins, _) = runTest(model)
       if(numRobberWins > maxWins) {
         maxWins = numRobberWins

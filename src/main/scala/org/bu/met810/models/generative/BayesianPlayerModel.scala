@@ -21,7 +21,9 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
       case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")
     }
     val (x1, y1) = board.p1.position
-    val p2PosDist = Select(applyNoise(board.p2.position, positionRadius = 1, minFactor = 0.5):_*)
+    val possiblePositions: Seq[(Double, (Int, Int))] =
+      applyNoise(board.p2.position, positionRadius = 1, minFactor = 0.5).filter(p => validPosition(p._2, board) && p._2 != player.position)
+    val p2PosDist = Select(possiblePositions:_*)
     val moveDist = p2PosDist.flatMap{ case (x2, y2) =>
       val queryString = s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}_move"
       val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]

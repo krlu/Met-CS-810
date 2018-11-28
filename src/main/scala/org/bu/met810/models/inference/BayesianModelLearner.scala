@@ -20,7 +20,7 @@ import org.bu.met810.types.moves.{Move, _}
   */
 class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, playerId: Int = 0,
                            val paramsFile: String, useLearnedParams: Boolean)
-  extends JsonModelLoader with BoardValidation {
+  extends JsonModelLoader{
 
   override val useGenerativeParams: Boolean = false
 
@@ -86,15 +86,11 @@ object BayesianModelLearner extends Learner {
       }.map{ case (board, move, _, _) =>
         (board, move)
       }.toList
-
-      val chunkedData = playerSpecificData.grouped(20).toList
-      chunkedData.indices.foreach{ i =>
-        val pml = new BayesianModelLearner(numRows, numCols, numPlayers, playerId, paramsFile, useLearnedParams = i > 0)
-        val paramsString = pml.train(chunkedData(i), playerId)
-        val pw = new PrintWriter(paramsFile)
-        pw.println(paramsString)
-        pw.close()
-      }
+      val pml = new BayesianModelLearner(numRows, numCols, numPlayers, playerId, paramsFile, useLearnedParams = false)
+      val paramsString = pml.train(playerSpecificData, playerId)
+      val pw = new PrintWriter(paramsFile)
+      pw.println(paramsString)
+      pw.close()
     }
 
     val start = System.currentTimeMillis()
