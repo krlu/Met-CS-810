@@ -57,7 +57,7 @@ object DataGenerator {
       data.foreach { case (board, move, turn) =>
         if(shouldApplyNoise){
           applyNoise(board.p2.position, 1, 0.5).foreach{ case (_, pos) =>
-            val newP2 = board.p2.copy(pos)
+            val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
             val newBoard = board.copy(p2 = newP2)
             saveVectors(outputFilePath, newBoard.toVector, move.toVector, turn, winnerId)          }
         }
