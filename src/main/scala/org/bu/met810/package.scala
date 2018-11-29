@@ -1,5 +1,10 @@
 package org.bu
 
+
+/**
+  * Consists of miscellaneous/generic utility functions and type aliases
+  * These usually don't belong to a particular object or class
+  */
 package object met810 {
   type Turn = Int
   type WinnerId = Int
@@ -16,5 +21,16 @@ package object met810 {
       case 1 => for (el <- input) yield List(el)
       case _ => for (el <- input; perm <- permutationsWithRepetitions(input, n - 1)) yield el :: perm
     }
+  }
+
+  def possiblePositions(numRows: Int, numCols: Int): List[(Int, Int)] = {for{
+      x <- 0 until numCols
+      y <- 0 until numRows
+    }yield(x,y)
+  }.toList
+
+  def possibleDifferentPositions(numRows: Int, numCols: Int, numPlayers: Int): List[List[(Int, Int)]] = {
+    val pos = possiblePositions(numRows, numRows)
+    pos.combinations(numPlayers).toList
   }
 }

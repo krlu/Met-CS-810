@@ -31,8 +31,10 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
     }
     val alg = Importance(300, moveDist)
     alg.start()
-    val computedDist = alg.distribution(moveDist).toList
-    val desiredMove = computedDist.filter{case (_ ,m) => validMoves(player, board).contains(m)}.sortWith(_._1 > _._1).head._2
+    val computedMoves = alg.distribution(moveDist).toList
+    val desiredMove = computedMoves.filter{case (_ ,m) => validMoves(player, board).contains(m)}.sortWith(_._1 > _._1).head._2
+    if(!player.moves.contains(desiredMove))
+      throw new NoSuchElementException(s"move $desiredMove does not belong in $player")
     alg.stop()
     alg.kill()
     desiredMove
@@ -43,6 +45,6 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
     for{
       xDelta <- -positionRadius to positionRadius
       yDelta <- -positionRadius to positionRadius
-    } yield (1.0/ Math.max(minFactor, Math.hypot(xDelta, yDelta)), (x + xDelta, y + yDelta))
+    } yield (1.0, (x + xDelta, y + yDelta))
   }.toList
 }

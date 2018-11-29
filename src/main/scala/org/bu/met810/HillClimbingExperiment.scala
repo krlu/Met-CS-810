@@ -15,24 +15,23 @@ object HillClimbingExperiment {
   val boardSize = 4
 
   def main(args: Array[String]): Unit = {
-
     var maxWins = 0
     val numPlayers = 2
     val playerIdToTrainFor = 0
     val trainingFile = s"training_data_$boardSize.csv"
     val learner: Learner = GenerativeModelLearner()
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
-    val paramsFile = s"bayes_model_${boardSize}by$boardSize.json"
+    val paramsFile = s"trainedModels/bayes_model_${boardSize}by$boardSize.json"
 
     for(_ <- 1 to 1000) {
-      DataGenerator.generateData(trainingFile, boardSize, numSamples = 2000)
+      DataGenerator.generateData(trainingFile, boardSize, numSamples = 30)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
       val model = new BayesianPlayerModel(paramsFile, useGenerativeParams)
       val (numRobberWins, _) = runTest(model)
       if(numRobberWins > maxWins) {
         maxWins = numRobberWins
         println(maxWins)
-        val pw = new PrintWriter(s"current_best_params2_${boardSize}by$boardSize.json")
+        val pw = new PrintWriter(s"trainedModels/current_best_params4_${boardSize}by$boardSize.json")
         val savedParams = model.modelParams.asJson.toString()
         pw.write(savedParams)
         pw.close()

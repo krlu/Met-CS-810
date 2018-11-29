@@ -8,7 +8,7 @@ import com.cra.figaro.language.{Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810._
-import org.bu.met810.models.{BoardValidation, JsonModelLoader}
+import org.bu.met810.models.JsonModelLoader
 import org.bu.met810.types.boardassets.Board
 import org.bu.met810.types.moves.{Move, _}
 
@@ -28,17 +28,10 @@ class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, play
 
   Universe.createNew()
   val modelParams = ModelParameters()
-
-  private def possiblePositions(): List[(Int, Int)] =
-    {for{
-      x <- 0 until numCols
-      y <- 0 until numRows
-    }yield(x,y)}.toList
-
   val initialMoveParams: Seq[AtomicDirichlet] =
   if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
   else {
-    permutationsWithRepetitions(possiblePositions(), numPlayers).map{ positions =>
+    permutationsWithRepetitions(possiblePositions(numRows, numCols), numPlayers).map{ positions =>
       val name = s"${playerId}_${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
       Dirichlet(Array.fill(allMoves.size)(1.0):_*)(name, modelParams)
     }

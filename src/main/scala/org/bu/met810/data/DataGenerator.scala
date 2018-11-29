@@ -5,7 +5,7 @@ import java.io.{File, FileWriter}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
-import org.bu.met810.{Turn, WinnerId, choose}
+import org.bu.met810.{Turn, WinnerId, _}
 
 
 /**
@@ -16,19 +16,20 @@ import org.bu.met810.{Turn, WinnerId, choose}
   */
 object DataGenerator {
 
-  def generateData(outputFilePath: String, boardSize: Int, numSamples: Int = 4000, shouldApplyNoise: Boolean = false): Unit ={
+  def generateData(outputFilePath: String, boardSize: Int, numSamples: Int = 4000,
+                   shouldApplyNoise: Boolean = false, numPlayers: Int = 2): Unit ={
     val start = System.currentTimeMillis()
     val playerId = 0
-    val positions = 0 until boardSize
-
-    for(_ <- 1 to numSamples) {
-      val rX = choose(positions.iterator)
-      val rY = choose(positions.iterator)
-      val cX = choose(positions.filter(_ != rX).iterator)
-      val cY = choose(positions.filter(_ != rY).iterator)
+    val possiblePositions = possibleDifferentPositions(boardSize, boardSize, numPlayers)
+    for{
+      _ <- 1 to numSamples
+      pos <- possiblePositions
+    }{
+      val p1Pos = pos.head
+      val p2Pos = pos(1)
       val p1Model = RandomMoveModel()
       val p2Model = RandomMoveModel()
-      val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
+      val board = Board(Robber(p1Pos), Cop(p2Pos), boardSize, boardSize, Seq.empty[Building])
       generateDataPoint(playerId, outputFilePath, board, p1Model, p2Model, shouldApplyNoise)
     }
     val end = System.currentTimeMillis()
