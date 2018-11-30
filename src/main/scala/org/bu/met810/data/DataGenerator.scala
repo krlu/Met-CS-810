@@ -21,6 +21,7 @@ object DataGenerator {
     val start = System.currentTimeMillis()
     val playerId = 0
     val possiblePositions = possibleDifferentPositions(boardSize, boardSize, numPlayers)
+    println(possiblePositions.size)
     for{
       _ <- 1 to numSamples
       pos <- possiblePositions
