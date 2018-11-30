@@ -33,4 +33,12 @@ package object met810 {
     val pos = possiblePositions(numRows, numRows)
     pos.combinations(numPlayers).toList
   }
+
+  def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
+    val (x, y) = pos
+    for{
+      xDelta <- -positionRadius to positionRadius
+      yDelta <- -positionRadius to positionRadius
+    } yield (1.0, (x + xDelta, y + yDelta))
+  }.toList
 }
