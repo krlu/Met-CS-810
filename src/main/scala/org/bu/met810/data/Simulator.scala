@@ -1,6 +1,8 @@
 package org.bu.met810.data
 
-import org.bu.met810.models.PlayerModel
+import org.bu.met810.HillClimbingExperiment.boardSize
+import org.bu.met810.choose
+import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
 
@@ -51,4 +53,32 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
 object Simulator{
   def apply(board: Board, p1: PlayerModel[Board, Player, Move], p2: PlayerModel[Board, Player, Move]): Simulator =
     new Simulator(board, p1,p2)
+
+  /**
+    * Runs a batch of experiments with num trials, returns number of times robber and cop won
+    * @param robberModel - model for robber, default is random selector
+    * @param copModel - model for cop, default is random selector
+    * @param numTrials - Number of times we run simulator
+    * @return (number of robber wins, number of cop wins)
+    */
+  def runBatch(robberModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
+               copModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
+               numTrials: Int = 1000): (Int, Int) = {
+    val positions = 0 until boardSize
+    val start = System.currentTimeMillis()
+    val winners: Seq[Player] = for(_ <- 1 to numTrials) yield {
+      val rX = choose(positions.iterator)
+      val rY = choose(positions.iterator)
+      val cX = choose(positions.filter(_ != rX).iterator)
+      val cY = choose(positions.filter(_ != rY).iterator)
+      val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
+      val sim = Simulator(board, robberModel, copModel)
+      sim.runFullGame()
+    }
+    val robbers = winners.filter(p => p.isInstanceOf[Robber])
+    val cops = winners.filter(p => p.isInstanceOf[Cop])
+    val end = System.currentTimeMillis()
+    println(s"runtime: ${(end - start)/1000}")
+    (robbers.size, cops.size)
+  }
 }
