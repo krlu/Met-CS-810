@@ -1,6 +1,5 @@
 package org.bu.met810.data
 
-import org.bu.met810.HillClimbingExperiment.boardSize
 import org.bu.met810.choose
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
@@ -63,7 +62,7 @@ object Simulator{
     */
   def runBatch(robberModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
                copModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
-               numTrials: Int = 1000): (Int, Int) = {
+               numTrials: Int = 1000, boardSize: Int = 4): (Int, Int) = {
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()
     val winners: Seq[Player] = for(_ <- 1 to numTrials) yield {

@@ -11,12 +11,11 @@ import org.bu.met810.types.moves.Move
 
 object HillClimbingExperiment {
 
-  val boardSize = 4
-
   def main(args: Array[String]): Unit = {
-    var maxWins = 518
+    var maxWins = 0
     val numPlayers = 2
     val playerIdToTrainFor = 0
+    val boardSize = 4
     val trainingFile = s"training_data_$boardSize.csv"
     val learner: Learner = GenerativeModelLearner()
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
@@ -40,5 +39,4 @@ object HillClimbingExperiment {
       pw.write("")
     }
   }
-
 }
