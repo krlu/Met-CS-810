@@ -15,6 +15,20 @@ package object met810 {
       if (util.Random.nextInt(col._2) == 0) col else row
     )._1
 
+
+  def permutationsFromNBuckets[T](input: List[List[T]]): List[List[T]] = {
+    if(input.isEmpty) input
+    else if(input.size == 1) input.head.map(List(_))
+    else {
+      input.head.flatMap { i =>
+        val restOfPerms: List[List[T]] = permutationsFromNBuckets(input.tail)
+        restOfPerms.map { subList =>
+          i :: subList
+        }
+      }
+    }
+  }
+
   def permutationsWithRepetitions[T](input : List[T], n : Int) : List[List[T]] = {
     require(input.nonEmpty && n > 0)
     n match {
