@@ -17,9 +17,10 @@ import org.bu.met810.{Turn, WinnerId, _}
 object DataGenerator {
 
   def generateData(outputFilePath: String, boardSize: Int, numSamples: Int = 4000,
-                   shouldApplyNoise: Boolean = false, numPlayers: Int = 2): Unit ={
+                   shouldApplyNoise: Boolean = false, numPlayers: Int = 2, playerId: Int = 0,
+                   p1Model: PlayerModel[Board, Player, Move] = RandomMoveModel(),
+                   p2Model: PlayerModel[Board, Player, Move] = RandomMoveModel()): Unit ={
     val start = System.currentTimeMillis()
-    val playerId = 0
     val possiblePositions = possibleDifferentPositions(boardSize, boardSize, numPlayers)
     for{
       _ <- 1 to numSamples
@@ -27,8 +28,6 @@ object DataGenerator {
     }{
       val p1Pos = pos.head
       val p2Pos = pos(1)
-      val p1Model = RandomMoveModel()
-      val p2Model = RandomMoveModel()
       val board = Board(Robber(p1Pos), Cop(p2Pos), boardSize, boardSize, Seq.empty[Building])
       generateDataPoint(playerId, outputFilePath, board, p1Model, p2Model, shouldApplyNoise)
     }

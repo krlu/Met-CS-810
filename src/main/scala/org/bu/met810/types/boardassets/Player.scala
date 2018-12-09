@@ -6,7 +6,7 @@ import org.bu.met810.types.moves._
 abstract class Player(val position: (Int, Int)) extends Vectorizable{
   val id: Int = 0
   val moves: List[Move] = List.empty[Move]
-  val toVector = Seq(position._1.toDouble, position._2.toDouble)
+  val toVector: Seq[Double] = Seq(position._1.toDouble, position._2.toDouble)
 }
 
 case class Robber(override val position: (Int, Int), override val id: Int = 0) extends Player(position){

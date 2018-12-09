@@ -8,7 +8,7 @@ import com.cra.figaro.language.{Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810._
-import org.bu.met810.models.JsonModelLoader
+import org.bu.met810.models.{BoardValidation, JsonModelLoader}
 import org.bu.met810.types.boardassets.Board
 import org.bu.met810.types.moves.{Move, _}
 
@@ -20,7 +20,7 @@ import org.bu.met810.types.moves.{Move, _}
   */
 class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, playerId: Int = 0,
                            val paramsFile: String, useLearnedParams: Boolean)
-  extends JsonModelLoader{
+  extends JsonModelLoader with BoardValidation{
 
   override val useGenerativeParams: Boolean = false
 
@@ -38,7 +38,7 @@ class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, play
   }
 
   def train(data: List[(Board, Move)], playerId: Int): String = {
-    data.foreach{ case(p, m) => generateTrial(p,m, playerId)}
+    data.foreach{ case(p, m) => generateTrial(p,m, playerId) }
     val alg = EMWithVE(2, modelParams)
     alg.start()
     val savedParams = modelParams.asJson.toString()
@@ -52,14 +52,10 @@ class BayesianModelLearner(numRows: Int, numCols: Int, numPlayers: Int = 2, play
     * @param move - observed move for player model
     */
   private def generateTrial(board: Board, move: Move, playerId: Int): Unit = {
-    val player = if(playerId == 0) board.p1 else board.p2
-    val otherPlayer = if(playerId == 0) board.p2 else board.p1
-    val playerPosition: Seq[Int] = List(player.position._1, player.position._2)
-    val moveDist = {
-      val queryString = s"${playerId}_${playerPosition.mkString("_")}_${otherPlayer.position._1}_${otherPlayer.position._2}_move"
-      val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
-      Select(params, allMoves:_*)
-    }
+    val positions = List(board.p1, board.p2).flatMap(p => List(p.position._1, p.position._2))
+    val queryString = s"${playerId}_${positions.mkString("_")}_move"
+    val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
+    val moveDist = Select(params, allMoves:_*)
     moveDist.observe(move)
   }
 }
@@ -79,11 +75,16 @@ object BayesianModelLearner extends Learner {
       }.map{ case (board, move, _, _) =>
         (board, move)
       }.toList
-      val pml = new BayesianModelLearner(numRows, numCols, numPlayers, playerId, paramsFile, useLearnedParams = false)
-      val paramsString = pml.train(playerSpecificData, playerId)
-      val pw = new PrintWriter(paramsFile)
-      pw.println(paramsString)
-      pw.close()
+      println(playerSpecificData.size)
+      val chunkedData = playerSpecificData.grouped(20).toList
+      chunkedData.indices.foreach{ i =>
+        val row = chunkedData(i)
+        val pml = new BayesianModelLearner(numRows, numCols, numPlayers, playerId, paramsFile, useLearnedParams = i > 0)
+        val paramsString = pml.train(row, playerId)
+        val pw = new PrintWriter(paramsFile)
+        pw.println(paramsString)
+        pw.close()
+      }
     }
 
     val start = System.currentTimeMillis()

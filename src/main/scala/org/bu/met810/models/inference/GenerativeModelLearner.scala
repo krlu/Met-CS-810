@@ -11,7 +11,7 @@ import play.api.libs.json._
 
 class GenerativeModelLearner extends Learner{
 
-  override def learn(trainingDataFilePath: String, boardSize: Turn, numPlayers: Turn, playerId: Turn, paramsFile: String = ""): Unit = {
+  override def learn(trainingDataFilePath: String, boardSize: Turn, numPlayers: Turn, playerId: Int, paramsFile: String = ""): Unit = {
     val start = System.currentTimeMillis()
     val boardDim = numPlayers * 2 + 2
     val moveDim = 2

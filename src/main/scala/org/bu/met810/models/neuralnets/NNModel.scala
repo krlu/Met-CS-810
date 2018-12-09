@@ -7,7 +7,7 @@ import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.{Down, Left, Move, Right, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
+import org.bu.met810.types.moves._
 import org.bu.met810.choose
 
 class NNModel(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None) extends PlayerModel[Board, Player, Move]{

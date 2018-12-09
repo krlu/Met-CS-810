@@ -18,7 +18,7 @@ class DeterministicPlayerModel(val paramsFile: String, val useGenerativeParams: 
       (paramsMap(queryString) zip player.moves).filter{ case (_, m) =>
         validMoves(player, board).contains(m)
       }
-    }.sortWith(_._1 > _._1).head._2
+    }.maxBy(_._1)._2
   }
 }
 

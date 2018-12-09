@@ -11,6 +11,8 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
   private val P1TURN = 0
   private val P2TURN = 1
 
+  private val MAX_COUNTER = 1000
+  private var counter = 0
   private var board: Board = initialBoard
   private var winner: Option[Player] = None
 
@@ -29,10 +31,10 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
       Some(oldBoard, move, board)
   }
 
-  def runFullGame(): Player ={
-    while(winner.isEmpty)
+  def runFullGame(): Option[Player] ={
+    while(winner.isEmpty && counter < MAX_COUNTER)
       runSimulator()
-    winner.orNull
+    winner
   }
 
   private def updateBoard(turn: Int, move: Move): Board = {
@@ -42,6 +44,7 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
       case c: Cop => c.copy(position = move(x,y))
       case r: Robber => r.copy(position = move(x,y))
     }
+    counter += 1
     if(board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
   }
 
@@ -65,15 +68,18 @@ object Simulator{
                numTrials: Int = 1000, boardSize: Int = 4): (Int, Int) = {
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()
-    val winners: Seq[Player] = for(_ <- 1 to numTrials) yield {
-      val rX = choose(positions.iterator)
-      val rY = choose(positions.iterator)
-      val cX = choose(positions.filter(_ != rX).iterator)
-      val cY = choose(positions.filter(_ != rY).iterator)
-      val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
-      val sim = Simulator(board, robberModel, copModel)
-      sim.runFullGame()
-    }
+    val winners: Seq[Player] = {
+      for(i <- 1 to numTrials) yield {
+        val rX = choose(positions.iterator)
+        val rY = choose(positions.iterator)
+        val cX = choose(positions.filter(_ != rX).iterator)
+        val cY = choose(positions.filter(_ != rY).iterator)
+        val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
+        val sim = Simulator(board, robberModel, copModel)
+        println(i)
+        sim.runFullGame()
+      }
+    }.flatten
     val robbers = winners.filter(p => p.isInstanceOf[Robber])
     val cops = winners.filter(p => p.isInstanceOf[Cop])
     val end = System.currentTimeMillis()
