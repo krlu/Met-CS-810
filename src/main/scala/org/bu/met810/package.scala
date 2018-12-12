@@ -10,6 +10,7 @@ package object met810 {
   type WinnerId = Int
   type NNVector = _root_.neuroflow.core.Network.Vector[Double]
 
+  def choose[A](list: List[A]): A = choose(list.iterator)
   def choose[A](it: Iterator[A]): A =
     it.zip(Iterator.iterate(1)(_ + 1)).reduceLeft((row, col) =>
       if (util.Random.nextInt(col._2) == 0) col else row

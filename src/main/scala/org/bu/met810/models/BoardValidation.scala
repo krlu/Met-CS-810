@@ -1,8 +1,8 @@
 package org.bu.met810.models
 
-import org.bu.met810.applyNoise
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves.Move
+import org.bu.met810.applyNoise
 
 trait BoardValidation {
   def validMoves(player: Player, board: Board): List[Move] = player.moves.filter{ m: Move =>

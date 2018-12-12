@@ -12,12 +12,12 @@ class PlayerModelTest extends FlatSpec with Matchers {
   }
 
   "Bayesian robber model" should "win often with Bayesian model" in {
-    val model = new BayesianPlayerModel("trainedModels/current_best_robber_BayesianPlayerModel_4by4.json", useGenerativeParams = true)
+    val model = new BayesianPlayerModel("trainedModels/DeterministicPlayerModel_0_4by4.json", useGenerativeParams = true)
     println(Simulator.runBatch(model))
   }
 
   "Bayesian robber model" should "win often with Deterministic Model" in {
-    val model = new DeterministicPlayerModel("trainedModels/current_best_params_DeterministicPlayerModel_4by4.json", useGenerativeParams = true)
+    val model = new DeterministicPlayerModel("trainedModels/DeterministicPlayerModel_0_4by4.json", useGenerativeParams = true)
     println(Simulator.runBatch(model, numTrials = 10000))
   }
 }

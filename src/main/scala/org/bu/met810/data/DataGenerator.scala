@@ -69,12 +69,13 @@ object DataGenerator {
     }
   }
 
-  private def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
+  private def applyNoise(pos: (Int, Int), positionRadius: Int,
+                         minFactor: Double, weight: Double = 10.0): List[(Double, (Int, Int))] = {
     val (x, y) = pos
     for{
       xDelta <- -positionRadius to positionRadius
       yDelta <- -positionRadius to positionRadius
-    } yield (100.0/ Math.max(minFactor, Math.hypot(xDelta, yDelta)), (x + xDelta, y + yDelta))
+    } yield (weight/ Math.max(minFactor, Math.hypot(xDelta, yDelta)), (x + xDelta, y + yDelta))
   }.toList
 
   private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int, winnerId: WinnerId): Unit ={

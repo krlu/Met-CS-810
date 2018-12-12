@@ -69,21 +69,20 @@ object Simulator{
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()
     val winners: Seq[Player] = {
-      for(i <- 1 to numTrials) yield {
+      for(_ <- 1 to numTrials) yield {
         val rX = choose(positions.iterator)
         val rY = choose(positions.iterator)
         val cX = choose(positions.filter(_ != rX).iterator)
         val cY = choose(positions.filter(_ != rY).iterator)
         val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
         val sim = Simulator(board, robberModel, copModel)
-        println(i)
         sim.runFullGame()
       }
     }.flatten
     val robbers = winners.filter(p => p.isInstanceOf[Robber])
     val cops = winners.filter(p => p.isInstanceOf[Cop])
     val end = System.currentTimeMillis()
-    println(s"runtime: ${(end - start)/1000}")
+    println(s"runtime: ${(end - start).toDouble/1000}")
     (robbers.size, cops.size)
   }
 }
