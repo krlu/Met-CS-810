@@ -17,15 +17,15 @@ object HillClimbingExperiment {
   def main(args: Array[String]): Unit = {
     val iter1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
     val iter2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
+    val paramsFile = s"trainedModels/temp_model.json"
+    val playerId = 0
+    val numPlayers = 2
+    val boardSize = 4
     for{
       iterateWithNoise <- List(false, true)
       trainingSize <- List(2,4,8,16)
-      iterationModelBuilder <- List(iter1, iter2)
-      playerId = 0
-      numPlayers = 2
-      boardSize = 4
-      paramsFile = s"trainedModels/temp_model_${boardSize}by$boardSize.json"
       learner <- List(GenerativeModelLearner(), BayesianModelLearner(paramsFile, useGenerativeParams = false))
+      iterationModelBuilder <- List(iter1, iter2)
     } run(playerId, numPlayers, boardSize, learner, iterationModelBuilder, iterateWithNoise, paramsFile, trainingSize)
   }
 
