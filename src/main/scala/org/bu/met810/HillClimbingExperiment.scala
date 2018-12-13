@@ -36,7 +36,7 @@ object HillClimbingExperiment {
     val trainingFile = s"training_data_$boardSize.csv"
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
 
-    for(_ <- 1 to 100) {
+    for(_ <- 1 to 1000) {
 
       DataGenerator.generateData(trainingFile, boardSize, numTrainingSamples, iterateWithNoise, numPlayers, playerIdToTrainFor)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)

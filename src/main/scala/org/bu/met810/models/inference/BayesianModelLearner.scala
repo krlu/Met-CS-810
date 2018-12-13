@@ -31,6 +31,7 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
       else {
         permutationsWithRepetitions(possiblePositions(numRows, numCols), numPlayers).map{ positions =>
           val name = s"${playerId}_${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
+          println(name)
           Dirichlet(Array.fill(allMoves.size)(1.0):_*)(name, modelParams)
         }
       }
@@ -42,7 +43,7 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
         val (player, possiblePositions) = getPlayerData(playerId, board)
         val (x1, y1) = player.position
         val (x2, y2) = choose(possiblePositions.head.map(_._2))
-        val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString(",")}_move"
+        val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
         val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
         val moveDist = Select(params, allMoves:_*)
         moveDist.observe(move)
