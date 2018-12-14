@@ -31,7 +31,6 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
       else {
         permutationsWithRepetitions(possiblePositions(numRows, numCols), numPlayers).map{ positions =>
           val name = s"${playerId}_${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
-          println(name)
           Dirichlet(Array.fill(allMoves.size)(1.0):_*)(name, modelParams)
         }
       }
