@@ -56,27 +56,15 @@ object DataGenerator {
     if(winnerId == playerId) {
       data.foreach { case (board, move, turn) =>
         if(shouldApplyNoise){
-          applyNoise(board.p2.position, 1, 0.5).foreach{ case (prob, pos) =>
-            for(_ <- 1 to prob.toInt) {
-              val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
-              val newBoard = board.copy(p2 = newP2)
-              saveVectors(outputFilePath, newBoard.toVector, move.toVector, turn, winnerId)
-            }
-          }
+          val (_, pos) = choose(applyNoise(board.p2.position, 1, 0.5))
+          val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
+          val newBoard = board.copy(p2 = newP2)
+          saveVectors(outputFilePath, newBoard.toVector, move.toVector, turn, winnerId)
         }
         else saveVectors(outputFilePath, board.toVector, move.toVector, turn, winnerId)
       }
     }
   }
-
-  private def applyNoise(pos: (Int, Int), positionRadius: Int,
-                         minFactor: Double, weight: Double = 10.0): List[(Double, (Int, Int))] = {
-    val (x, y) = pos
-    for{
-      xDelta <- -positionRadius to positionRadius
-      yDelta <- -positionRadius to positionRadius
-    } yield (weight/ Math.max(minFactor, Math.hypot(xDelta, yDelta)), (x + xDelta, y + yDelta))
-  }.toList
 
   private def saveVectors(filePath: String, boardVec: Seq[Double], moveVec: Seq[Double], turn: Int, winnerId: WinnerId): Unit ={
     val pw = new FileWriter(new File(filePath), true)

@@ -13,13 +13,10 @@ class DeterministicPlayerModel(val paramsFile: String, val useGenerativeParams: 
   override def selectMove(playerId: Int, board: Board): Move = {
     val (player, possiblePositions) = getPlayerData(playerId, board)
     val (x1, y1) = player.position
-    possiblePositions.head.flatMap{ case (_, (x2, y2)) =>
-      val queryString = s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}_move"
-      (paramsMap(queryString) zip player.moves).filter{ case (_, m) =>
-        validMoves(player, board).contains(m)
-      }
-    }.maxBy(_._1)._2
-  }
+    val (x2, y2) = possiblePositions.head._2
+    val queryString = s"${playerId}_${List(x1,y1,x2,y2).mkString("_")}_move"
+    (paramsMap(queryString) zip player.moves).filter{ case (_, m) => validMoves(player, board).contains(m)}
+  }.maxBy(_._1)._2
 }
 
 object DeterministicPlayerModel{

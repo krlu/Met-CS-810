@@ -22,8 +22,8 @@ object HillClimbingExperiment {
     val numPlayers = 2
     val boardSize = 4
     for{
-      iterateWithNoise <- List(false, true)
-      trainingSize <- List(4,8,16)
+      iterateWithNoise <- List(true)
+      trainingSize <- List(2,4)
       learner <- List(GenerativeModelLearner(), BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
     } run(playerId, numPlayers, boardSize, learner, iterationModelBuilder, iterateWithNoise, paramsFile, trainingSize)
@@ -36,7 +36,7 @@ object HillClimbingExperiment {
     val trainingFile = s"training_data_$boardSize.csv"
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
 
-    for(_ <- 1 to 100) {
+    for(_ <- 1 to 300) {
 
       DataGenerator.generateData(trainingFile, boardSize, numTrainingSamples, iterateWithNoise, numPlayers, playerIdToTrainFor)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)

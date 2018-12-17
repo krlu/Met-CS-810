@@ -41,7 +41,7 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
       def generateTrial(board: Board, move: Move, playerId: Int): Unit = {
         val (player, possiblePositions) = getPlayerData(playerId, board)
         val (x1, y1) = player.position
-        val (x2, y2) = choose(possiblePositions.head.map(_._2))
+        val (x2, y2) = possiblePositions.head._2
         val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
         val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
         val moveDist = Select(params, allMoves:_*)

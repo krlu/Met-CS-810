@@ -16,6 +16,12 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
   private var board: Board = initialBoard
   private var winner: Option[Player] = None
 
+  def runFullGame(): Option[Player] ={
+    while(winner.isEmpty && counter < MAX_COUNTER)
+      runSimulator()
+    winner
+  }
+
   def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
     case (p1, p2) if p1.position == p2.position =>
       winner = Some(board.p2)
@@ -29,12 +35,6 @@ class Simulator(initialBoard: Board, model1: PlayerModel[Board, Player, Move],
       board = updateBoard(turn, move)
       turn = if (turn == P1TURN) P2TURN else P1TURN
       Some(oldBoard, move, board)
-  }
-
-  def runFullGame(): Option[Player] ={
-    while(winner.isEmpty && counter < MAX_COUNTER)
-      runSimulator()
-    winner
   }
 
   private def updateBoard(turn: Int, move: Move): Board = {

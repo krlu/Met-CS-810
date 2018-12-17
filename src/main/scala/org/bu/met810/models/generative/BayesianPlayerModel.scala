@@ -18,8 +18,8 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
     Universe.createNew()
     val (player, possiblePositions) = getPlayerData(playerId, board)
     val (x1, y1) = player.position
-    val positionDist = Select(possiblePositions.head:_*)
-    val moveDist = positionDist.flatMap { case (x2, y2) =>
+    val (x2, y2) = possiblePositions.head._2
+    val moveDist = {
       val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
       val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
       Select(params, player.moves: _*)
