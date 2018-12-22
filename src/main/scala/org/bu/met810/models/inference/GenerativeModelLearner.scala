@@ -10,7 +10,7 @@ import play.api.libs.json._
 import org.bu.met810._
 
 
-class GenerativeModelLearner extends Learner{
+class GenerativeModelLearner(val useNoise: Boolean) extends Learner{
 
   override def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String = ""): Unit = {
     val start = System.currentTimeMillis()
@@ -27,7 +27,7 @@ class GenerativeModelLearner extends Learner{
     }.map{ case (board, move, _, _) =>
       val (a, b) = board.p1.position
       val (c, d) = board.p2.position
-      val (c_est, d_est) = choose(applyNoise((c,d), 1, 0).map(_._2))
+      val (c_est, d_est) = if(useNoise) choose(applyNoise((c,d), 1, 0).map(_._2)) else (c,d)
       ((playerId, a, b, c_est, d_est), move)
     }.toList
 
@@ -59,5 +59,5 @@ class GenerativeModelLearner extends Learner{
 }
 
 object GenerativeModelLearner{
-  def apply(): GenerativeModelLearner = new GenerativeModelLearner()
+  def apply(useNoise: Boolean): GenerativeModelLearner = new GenerativeModelLearner(useNoise)
 }

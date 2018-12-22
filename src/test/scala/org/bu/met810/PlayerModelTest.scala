@@ -19,8 +19,8 @@ class PlayerModelTest extends FlatSpec with Matchers {
   val deterministic = "Deterministic"
   val bayesian = "Bayesian"
   "Bayesian robber model" should "win often with Bayesian model" in {
-    val builder1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
-    val builder2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
+    val builder1: (String, Boolean, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
+    val builder2: (String, Boolean, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
     val fw = new FileWriter("results.csv", true)
     fw.write("learnerType,iteratorType,trainedWithNoise,testWithNoise,trainingSize,modelName,robberWins,copWins,winPct\n")
     for{
@@ -32,13 +32,17 @@ class PlayerModelTest extends FlatSpec with Matchers {
       trainingSize <- List(2,4)
     }{
       val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
-      val model = modelBuilder(paramsFile, learnerType == generative)
-      val modelName = model.getClass.toString.split('.').toList.last
-      val trials = if(model.isInstanceOf[DeterministicPlayerModel]) 10000 else 1000
-      val (robberWins, copWins) = Simulator.runBatch(model, numTrials = trials)
-      val winPct = robberWins.toDouble/(robberWins + copWins)
-      fw.write(List(learnerType,iteratorType,trainedWithNoise,testWithNoise,
-        trainingSize,modelName,robberWins,copWins,winPct).mkString(",") + "\n")
+      if(paramsFile != "trainedModels/BayesianModelLearner_BayesianPlayerModel_true_4.json") {
+        val model = modelBuilder(paramsFile, learnerType == generative, testWithNoise)
+        val modelName = model.getClass.toString.split('.').toList.last
+        val trials = if (model.isInstanceOf[DeterministicPlayerModel]) 10000 else 1000
+        val (robberWins, copWins) = Simulator.runBatch(model, numTrials = trials)
+        val winPct = robberWins.toDouble / (robberWins + copWins)
+        fw.write(List(learnerType, iteratorType, trainedWithNoise, testWithNoise,
+          trainingSize, modelName, robberWins, copWins, winPct
+        ).mkString(",") + "\n"
+        )
+      }
     }
     fw.close()
   }

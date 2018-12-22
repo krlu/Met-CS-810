@@ -6,7 +6,7 @@ import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.NNVector
 
-protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[String]) extends Learner {
+protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[String], val useNoise: Boolean) extends Learner {
 
   //  private val f1 = Activators.Double.Sigmoid
   private val f2 = Activators.Double.Linear
@@ -38,9 +38,6 @@ protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[St
 }
 
 object NNLearner{
-  def apply(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None): NNLearner = new NNLearner(
-    inputDim,
-    outputDim,
-    savedWeights
-  )
+  def apply(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None, useNoise: Boolean): NNLearner =
+    new NNLearner(inputDim, outputDim, savedWeights, useNoise)
 }

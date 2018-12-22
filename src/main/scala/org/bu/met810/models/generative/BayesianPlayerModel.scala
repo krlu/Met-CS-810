@@ -8,17 +8,17 @@ import org.bu.met810.models.{BoardValidation, JsonModelLoader, PlayerModel}
 import org.bu.met810.types.boardassets.{Board, Player}
 import org.bu.met810.types.moves.Move
 
-class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boolean)
+class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boolean, val useNoise: Boolean)
   extends PlayerModel[Board, Player, Move] with JsonModelLoader with BoardValidation {
 
-  val modelParams = ModelParameters()
+  private val modelParams = ModelParameters()
   paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}
 
   override def selectMove(playerId: Int, board: Board): Move = {
     Universe.createNew()
-    val (player, possiblePositions) = getPlayerData(playerId, board)
+    val (player, possiblePositions) = getPlayerData(playerId, board, useNoise)
     val (x1, y1) = player.position
-    val (x2, y2) = possiblePositions.head._2
+    val (x2, y2) = possiblePositions.head
     val moveDist = {
       val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
       val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
@@ -37,6 +37,6 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
 }
 
 object BayesianPlayerModel{
-  def apply(paramsFile: String, useGenerativeParams: Boolean): BayesianPlayerModel =
-    new BayesianPlayerModel(paramsFile,useGenerativeParams)
+  def apply(paramsFile: String, useGenerativeParams: Boolean, useNoise: Boolean): BayesianPlayerModel =
+    new BayesianPlayerModel(paramsFile,useGenerativeParams, useNoise)
 }
