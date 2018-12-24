@@ -41,7 +41,7 @@ object DataGenerator {
                                 shouldApplyNoise: Boolean): Unit = {
     var data = List.empty[(Board, Move, Turn)]
 
-    val sim = Simulator(initialBoard, p1Model, p2Model)
+    val sim: Simulator[Board, Player, Move] = CopsAndRobbersSim(initialBoard, p1Model, p2Model)
     var result: Option[(Board, Move, Board)] = None
     var prevTurn = if(sim.turn == 0) 1 else 0
     while(!sim.isGameOver){
