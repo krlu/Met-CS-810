@@ -1,6 +1,6 @@
 package org.bu.met810.data
 
-import org.bu.met810.choose
+import org.bu.met810.{choose, applyNoise}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
@@ -8,7 +8,8 @@ import org.bu.met810.types.moves.Move
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],
                         val model2: PlayerModel[Board, Player, Move],
-                        var turn: Int = 0) extends Simulator[Board, Player, Move]{
+                        var turn: Int = 0,
+                        val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
 
   private val P1TURN = 0
   private val P2TURN = 1
@@ -36,13 +37,21 @@ class CopsAndRobbersSim(initialBoard: Board,
       case c: Cop => c.copy(position = move(x, y))
       case r: Robber => r.copy(position = move(x, y))
     }
-    if (board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
+    val tempBoard = if (board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
+    if(shouldApplyNoise){ // TODO: noise only gets applied to P2 position for now!!
+      val (_, pos) = choose(applyNoise(board.p2.position, 1, 0.5)) // TODO: noise arguments hard coded for now!!
+      val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
+      board.copy(p2 = newP2)
+    }
+    else tempBoard
   }
 }
 
 object CopsAndRobbersSim{
-  def apply(board: Board, p1: PlayerModel[Board, Player, Move], p2: PlayerModel[Board, Player, Move]): CopsAndRobbersSim =
-    new CopsAndRobbersSim(board, p1,p2)
+  def apply(board: Board,
+            p1: PlayerModel[Board, Player, Move],
+            p2: PlayerModel[Board, Player, Move],
+            shouldApplyNoise: Boolean = false): CopsAndRobbersSim = new CopsAndRobbersSim(board, p1,p2)
 
   /**
     * Runs a batch of experiments with num trials, returns number of times robber and cop won
@@ -53,7 +62,7 @@ object CopsAndRobbersSim{
     */
   def runBatch(robberModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
                copModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
-               numTrials: Int = 1000, boardSize: Int = 4): (Int, Int) = {
+               numTrials: Int = 1000, boardSize: Int = 4, shouldApplyNoise: Boolean): (Int, Int) = {
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()
     val winners: Seq[Player] = {
@@ -63,7 +72,7 @@ object CopsAndRobbersSim{
         val cX = choose(positions.filter(_ != rX).iterator)
         val cY = choose(positions.filter(_ != rY).iterator)
         val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
-        val sim = CopsAndRobbersSim(board, robberModel, copModel)
+        val sim = CopsAndRobbersSim(board, robberModel, copModel, shouldApplyNoise)
         sim.runFullGame()
       }
     }.flatten

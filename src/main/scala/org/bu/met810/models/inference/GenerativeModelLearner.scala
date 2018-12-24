@@ -17,10 +17,20 @@ class GenerativeModelLearner(val useNoise: Boolean) extends Learner{
     val boardDim = numPlayers * 2 + 2
     val moveDim = 2
 
+//    val rawData: Seq[(Seq[Int], Seq[Int], Turn, WinnerId)] = getTrainingData(trainingDataFilePath, boardDim, moveDim)
     val data: Seq[(Board, Move, Turn, WinnerId)] = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
 
     val numRows = boardSize
     val numCols = boardSize
+//
+//    rawData.filter{ case (_, _, turn, winnerId) =>
+//      turn == playerId && winnerId == playerId
+//    }.map{ case (boardVec, moveVec, _, _) =>
+//      val (a, b) = (boardVec.head, boardVec(1))
+//      val (c, d) = (boardVec(2), boardVec(3))
+//      val (c_est, d_est) = if(useNoise) choose(applyNoise((c,d), 1, 0).map(_._2)) else (c,d)
+//      ((playerId, a, b, c_est, d_est), moveVec)
+//    }.toList
 
     val playerData  = data.filter{ case (_, _, turn, winnerId) =>
       turn == playerId && winnerId == playerId

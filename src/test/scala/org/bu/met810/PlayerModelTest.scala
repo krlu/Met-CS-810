@@ -12,7 +12,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class PlayerModelTest extends FlatSpec with Matchers {
 
   "Random robber model" should "win infrequently" in {
-    println(CopsAndRobbersSim.runBatch())
+    List(true, false).foreach { noise => println(CopsAndRobbersSim.runBatch(shouldApplyNoise = noise))}
   }
 
   val generative = "Generative"
@@ -33,10 +33,10 @@ class PlayerModelTest extends FlatSpec with Matchers {
     }{
       val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       if(paramsFile != "trainedModels/BayesianModelLearner_BayesianPlayerModel_true_4.json") {
-        val model = modelBuilder(paramsFile, learnerType == generative, testWithNoise)
+        val model = modelBuilder(paramsFile, learnerType == generative, false)
         val modelName = model.getClass.toString.split('.').toList.last
         val trials = if (model.isInstanceOf[DeterministicPlayerModel]) 10000 else 1000
-        val (robberWins, copWins) = CopsAndRobbersSim.runBatch(model, numTrials = trials)
+        val (robberWins, copWins) = CopsAndRobbersSim.runBatch(model, numTrials = trials, shouldApplyNoise = testWithNoise)
         val winPct = robberWins.toDouble / (robberWins + copWins)
         fw.write(List(learnerType, iteratorType, trainedWithNoise, testWithNoise,
           trainingSize, modelName, robberWins, copWins, winPct

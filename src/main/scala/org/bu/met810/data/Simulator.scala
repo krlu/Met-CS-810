@@ -1,6 +1,8 @@
 package org.bu.met810.data
 
 import org.bu.met810.models.PlayerModel
+import org.bu.met810.types.boardassets.{Board, Player}
+import org.bu.met810.types.moves.Move
 
 trait Simulator[Env, Agent, Action]{
   var board: Env
@@ -8,8 +10,10 @@ trait Simulator[Env, Agent, Action]{
   val model1: PlayerModel[Env, Agent, Action]
   val model2: PlayerModel[Env, Agent, Action]
   var turn: Int
+  val shouldApplyNoise: Boolean
   private var counter = 0
   protected var winner: Option[Agent] = None
+
 
   /**
     * Runs the simulation from start to finish
@@ -32,4 +36,10 @@ trait Simulator[Env, Agent, Action]{
   def getWinner: Option[Agent] = winner
 
   def isGameOver: Boolean = winner.nonEmpty
+}
+
+object Simulator{
+  def copsAndRobbers(board: Board,
+                     p1: PlayerModel[Board, Player, Move],
+                     p2: PlayerModel[Board, Player, Move]): Simulator[Board, Player, Move] = new CopsAndRobbersSim(board, p1,p2)
 }

@@ -36,6 +36,7 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
         }
       }
       /**
+        * TODO: replace boardState with vector of positions
         * @param board - boardState
         * @param move - observed move for player model
         */
