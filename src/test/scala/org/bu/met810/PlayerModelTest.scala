@@ -18,18 +18,19 @@ class PlayerModelTest extends FlatSpec with Matchers {
   val generative = "Generative"
   val deterministic = "Deterministic"
   val bayesian = "Bayesian"
+
   "Bayesian robber model" should "win often with Bayesian model" in {
     val builder1: (String, Boolean, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
     val builder2: (String, Boolean, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
     val fw = new FileWriter("results.csv", true)
     fw.write("learnerType,iteratorType,trainedWithNoise,testWithNoise,trainingSize,modelName,robberWins,copWins,winPct\n")
     for{
+      testWithNoise <- List(true, false)
       modelBuilder <- List(builder1, builder2)
       learnerType <- List(generative, bayesian)
       iteratorType <- List(deterministic, bayesian)
-      trainedWithNoise <- List(true)
-      testWithNoise <- List(true)
-      trainingSize <- List(2,4)
+      trainedWithNoise <- List(true, false)
+      trainingSize <- List(2,4,8)
     }{
       val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       if(paramsFile != "trainedModels/BayesianModelLearner_BayesianPlayerModel_true_4.json") {

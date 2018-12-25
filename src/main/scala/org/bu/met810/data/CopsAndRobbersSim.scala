@@ -1,6 +1,6 @@
 package org.bu.met810.data
 
-import org.bu.met810.{choose, applyNoise}
+import org.bu.met810.{applyNoise, choose}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
 import org.bu.met810.types.boardassets._
 import org.bu.met810.types.moves.Move
@@ -24,7 +24,13 @@ class CopsAndRobbersSim(initialBoard: Board,
       None
     case _ =>
       val move = if (turn == P1TURN) model1.selectMove(board.p1.id, board) else model2.selectMove(board.p2.id, board)
-      val oldBoard = board
+      val oldBoard =
+        if(shouldApplyNoise){ // TODO: noise only gets applied to P2 position for now!!
+           val (_, pos) = choose(applyNoise(board.p2.position, 1, 0.5)) // TODO: noise arguments hard coded for now!!
+           val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
+          board.copy(p2 = newP2)
+        }
+        else board
       board = updateBoard(turn, move)
       turn = if (turn == P1TURN) P2TURN else P1TURN
       Some(oldBoard, move, board)
@@ -37,13 +43,8 @@ class CopsAndRobbersSim(initialBoard: Board,
       case c: Cop => c.copy(position = move(x, y))
       case r: Robber => r.copy(position = move(x, y))
     }
-    val tempBoard = if (board.p1.id == turn) board.copy(p1 = updatedPlayer) else board.copy(p2 = updatedPlayer)
-    if(shouldApplyNoise){ // TODO: noise only gets applied to P2 position for now!!
-      val (_, pos) = choose(applyNoise(board.p2.position, 1, 0.5)) // TODO: noise arguments hard coded for now!!
-      val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
-      board.copy(p2 = newP2)
-    }
-    else tempBoard
+    if (board.p1.id == turn) board.copy(p1 = updatedPlayer)
+    else board.copy(p2 = updatedPlayer)
   }
 }
 
