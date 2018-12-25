@@ -3,30 +3,37 @@ package org.bu.met810.data
 import java.io.{File, FileWriter}
 
 import org.bu.met810.types.Vectorizable
-import org.bu.met810.{Turn, WinnerId, _}
+import org.bu.met810.{Turn, WinnerId}
 
 
 /**
-  *  Save sample if and only if
-  *  - sample does not yet exist in training set AND one of the following
-  *  - if game ended playerModel to train was the winner
-  *  - if game not needed move leads to state that is in training set
+  * If the player with id=PlayerId wins, we save all moves from that game as training data
   */
 object DataGenerator{
 
-  def generateData[Env <: Vectorizable, Agent<: Vectorizable, Action <: Vectorizable]
-  (outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int, playerId: Int,
-   sim: Env => Simulator[Env, Agent, Action], func: Any => Env): Unit ={
+  /**
+    * @param outputFilePath - csv file to contain training data
+    * @param boardSize - rows and columns of a square board
+    * @param numSamples - number of samples per unique board state
+    * @param numPlayers - number of agents
+    * @param playerId - Id of agent to generate data for
+    * @param sim - generic builder for simulator
+    * @param enumStatesFunc - generic enumerator for all possible game states
+    * @tparam Env - represents game environment
+    * @tparam Agent - represents agents interacting with game environment
+    * @tparam Action - represents action an agent can take
+    */
+  def generateData[Env <: Vectorizable, Agent <: Vectorizable, Action <: Vectorizable]
+  (outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
+   playerId: Int, sim: Env => Simulator[Env, Agent, Action],
+   enumStatesFunc: (Int, Int, Int) => List[Env]): Unit = {
     val start = System.currentTimeMillis()
-    val possiblePositions = possibleDifferentPositions(boardSize, boardSize, numPlayers)
+    val possibleStates: Seq[Env] = enumStatesFunc(boardSize, boardSize, numPlayers)
     for{
       _ <- 1 to numSamples
-      pos <- possiblePositions
+      state <- possibleStates
     }{
-      val p1Pos = pos.head
-      val p2Pos = pos(1)
-      val board = func(p1Pos, p2Pos, boardSize)
-      generateDataPoint(playerId, outputFilePath, sim(board))
+      generateDataPoint(playerId, outputFilePath, sim(state))
     }
     val end = System.currentTimeMillis()
     println(s"Data generation time: ${(end - start)/1000.0}s")

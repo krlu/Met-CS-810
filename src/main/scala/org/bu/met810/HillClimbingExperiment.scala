@@ -34,11 +34,11 @@ object HillClimbingExperiment {
           iterationModelBuilder: (String, Boolean, Boolean) => PlayerModel[Board, Player, Move],
           iterateWithNoise: Boolean, paramsFile: String, numTrainingSamples: Int): Unit ={
 
-
-    // TODO: this is absolutely disgusting and makes me want to punt kittens c....
-    def func(data: Any): Board = {
-      val (p1Pos: (Int, Int), p2Pos: (Int, Int), boardSize: Int) = data.asInstanceOf[((Int, Int), (Int, Int), Int)]
-      Board(Robber(p1Pos), Cop(p2Pos), boardSize, boardSize, Seq.empty[Building])
+    def enumerateAllCopsAndRobbersStates(numRows: Int, numCols: Int, numPlayers: Int): List[Board] = {
+      val pos = possiblePositions(numRows, numRows)
+      pos.combinations(numPlayers).toList.map{ players =>
+        Board(Robber(players.head), Cop(players(1)), boardSize, boardSize, Seq.empty[Building])
+      }
     }
 
     var maxWins = 0
@@ -50,7 +50,7 @@ object HillClimbingExperiment {
       val sim: Board => Simulator[Board, Player, Move] =
         CopsAndRobbersSim(_, RandomMoveModel(), RandomMoveModel(), iterateWithNoise)
       DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize,
-        numTrainingSamples, numPlayers, playerIdToTrainFor, sim, func)
+        numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
 
       val robberModel: PlayerModel[Board, Player, Move] = iterationModelBuilder(paramsFile, useGenerativeParams, false)

@@ -44,11 +44,6 @@ package object met810 {
     }yield(x,y)
   }.toList
 
-  def possibleDifferentPositions(numRows: Int, numCols: Int, numPlayers: Int): List[List[(Int, Int)]] = {
-    val pos = possiblePositions(numRows, numRows)
-    pos.combinations(numPlayers).toList
-  }
-
   def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
     val (x, y) = pos
     for{
