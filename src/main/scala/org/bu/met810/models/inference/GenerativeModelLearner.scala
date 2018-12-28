@@ -7,10 +7,9 @@ import org.bu.met810.types.boardassets.Board
 import org.bu.met810.types.moves.{Down, Left, Move, Right, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
 import org.bu.met810.{Turn, WinnerId}
 import play.api.libs.json._
-import org.bu.met810._
 
 
-class GenerativeModelLearner(val useNoise: Boolean) extends Learner{
+class GenerativeModelLearner extends Learner{
 
   override def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String = ""): Unit = {
     val start = System.currentTimeMillis()
@@ -37,8 +36,7 @@ class GenerativeModelLearner(val useNoise: Boolean) extends Learner{
     }.map{ case (board, move, _, _) =>
       val (a, b) = board.p1.position
       val (c, d) = board.p2.position
-      val (c_est, d_est) = if(useNoise) choose(applyNoise((c,d), 1, 0).map(_._2)) else (c,d)
-      ((playerId, a, b, c_est, d_est), move)
+      ((playerId, a, b, c, d), move)
     }.toList
 
     val possiblePositions = {
@@ -69,5 +67,5 @@ class GenerativeModelLearner(val useNoise: Boolean) extends Learner{
 }
 
 object GenerativeModelLearner{
-  def apply(useNoise: Boolean): GenerativeModelLearner = new GenerativeModelLearner(useNoise)
+  def apply(): GenerativeModelLearner = new GenerativeModelLearner
 }

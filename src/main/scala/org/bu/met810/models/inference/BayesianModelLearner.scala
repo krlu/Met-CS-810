@@ -14,7 +14,7 @@ import org.bu.met810.types.moves.{Move, _}
 
 
 /** Given the dimensions of the board we build up our initial distributions*/
-class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Boolean, val useNoise: Boolean)
+class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Boolean)
   extends JsonModelLoader with BoardValidation with Learner {
 
   private val allMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
@@ -41,7 +41,7 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
         * @param move - observed move for player model
         */
       def generateTrial(board: Board, move: Move, playerId: Int): Unit = {
-        val (player, possiblePositions) = getPlayerData(playerId, board, useNoise)
+        val (player, possiblePositions) = getPlayerData(playerId, board)
         val (x1, y1) = player.position
         val (x2, y2) = possiblePositions.head
         val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
@@ -85,6 +85,6 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
 }
 
 object BayesianModelLearner{
-  def apply(paramsFile: String, useGenerativeParams: Boolean, useNoise: Boolean): BayesianModelLearner =
-    new BayesianModelLearner(paramsFile, useGenerativeParams, useNoise)
+  def apply(paramsFile: String, useGenerativeParams: Boolean): BayesianModelLearner =
+    new BayesianModelLearner(paramsFile, useGenerativeParams)
 }

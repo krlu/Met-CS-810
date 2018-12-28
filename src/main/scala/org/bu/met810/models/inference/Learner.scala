@@ -9,8 +9,6 @@ import scala.io.Source
 
 trait Learner {
 
-  val useNoise: Boolean
-
   def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit
 
   def getNNTrainingData(filePath: String, boardDim: Int = 6, moveDim: Int = 2):
