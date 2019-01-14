@@ -5,8 +5,7 @@ import com.cra.figaro.language.{Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810.models.{BoardValidation, JsonModelLoader, PlayerModel}
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 
 class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boolean)
   extends PlayerModel[Board, Player, Move] with JsonModelLoader with BoardValidation {

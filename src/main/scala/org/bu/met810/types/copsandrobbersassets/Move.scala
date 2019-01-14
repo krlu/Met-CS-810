@@ -1,4 +1,4 @@
-package org.bu.met810.types.moves
+package org.bu.met810.types.copsandrobbersassets
 
 import org.bu.met810.types.Vectorizable
 

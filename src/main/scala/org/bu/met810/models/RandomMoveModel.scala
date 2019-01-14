@@ -1,8 +1,7 @@
 package org.bu.met810.models
 
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves._
 import org.bu.met810.choose
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 
 /**
   * Selects a move at uniform random from a set of possible moves

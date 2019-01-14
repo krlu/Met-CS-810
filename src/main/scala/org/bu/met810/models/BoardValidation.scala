@@ -1,7 +1,6 @@
 package org.bu.met810.models
 
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 import org.bu.met810._
 
 trait BoardValidation {

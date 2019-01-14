@@ -1,8 +1,7 @@
 package org.bu.met810.data
 
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 
 trait Simulator[Env, Agent, Action]{
   var board: Env

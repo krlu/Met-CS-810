@@ -5,10 +5,9 @@ import neuroflow.application.plugin.Notation.->
 import neuroflow.core._
 import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
-import org.bu.met810.models.PlayerModel
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves._
 import org.bu.met810.choose
+import org.bu.met810.models.PlayerModel
+import org.bu.met810.types.copsandrobbersassets._
 
 class NNModel(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None) extends PlayerModel[Board, Player, Move]{
 
@@ -24,7 +23,7 @@ class NNModel(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String
 
   override def selectMove(playerId: Int, board: Board): Move = {
     val inputVector = ->(board.toVector:_*)
-    val possibleMoves = Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight)
+    val possibleMoves = Set(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
     val outputVector = net.evaluate(inputVector)
     var moveOpt: Option[Move] = possibleMoves.find(_.toVector == outputVector.data.toList.map(_.ceil.toInt))
     println(outputVector.data.toList.map(_.ceil.toInt))

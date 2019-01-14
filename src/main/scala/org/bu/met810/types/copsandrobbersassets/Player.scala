@@ -1,7 +1,6 @@
-package org.bu.met810.types.boardassets
+package org.bu.met810.types.copsandrobbersassets
 
 import org.bu.met810.types.Vectorizable
-import org.bu.met810.types.moves._
 
 abstract class Player(val position: (Int, Int)) extends Vectorizable{
   val id: Int = 0

@@ -1,8 +1,7 @@
 package org.bu.met810.models.inference
 
 import neuroflow.application.plugin.Notation.->
-import org.bu.met810.types.boardassets.{Board, Cop, Robber}
-import org.bu.met810.types.moves.{Down, Left, Move, Right, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
+import org.bu.met810.types.copsandrobbersassets._
 import org.bu.met810.{NNVector, Turn, WinnerId}
 
 import scala.io.Source

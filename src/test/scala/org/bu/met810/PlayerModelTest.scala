@@ -5,8 +5,7 @@ import java.io.FileWriter
 import org.bu.met810.data.CopsAndRobbersSim
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
 
 class PlayerModelTest extends FlatSpec with Matchers {

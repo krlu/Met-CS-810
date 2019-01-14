@@ -1,8 +1,7 @@
 package org.bu.met810.models.generative
 
 import org.bu.met810.models.{BoardValidation, JsonModelLoader, PlayerModel}
-import org.bu.met810.types.boardassets.{Board, Player}
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 
 
 /**

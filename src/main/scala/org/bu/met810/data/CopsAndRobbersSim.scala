@@ -2,8 +2,7 @@ package org.bu.met810.data
 
 import org.bu.met810.{applyNoise, choose}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
-import org.bu.met810.types.boardassets._
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],

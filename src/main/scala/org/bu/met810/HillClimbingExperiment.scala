@@ -6,8 +6,7 @@ import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, Simulator}
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.inference.{BayesianModelLearner, GenerativeModelLearner, Learner}
 import org.bu.met810.models.{PlayerModel, RandomMoveModel}
-import org.bu.met810.types.boardassets._
-import org.bu.met810.types.moves.Move
+import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 object HillClimbingExperiment {
 

@@ -9,8 +9,7 @@ import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810._
 import org.bu.met810.models.{BoardValidation, JsonModelLoader}
-import org.bu.met810.types.boardassets.Board
-import org.bu.met810.types.moves.{Move, _}
+import org.bu.met810.types.copsandrobbersassets.{Board, Down, Move, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
 
 
 /** Given the dimensions of the board we build up our initial distributions*/
