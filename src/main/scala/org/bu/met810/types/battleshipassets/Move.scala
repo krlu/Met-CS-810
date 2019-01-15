@@ -1,5 +1,3 @@
 package org.bu.met810.types.battleshipassets
 
-class Move {
-
-}
+case class Move(pos: (Int, Int))
