@@ -1,7 +1,8 @@
 package org.bu.met810.data
 
 import org.bu.met810.{applyNoise, choose}
-import org.bu.met810.models.{PlayerModel, RandomMoveModel}
+import org.bu.met810.models.PlayerModel
+import org.bu.met810.models.random.RandomMoveModelCR
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
@@ -60,8 +61,8 @@ object CopsAndRobbersSim{
     * @param numTrials - Number of times we run simulator
     * @return (number of robber wins, number of cop wins)
     */
-  def runBatch(robberModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
-               copModel: PlayerModel[Board, Player, Move] = RandomMoveModel(),
+  def runBatch(robberModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR(),
+               copModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR(),
                numTrials: Int = 1000, boardSize: Int = 4, shouldApplyNoise: Boolean): (Int, Int) = {
     val positions = 0 until boardSize
     val start = System.currentTimeMillis()

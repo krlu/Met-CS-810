@@ -5,7 +5,8 @@ import java.io.PrintWriter
 import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, Simulator}
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.inference.{BayesianModelLearner, GenerativeModelLearner, Learner}
-import org.bu.met810.models.{PlayerModel, RandomMoveModel}
+import org.bu.met810.models.PlayerModel
+import org.bu.met810.models.random.RandomMoveModelCR
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 object HillClimbingExperiment {
@@ -47,13 +48,13 @@ object HillClimbingExperiment {
     for(_ <- 1 to 300) {
 
       val sim: Board => Simulator[Board, Player, Move] =
-        CopsAndRobbersSim(_, RandomMoveModel(), RandomMoveModel(), iterateWithNoise)
+        CopsAndRobbersSim(_, RandomMoveModelCR(), RandomMoveModelCR(), iterateWithNoise)
       DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize,
         numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
 
       val robberModel: PlayerModel[Board, Player, Move] = iterationModelBuilder(paramsFile, useGenerativeParams)
-      val copModel: PlayerModel[Board, Player, Move] = RandomMoveModel()
+      val copModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR()
       val modelName = robberModel.getClass.toString.split('.').toList.last
       val learnerName = learner.getClass.toString.split('.').toList.last
       val (numRobberWins, numCopWins) = CopsAndRobbersSim.runBatch(robberModel, copModel, shouldApplyNoise = iterateWithNoise)
