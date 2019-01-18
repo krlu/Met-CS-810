@@ -21,10 +21,12 @@ class BattleshipSim(initialBoard: Board,
     val opposingPlayer = if(turn == 0) board.p2 else board.p1
     val move = model.selectMove(turn, board)
     val prevBoard = board
-    if(turn == 0)
-      board.copy(p2 = opposingPlayer.removePiece(move.pos))
-    else
-      board.copy(p1 = opposingPlayer.removePiece(move.pos))
+    val newMovesMade: Map[Int, Set[Move]] = board.movesMade ++ Map(turn -> Set(move))
+    board =
+      if(turn == 0)
+        board.copy(p2 = opposingPlayer.removePiece(move.pos), movesMade = newMovesMade)
+      else
+        board.copy(p1 = opposingPlayer.removePiece(move.pos), movesMade = newMovesMade)
     Some(prevBoard, move, board)
   }
 }
