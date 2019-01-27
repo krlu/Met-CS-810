@@ -31,7 +31,11 @@ class BattleshipSim(initialBoard: Board,
   }
 }
 
-object BattleshipSim{
+object BattleshipSim {
+
+  private val NORTHING = 0
+  private val EASTING = 0
+
   def randomInitialization(width: Int, height: Int, numPieces: Int,
                            model1: PlayerModel[Board, Player, Move],
                            model2: PlayerModel[Board, Player, Move]): BattleshipSim = {
@@ -42,16 +46,30 @@ object BattleshipSim{
   }
 
   private def initPlayer(width: Int, height: Int, numPieces:Int, id: Int): Player = {
+    val pieceLengths = (1 to 4).toList
     var openPositions = {for{
       x <- 0 until width
       y <- 0 until height
     } yield (x,y)}.toList
-    val piecePositions = (0 until numPieces).map{ _ =>
-      val pos = choose(openPositions)
-      openPositions = openPositions.filter(_ != pos)
-      pos
+    val positions: Seq[(Int, Int)] = (0 until numPieces).flatMap{ _ =>
+      val pieceLength = choose(pieceLengths)
+      val orientation = choose(List(NORTHING, EASTING))
+      val validPositions = openPositions.filter{ case (x,y) =>
+        if(orientation == EASTING) (0 until pieceLength).forall(i => openPositions.contains((i, y)))
+        else if(orientation == NORTHING) (0 until pieceLength).forall(i => openPositions.contains((x, i)))
+        else throw new IllegalStateException(s"orientation should be northing (0) or easting (1), but was $orientation")
+      }
+      val pos = choose(validPositions)
+      val positionsForPiece = (0 until pieceLength).map{ i =>
+        val (x,y) = pos
+        if(orientation == EASTING) (x + i, y)
+        else if(orientation == NORTHING) (x, y + i)
+        else throw new IllegalStateException(s"orientation should be northing (0) or easting (1), but was $orientation")
+      }
+      openPositions = openPositions.filter(!positionsForPiece.contains(_))
+      positionsForPiece
     }
-    Player(piecePositions.toList, id)
+    Player(positions.toList, id)
   }
 
   def runBatch(p1Model: PlayerModel[Board, Player, Move],
