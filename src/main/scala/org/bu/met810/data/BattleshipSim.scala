@@ -36,25 +36,33 @@ object BattleshipSim {
 
   private val NORTHING = 0
   private val EASTING = 1
-  val pieceLengths = (2 to 4).toList
+  val pieceLengths: List[Int] = (2 to 4).toList
 
+  /**
+    * @param width - width of board
+    * @param height - height of board
+    * @param numPieces - number of pieces for each player. Both players have identical pieces but positions will vary
+    * @param model1 - reasoning model for player 1, default Random selector
+    * @param model2 - reasoning model for player 2, default Random selector
+    * @return BattleshipSim
+    */
   def randomInitialization(width: Int, height: Int, numPieces: Int,
                            model1: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
                            model2: PlayerModel[Board, Player, Move] = RandomMoveModelBShip()): BattleshipSim = {
-    val p1 = initPlayer(width, height, numPieces, 1)
-    val p2 = initPlayer(width, height, numPieces, 2)
+    val pieces = (0 until numPieces).map(_ => choose(pieceLengths)).toList
+    val p1 = initPlayer(width, height, pieces, 1)
+    val p2 = initPlayer(width, height, pieces, 2)
     val initialBoard = Board(p1, p2, width, height)
     new BattleshipSim(initialBoard, model1, model2)
   }
 
-  private def initPlayer(width: Int, height: Int, numPieces:Int, id: Int): Player = {
+  private def initPlayer(width: Int, height: Int, pieces: List[Int], id: Int): Player = {
 
     var openPositions = {for{
       x <- 0 until width
       y <- 0 until height
     } yield (x,y)}.toList
-    val positions: Seq[(Int, Int)] = (0 until numPieces).flatMap{ _ =>
-      val pieceLength = choose(pieceLengths)
+    val positions: Seq[(Int, Int)] = pieces.flatMap{ pieceLength =>
       val orientation = choose(List(NORTHING, EASTING))
       val validPositions = openPositions.filter{ case (x,y) =>
         if(orientation == EASTING) (0 until pieceLength).forall(i => openPositions.contains((x + i, y)))
