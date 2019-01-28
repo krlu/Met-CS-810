@@ -8,7 +8,7 @@ import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayer
 import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
 
-class PlayerModelTest extends FlatSpec with Matchers {
+class CopsAndRobbersTest extends FlatSpec with Matchers {
 
   "Random robber model" should "win infrequently" in {
     List(true, false).foreach { noise => println(CopsAndRobbersSim.runBatch(shouldApplyNoise = noise))}

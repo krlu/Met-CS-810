@@ -2,6 +2,7 @@ package org.bu.met810.data
 
 import org.bu.met810.choose
 import org.bu.met810.models.PlayerModel
+import org.bu.met810.models.random.RandomMoveModelBShip
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 
 class BattleshipSim(initialBoard: Board,
@@ -34,11 +35,12 @@ class BattleshipSim(initialBoard: Board,
 object BattleshipSim {
 
   private val NORTHING = 0
-  private val EASTING = 0
+  private val EASTING = 1
+  val pieceLengths = (2 to 4).toList
 
   def randomInitialization(width: Int, height: Int, numPieces: Int,
-                           model1: PlayerModel[Board, Player, Move],
-                           model2: PlayerModel[Board, Player, Move]): BattleshipSim = {
+                           model1: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
+                           model2: PlayerModel[Board, Player, Move] = RandomMoveModelBShip()): BattleshipSim = {
     val p1 = initPlayer(width, height, numPieces, 1)
     val p2 = initPlayer(width, height, numPieces, 2)
     val initialBoard = Board(p1, p2, width, height)
@@ -46,7 +48,7 @@ object BattleshipSim {
   }
 
   private def initPlayer(width: Int, height: Int, numPieces:Int, id: Int): Player = {
-    val pieceLengths = (1 to 4).toList
+
     var openPositions = {for{
       x <- 0 until width
       y <- 0 until height
@@ -55,8 +57,8 @@ object BattleshipSim {
       val pieceLength = choose(pieceLengths)
       val orientation = choose(List(NORTHING, EASTING))
       val validPositions = openPositions.filter{ case (x,y) =>
-        if(orientation == EASTING) (0 until pieceLength).forall(i => openPositions.contains((i, y)))
-        else if(orientation == NORTHING) (0 until pieceLength).forall(i => openPositions.contains((x, i)))
+        if(orientation == EASTING) (0 until pieceLength).forall(i => openPositions.contains((x + i, y)))
+        else if(orientation == NORTHING) (0 until pieceLength).forall(i => openPositions.contains((x, y + i)))
         else throw new IllegalStateException(s"orientation should be northing (0) or easting (1), but was $orientation")
       }
       val pos = choose(validPositions)
