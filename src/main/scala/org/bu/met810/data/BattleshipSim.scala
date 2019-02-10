@@ -32,24 +32,26 @@ class BattleshipSim(initialBoard: Board,
   }
 }
 
-object BattleshipSim {
+object BattleshipSim extends SimBuilder[Board, Player, Move]{
 
   private val NORTHING = 0
   private val EASTING = 1
   val pieceLengths: List[Int] = (2 to 4).toList
 
   /**
-    * @param width - width of board
-    * @param height - height of board
-    * @param numPieces - number of pieces for each player. Both players have identical pieces but positions will vary
     * @param model1 - reasoning model for player 1, default Random selector
     * @param model2 - reasoning model for player 2, default Random selector
+    * @param envSize - width and height of board, assumes square board
+    * @param shouldApplyNoise - whether to apply noise, default false
     * @return BattleshipSim
     */
-  def randomInitialization(width: Int, height: Int, numPieces: Int,
-                           model1: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
-                           model2: PlayerModel[Board, Player, Move] = RandomMoveModelBShip()): BattleshipSim = {
+  def randomInitialization(model1: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
+                           model2: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
+                           envSize: Int, shouldApplyNoise: Boolean = false): BattleshipSim = {
+    val numPieces = envSize/2
     val pieces = (0 until numPieces).map(_ => choose(pieceLengths)).toList
+    val width = envSize
+    val height = envSize
     val p1 = initPlayer(width, height, pieces, 1)
     val p2 = initPlayer(width, height, pieces, 2)
     val initialBoard = Board(p1, p2, width, height)
@@ -80,23 +82,5 @@ object BattleshipSim {
       positionsForPiece
     }
     Player(positions.toList, id)
-  }
-
-  def runBatch(p1Model: PlayerModel[Board, Player, Move],
-               p2Model: PlayerModel[Board, Player, Move],
-               numTrials: Int = 1000, boardSize: Int = 4,
-               numPieces: Int): (Int, Int) = {
-    val start = System.currentTimeMillis()
-    val winners: Seq[Player] = {
-      for(_ <- 1 to numTrials) yield {
-        val sim = randomInitialization(boardSize, boardSize,numPieces, p1Model, p2Model)
-        sim.runFullGame()
-      }
-    }.flatten
-    val p1Wins = winners.filter(p => p.id == 1)
-    val p2Wins = winners.filter(p => p.id == 2)
-    val end = System.currentTimeMillis()
-    println(s"runtime: ${(end - start).toDouble/1000}")
-    (p1Wins.size, p2Wins.size)
   }
 }

@@ -4,7 +4,7 @@ import java.io.PrintWriter
 
 import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, Simulator}
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
-import org.bu.met810.models.inference.{BayesianModelLearner, GenerativeModelLearner, Learner}
+import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.random.RandomMoveModelCR
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
@@ -57,8 +57,10 @@ object HillClimbingExperiment {
       val copModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR()
       val modelName = robberModel.getClass.toString.split('.').toList.last
       val learnerName = learner.getClass.toString.split('.').toList.last
-      val (numRobberWins, numCopWins) = CopsAndRobbersSim.runBatch(robberModel, copModel, shouldApplyNoise = iterateWithNoise)
-      val totalWins = numRobberWins + numCopWins
+      val winners = CopsAndRobbersSim.runBatch(robberModel, copModel, shouldApplyNoise = iterateWithNoise)
+      val numRobberWins = winners.count(_.id == 0)
+      val numCopWins =  winners.count(_.id == 1)
+      val totalWins = winners.size
       val wins = if(playerIdToTrainFor == ROBBER_ID) numRobberWins else numCopWins
       if(wins > maxWins) {
         maxWins = wins

@@ -5,13 +5,19 @@ import java.io.FileWriter
 import org.bu.met810.data.CopsAndRobbersSim
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
+import org.bu.met810.models.random.RandomMoveModelCR
 import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
 
 class CopsAndRobbersTest extends FlatSpec with Matchers {
 
   "Random robber model" should "win infrequently" in {
-    List(true, false).foreach { noise => println(CopsAndRobbersSim.runBatch(shouldApplyNoise = noise))}
+    List(true, false).foreach { noise =>
+      val winners = CopsAndRobbersSim.runBatch(RandomMoveModelCR(), RandomMoveModelCR(), shouldApplyNoise = noise)
+      val robberWins = winners.count(_.id == 0)
+      val copWins =  winners.count(_.id == 1)
+      println(robberWins, copWins)
+    }
   }
 
   val generative = "Generative"
@@ -37,7 +43,9 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
 
       val modelName = model.getClass.toString.split('.').toList.last
       val trials = if (model.isInstanceOf[DeterministicPlayerModel]) 10000 else 1000
-      val (robberWins, copWins) = CopsAndRobbersSim.runBatch(model, numTrials = trials, shouldApplyNoise = testWithNoise)
+      val winners: Seq[Player] = CopsAndRobbersSim.runBatch(model, RandomMoveModelCR(), numTrials = trials, shouldApplyNoise = testWithNoise)
+      val robberWins = winners.count(_.id == 0)
+      val copWins =  winners.count(_.id == 1)
       val winPct = robberWins.toDouble / (robberWins + copWins)
       fw.write(List(learnerType, iteratorType, trainedWithNoise, testWithNoise,
         trainingSize, modelName, robberWins, copWins, winPct

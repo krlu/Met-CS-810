@@ -8,7 +8,6 @@ trait Simulator[Env, Agent, Action]{
   val model2: PlayerModel[Env, Agent, Action]
   var turn: Int
   val shouldApplyNoise: Boolean
-  private var counter = 0
   protected var winner: Option[Agent] = None
 
   /**
@@ -16,13 +15,13 @@ trait Simulator[Env, Agent, Action]{
     * @return
     */
   def runFullGame(maxCounter: Int = 1000): Option[Agent] = {
+    var counter = 0
     while (winner.isEmpty && counter < maxCounter) {
       runSimulator()
       counter += 1
     }
     winner
   }
-
   /**
     * Performs one turn update in the simulation
     * @return

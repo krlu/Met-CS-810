@@ -1,4 +1,4 @@
-package org.bu.met810.models.inference
+package org.bu.met810.models.learners
 
 import neuroflow.application.plugin.Notation.->
 import org.bu.met810.types.copsandrobbersassets._

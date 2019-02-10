@@ -2,7 +2,6 @@ package org.bu.met810.data
 
 import org.bu.met810.{applyNoise, choose}
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.models.random.RandomMoveModelCR
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
@@ -48,39 +47,21 @@ class CopsAndRobbersSim(initialBoard: Board,
   }
 }
 
-object CopsAndRobbersSim{
+object CopsAndRobbersSim extends SimBuilder[Board, Player, Move]{
   def apply(board: Board,
             p1: PlayerModel[Board, Player, Move],
             p2: PlayerModel[Board, Player, Move],
             shouldApplyNoise: Boolean = false): CopsAndRobbersSim = new CopsAndRobbersSim(board, p1,p2)
 
-  /**
-    * Runs a batch of experiments with num trials, returns number of times robber and cop won
-    * @param robberModel - model for robber, default is random selector
-    * @param copModel - model for cop, default is random selector
-    * @param numTrials - Number of times we run simulator
-    * @return (number of robber wins, number of cop wins)
-    */
-  def runBatch(robberModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR(),
-               copModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR(),
-               numTrials: Int = 1000, boardSize: Int = 4, shouldApplyNoise: Boolean): (Int, Int) = {
+  def randomInitialization(robberModel: PlayerModel[Board, Player, Move],
+                           copModel: PlayerModel[Board, Player, Move],
+                           boardSize: Int = 4, shouldApplyNoise: Boolean): CopsAndRobbersSim = {
     val positions = 0 until boardSize
-    val start = System.currentTimeMillis()
-    val winners: Seq[Player] = {
-      for(_ <- 1 to numTrials) yield {
-        val rX = choose(positions.iterator)
-        val rY = choose(positions.iterator)
-        val cX = choose(positions.filter(_ != rX).iterator)
-        val cY = choose(positions.filter(_ != rY).iterator)
-        val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
-        val sim = CopsAndRobbersSim(board, robberModel, copModel, shouldApplyNoise)
-        sim.runFullGame()
-      }
-    }.flatten
-    val robbers = winners.filter(p => p.isInstanceOf[Robber])
-    val cops = winners.filter(p => p.isInstanceOf[Cop])
-    val end = System.currentTimeMillis()
-    println(s"runtime: ${(end - start).toDouble/1000}")
-    (robbers.size, cops.size)
+    val rX = choose(positions.iterator)
+    val rY = choose(positions.iterator)
+    val cX = choose(positions.filter(_ != rX).iterator)
+    val cY = choose(positions.filter(_ != rY).iterator)
+    val board = Board(Robber((rX, rY)), Cop((cX, cY)), boardSize, boardSize, Seq.empty[Building])
+    CopsAndRobbersSim(board, robberModel, copModel, shouldApplyNoise)
   }
 }
