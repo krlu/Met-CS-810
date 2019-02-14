@@ -1,8 +1,8 @@
 package org.bu.met810.types.copsandrobbersassets
 
-import org.bu.met810.types.Vectorizable
+import org.bu.met810.types.{Action, Vectorizable}
 
-abstract class Move() extends ((Int, Int) => (Int, Int)) with Vectorizable
+abstract class Move() extends Action with ((Int, Int) => (Int, Int))with Vectorizable
 
 object Up extends Move { override def apply(x: Int, y: Int): (Int, Int) = (x, y+1)
   override val id: Int = 1

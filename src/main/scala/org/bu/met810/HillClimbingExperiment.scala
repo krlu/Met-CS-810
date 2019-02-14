@@ -2,11 +2,11 @@ package org.bu.met810
 
 import java.io.PrintWriter
 
-import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, Simulator}
-import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
-import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}
+import org.bu.met810.data.{CopsAndRobbersSim, Simulator}
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.models.random.RandomMoveModelCR
+import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
+import org.bu.met810.models.learners.{GenerativeModelLearner, Learner}
+import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 object HillClimbingExperiment {
@@ -44,17 +44,19 @@ object HillClimbingExperiment {
     var maxWins = 0
     val trainingFile = s"training_data_$boardSize.csv"
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
+    val copMoves =  List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
+    val robberMoves = List(Up, Down, Left, Right)
 
     for(_ <- 1 to 300) {
 
       val sim: Board => Simulator[Board, Player, Move] =
-        CopsAndRobbersSim(_, RandomMoveModelCR(), RandomMoveModelCR(), iterateWithNoise)
-      DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize,
-        numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
+        CopsAndRobbersSim(_, RandomMoveModel.crModel(robberMoves), RandomMoveModel.crModel(copMoves), iterateWithNoise)
+//      DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize,
+//        numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
 
       val robberModel: PlayerModel[Board, Player, Move] = iterationModelBuilder(paramsFile, useGenerativeParams)
-      val copModel: PlayerModel[Board, Player, Move] = RandomMoveModelCR()
+      val copModel: PlayerModel[Board, Player, Move] = RandomMoveModel.crModel(copMoves)
       val modelName = robberModel.getClass.toString.split('.').toList.last
       val learnerName = learner.getClass.toString.split('.').toList.last
       val winners = CopsAndRobbersSim.runBatch(robberModel, copModel, shouldApplyNoise = iterateWithNoise)

@@ -1,11 +1,12 @@
 package org.bu.met810.data
 
 import org.bu.met810.models.PlayerModel
+import org.bu.met810.types.{Action, Environment}
 
-trait Simulator[Env, Agent, Action]{
+trait Simulator[Env <: Environment[A, Agent], Agent, A <: Action]{
   var board: Env
-  val model1: PlayerModel[Env, Agent, Action]
-  val model2: PlayerModel[Env, Agent, Action]
+  val model1: PlayerModel[Env, Agent, A]
+  val model2: PlayerModel[Env, Agent, A]
   var turn: Int
   val shouldApplyNoise: Boolean
   protected var winner: Option[Agent] = None
@@ -16,7 +17,7 @@ trait Simulator[Env, Agent, Action]{
     */
   def runFullGame(maxCounter: Int = 1000): Option[Agent] = {
     var counter = 0
-    while (winner.isEmpty && counter < maxCounter) {
+    while (!isGameOver && counter < maxCounter) {
       runSimulator()
       counter += 1
     }

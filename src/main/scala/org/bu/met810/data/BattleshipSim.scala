@@ -2,16 +2,16 @@ package org.bu.met810.data
 
 import org.bu.met810.choose
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.models.random.RandomMoveModelBShip
+import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 
 class BattleshipSim(initialBoard: Board,
                     val model1: PlayerModel[Board, Player, Move],
-                    val model2: PlayerModel[Board, Player, Move])extends Simulator[Board, Player, Move]{
+                    val model2: PlayerModel[Board, Player, Move],
+                    var turn: Int = 0,
+                    val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
 
   override var board: Board = initialBoard
-  override var turn: Int = 0
-  override val shouldApplyNoise: Boolean = false
 
   /**
     * Performs one turn update in the simulation
@@ -20,7 +20,8 @@ class BattleshipSim(initialBoard: Board,
   override def runSimulator(): Option[(Board, Move, Board)] = {
     val model = if(turn == 0) model1 else model2
     val opposingPlayer = if(turn == 0) board.p2 else board.p1
-    val move = model.selectMove(turn, board)
+    val player = if(turn == 0) board.p1 else board.p2
+    val move = model.selectMove(player, board)
     val prevBoard = board
     val newMovesMade: Map[Int, Set[Move]] = board.movesMade ++ Map(turn -> Set(move))
     board =
@@ -45,8 +46,8 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
     * @param shouldApplyNoise - whether to apply noise, default false
     * @return BattleshipSim
     */
-  def randomInitialization(model1: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
-                           model2: PlayerModel[Board, Player, Move] = RandomMoveModelBShip(),
+  def randomInitialization(model1: PlayerModel[Board, Player, Move] = new RandomMoveModel[Board, Player, Move](null),
+                           model2: PlayerModel[Board, Player, Move] = new RandomMoveModel[Board, Player, Move](null),
                            envSize: Int, shouldApplyNoise: Boolean = false): BattleshipSim = {
     val numPieces = envSize/2
     val pieces = (0 until numPieces).map(_ => choose(pieceLengths)).toList

@@ -2,7 +2,7 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
-import org.bu.met810.types.Vectorizable
+import org.bu.met810.types.{Action, Environment, Vectorizable}
 import org.bu.met810.{Turn, WinnerId}
 
 
@@ -23,9 +23,9 @@ object DataGenerator{
     * @tparam Agent - represents agents interacting with game environment
     * @tparam Action - represents action an agent can take
     */
-  def generateData[Env <: Vectorizable, Agent <: Vectorizable, Action <: Vectorizable]
+  def generateData[Env <: Environment[A, Agent] with Vectorizable, Agent <: Vectorizable, A <: Action with Vectorizable]
   (outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
-   playerId: Int, sim: Env => Simulator[Env, Agent, Action],
+   playerId: Int, sim: Env => Simulator[Env, Agent, A],
    enumStatesFunc: (Int, Int, Int) => List[Env]): Unit = {
     val start = System.currentTimeMillis()
     val possibleStates: Seq[Env] = enumStatesFunc(boardSize, boardSize, numPlayers)
@@ -39,13 +39,14 @@ object DataGenerator{
     println(s"Data generation time: ${(end - start)/1000.0}s")
   }
 
-  private def generateDataPoint[Env <: Vectorizable, Agent<: Vectorizable, Action <: Vectorizable]
-  (playerId: Int, outputFilePath: String, sim: Simulator[Env, Agent, Action]): Unit = {
-    var data = List.empty[(Env, Action, Turn)]
-    var result: Option[(Env, Action, Env)] = None
+  private def generateDataPoint[Env <: Vectorizable with Environment[A, Agent], Agent <: Vectorizable, A <: Vectorizable with Action]
+  (playerId: Int, outputFilePath: String, sim: Simulator[Env, Agent, A]): Unit = {
+    var data = List.empty[(Env, A, Turn)]
+    var result: Option[(Env, A, Env)] = None
     var prevTurn = if(sim.turn == 0) 1 else 0
     while(!sim.isGameOver){
-      result = sim.runSimulator()
+      // TODO: this needs revamping
+      val x: Option[(Env, Action, Env)] = sim.runSimulator()
       if(result.nonEmpty) {
         val (prevState, action, _) = result.get
         data = data :+ (prevState, action, prevTurn)

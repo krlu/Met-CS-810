@@ -1,5 +1,7 @@
 package org.bu.met810.models
 
-trait PlayerModel[Env, Agent, Action]{
-  def selectMove(assetId: Int, e: Env): Action
+import org.bu.met810.types.Action
+
+trait PlayerModel[Env, Agent, A <: Action]{
+  def selectMove(agent: Agent, e: Env): A
 }

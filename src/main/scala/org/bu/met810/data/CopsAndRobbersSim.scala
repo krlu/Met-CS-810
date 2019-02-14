@@ -22,7 +22,7 @@ class CopsAndRobbersSim(initialBoard: Board,
       winner = Some(board.p1)
       None
     case _ =>
-      val move = if (turn == P1TURN) model1.selectMove(board.p1.id, board) else model2.selectMove(board.p2.id, board)
+      val move = if (turn == P1TURN) model1.selectMove(board.p1, board) else model2.selectMove(board.p2, board)
       val oldBoard =
         if(shouldApplyNoise){ // TODO: noise only gets applied to P2 position for now!!
            val (_, pos) = choose(applyNoise(board.p2.position, 1, 0.5)) // TODO: noise arguments hard coded for now!!

@@ -2,15 +2,13 @@ package org.bu.met810.models.random
 
 import org.bu.met810.choose
 import org.bu.met810.models.PlayerModel
+import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
+import org.bu.met810.types.{Action, Environment}
 
-trait RandomMoveModel[Env, Agent, Action] extends PlayerModel[Env, Agent, Action]{
-  def moveSet(a: Agent, env: Env): List[Action]
-  def getPlayer(playerId: Int, env: Env): Option[Agent]
-  def selectMove(playerId: Int, env: Env): Action = {
-    val player = getPlayer(playerId, env) match {
-      case Some(p) => p
-      case None =>  throw new NoSuchElementException(s"unable to find player with id $playerId!")
-    }
-    choose(moveSet(player, env))
-  }
+class RandomMoveModel[Env <: Environment[A, Agent], Agent, A <: Action](moveSet: List[A]) extends PlayerModel[Env, Agent, A]{
+  def selectMove(player: Agent, env: Env): A = choose(moveSet.filter(m => env.isValidAction(m, player)))
+}
+
+object RandomMoveModel{
+  def crModel(moves: List[Move]) = new RandomMoveModel[Board, Player, Move](moves)
 }

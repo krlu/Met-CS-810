@@ -13,20 +13,20 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
   private val modelParams = ModelParameters()
   paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}
 
-  override def selectMove(playerId: Int, board: Board): Move = {
+  override def selectMove(player: Player, board: Board): Move = {
     Universe.createNew()
-    val (player, possiblePositions) = getPlayerData(playerId, board)
+    val possiblePositions = List(player.position)
     val (x1, y1) = player.position
     val (x2, y2) = possiblePositions.head
     val moveDist = {
-      val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
+      val queryString = s"${player.id}_${List(x1, y1, x2, y2).mkString("_")}_move"
       val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
       Select(params, player.moves: _*)
     }
     val alg = Importance(300, moveDist)
     alg.start()
     val computedMoves = alg.distribution(moveDist).toList
-    val desiredMove = computedMoves.filter{case (_ ,m) => validMoves(player, board).contains(m)}.sortWith(_._1 > _._1).head._2
+    val desiredMove = computedMoves.filter{case (_ ,m) => validMoves(player, (board.width, board.length)).contains(m)}.sortWith(_._1 > _._1).head._2
     if(!player.moves.contains(desiredMove))
       throw new NoSuchElementException(s"move $desiredMove does not belong in $player")
     alg.stop()
