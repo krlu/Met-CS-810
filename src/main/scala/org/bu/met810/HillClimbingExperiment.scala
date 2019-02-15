@@ -23,7 +23,7 @@ object HillClimbingExperiment {
     val boardSize = 4
     for{
       iterateWithNoise <- List(false)
-      trainingSize <- List(8)
+      trainingSize <- List(2,4,8)
       learner <- List(GenerativeModelLearner())
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)

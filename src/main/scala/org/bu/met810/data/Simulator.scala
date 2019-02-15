@@ -1,9 +1,9 @@
 package org.bu.met810.data
 
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.types.{Environment, Vectorizable}
+import org.bu.met810.types.Environment
 
-trait Simulator[Env <: Environment[Action, Agent] with Vectorizable, Agent, Action]{
+trait Simulator[Env <: Environment[Action, Agent], Agent, Action]{
   var board: Env
   val model1: PlayerModel[Env, Agent, Action]
   val model2: PlayerModel[Env, Agent, Action]
