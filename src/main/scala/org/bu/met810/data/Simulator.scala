@@ -1,12 +1,12 @@
 package org.bu.met810.data
 
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.types.{Action, Environment}
+import org.bu.met810.types.{Environment, Vectorizable}
 
-trait Simulator[Env <: Environment[A, Agent], Agent, A <: Action]{
+trait Simulator[Env <: Environment[Action, Agent] with Vectorizable, Agent, Action]{
   var board: Env
-  val model1: PlayerModel[Env, Agent, A]
-  val model2: PlayerModel[Env, Agent, A]
+  val model1: PlayerModel[Env, Agent, Action]
+  val model2: PlayerModel[Env, Agent, Action]
   var turn: Int
   val shouldApplyNoise: Boolean
   protected var winner: Option[Agent] = None

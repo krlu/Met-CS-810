@@ -1,17 +1,17 @@
 package org.bu.met810.data
 
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.types.{Action, Environment}
+import org.bu.met810.types.{Environment, Vectorizable}
 
 
-trait SimBuilder[Env <: Environment[A, Agent], Agent, A <: Action]{
+trait SimBuilder[Env <: Environment[Action, Agent] with Vectorizable, Agent, Action]{
 
-  def randomInitialization(p1Model: PlayerModel[Env, Agent, A],
-                           p2Model: PlayerModel[Env, Agent, A],
-                           envSize: Int, shouldApplyNoise: Boolean): Simulator[Env, Agent, A]
+  def randomInitialization(p1Model: PlayerModel[Env, Agent, Action],
+                           p2Model: PlayerModel[Env, Agent, Action],
+                           envSize: Int, shouldApplyNoise: Boolean): Simulator[Env, Agent, Action]
 
-  def runBatch(p1Model: PlayerModel[Env, Agent, A],
-               p2Model: PlayerModel[Env, Agent, A],
+  def runBatch(p1Model: PlayerModel[Env, Agent, Action],
+               p2Model: PlayerModel[Env, Agent, Action],
                numTrials: Int = 1000, envSize: Int = 4,
                shouldApplyNoise: Boolean = false): Seq[Agent] = {
     val start = System.currentTimeMillis()

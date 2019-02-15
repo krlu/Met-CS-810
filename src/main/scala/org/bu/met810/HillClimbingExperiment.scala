@@ -2,7 +2,7 @@ package org.bu.met810
 
 import java.io.PrintWriter
 
-import org.bu.met810.data.{CopsAndRobbersSim, Simulator}
+import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, Simulator}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.learners.{GenerativeModelLearner, Learner}
@@ -17,13 +17,13 @@ object HillClimbingExperiment {
   def main(args: Array[String]): Unit = {
     val iter1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
     val iter2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
-    val paramsFile = s"trainedModels/temp_model.json"
+    val paramsFile = s"temp_model.json"
     val playerId = 0
     val numPlayers = 2
     val boardSize = 4
     for{
-      iterateWithNoise <- List(true, false)
-      trainingSize <- List(2,4,8)
+      iterateWithNoise <- List(false)
+      trainingSize <- List(8)
       learner <- List(GenerativeModelLearner())
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
@@ -51,8 +51,7 @@ object HillClimbingExperiment {
 
       val sim: Board => Simulator[Board, Player, Move] =
         CopsAndRobbersSim(_, RandomMoveModel.crModel(robberMoves), RandomMoveModel.crModel(copMoves), iterateWithNoise)
-//      DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize,
-//        numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
+      DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize, numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
 
       val robberModel: PlayerModel[Board, Player, Move] = iterationModelBuilder(paramsFile, useGenerativeParams)
@@ -67,7 +66,7 @@ object HillClimbingExperiment {
       if(wins > maxWins) {
         maxWins = wins
         println(maxWins, totalWins, maxWins.toDouble/totalWins)
-        val pw = new PrintWriter(s"trainedModels/${learnerName}_${modelName}_${iterateWithNoise}_$numTrainingSamples.json")
+        val pw = new PrintWriter(s"${learnerName}_${modelName}_${iterateWithNoise}_$numTrainingSamples.json")
         val savedParams = scala.io.Source.fromFile(paramsFile).mkString
         pw.write(savedParams)
         pw.close()

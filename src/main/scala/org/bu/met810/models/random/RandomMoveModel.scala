@@ -2,11 +2,11 @@ package org.bu.met810.models.random
 
 import org.bu.met810.choose
 import org.bu.met810.models.PlayerModel
+import org.bu.met810.types.Environment
 import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
-import org.bu.met810.types.{Action, Environment}
 
-class RandomMoveModel[Env <: Environment[A, Agent], Agent, A <: Action](moveSet: List[A]) extends PlayerModel[Env, Agent, A]{
-  def selectMove(player: Agent, env: Env): A = choose(moveSet.filter(m => env.isValidAction(m, player)))
+class RandomMoveModel[Env <: Environment[Action, Agent], Agent, Action](moveSet: List[Action]) extends PlayerModel[Env, Agent, Action]{
+  def selectMove(player: Agent, env: Env): Action = choose(moveSet.filter(m => env.isValidAction(m, player)))
 }
 
 object RandomMoveModel{
