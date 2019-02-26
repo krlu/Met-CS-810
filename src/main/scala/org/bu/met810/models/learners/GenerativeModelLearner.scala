@@ -3,7 +3,7 @@ package org.bu.met810.models.learners
 import java.io.FileWriter
 
 import org.bu.met810.models.BipartiteModel
-import org.bu.met810.types.copsandrobbersassets.{Board, Down, Move, SkipDown, SkipLeft, SkipRight, SkipUp, Up}
+import org.bu.met810.types.copsandrobbersassets._
 import org.bu.met810.{Turn, WinnerId}
 import play.api.libs.json._
 
