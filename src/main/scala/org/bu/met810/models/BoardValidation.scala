@@ -12,7 +12,8 @@ trait BoardValidation {
     * @return - List of valid moves
     */
   def validMoves(player: Player, dims: (Int, Int)): List[Move] = player.moves.filter{ m: Move =>
-    validPosition(m(player.position._1, player.position._2), dims)
+    val (x,y) = player.positions.head
+    validPosition(m(x,y), dims)
   }
 
   /**
@@ -42,9 +43,9 @@ trait BoardValidation {
     val otherPlayers = players.filter(_.id != playerId)
     val possiblePositions: List[(Int, Int)] = otherPlayers.map{ otherPlayer =>
       if(useNoise)
-      choose(applyNoise(otherPlayer.position, positionRadius = 1, minFactor = 0.5)
-        .filter(p => validPosition(p._2, (board.width, board.length)) && p._2 != player.position))._2
-      else otherPlayer.position
+      choose(applyNoise(otherPlayer.positions.head, positionRadius = 1, minFactor = 0.5)
+        .filter(p => validPosition(p._2, (board.width, board.length)) && p._2 != player.positions.head))._2
+      else otherPlayer.positions.head
     }.toList
     (player, possiblePositions)
   }

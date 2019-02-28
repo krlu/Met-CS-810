@@ -15,6 +15,9 @@ object HillClimbingExperiment {
   val COP_ID = 1
 
   def main(args: Array[String]): Unit = {
+
+    val possibleMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
+
     val iter1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
     val iter2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
     val paramsFile = s"temp_model.json"
@@ -24,13 +27,13 @@ object HillClimbingExperiment {
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(2,4,8)
-      learner <- List(GenerativeModelLearner())
+      learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, possibleMoves))
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
     } run(playerId, numPlayers, boardSize, learner, iterationModelBuilder, iterateWithNoise, paramsFile, trainingSize)
   }
 
-  def run(playerIdToTrainFor: Int, numPlayers: Int, boardSize: Int, learner: Learner,
+  def run(playerIdToTrainFor: Int, numPlayers: Int, boardSize: Int, learner: Learner[Board, Player, Move],
           iterationModelBuilder: (String, Boolean) => PlayerModel[Board, Player, Move],
           iterateWithNoise: Boolean, paramsFile: String, numTrainingSamples: Int): Unit ={
 
@@ -43,7 +46,8 @@ object HillClimbingExperiment {
 
     var maxWins = 0
     val trainingFile = s"training_data_$boardSize.csv"
-    val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner]
+    val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner[Board, Player, Move]]
+
     val copMoves =  List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
     val robberMoves = List(Up, Down, Left, Right)
 
@@ -74,5 +78,17 @@ object HillClimbingExperiment {
       val pw = new PrintWriter(trainingFile)
       pw.write("")
     }
+  }
+
+  private def vectorToBoard(vector: Seq[Int]): Board = {
+    val p1 = Robber((vector.head, vector(1)))
+    val p2 = Cop((vector(2), vector(3)))
+    Board(p1, p2, vector(4), vector(5), Seq())
+  }
+
+  private def vectorToMove(vector: Seq[Int]): Move =
+    Set(Up, Down, Left, Right,SkipUp, SkipDown, SkipLeft, SkipRight).find(_.toVector == vector.map(_.ceil.toInt)) match {
+      case Some(move) => move
+      case None => throw new NoSuchElementException(s"unable to find move with vector ${vector.map(_.ceil.toInt)}!")
   }
 }

@@ -27,6 +27,7 @@ class BipartiteModel[T, U](val edges: List[((T, U), Double)], val domain: Seq[T]
         case tuple: (Any, Any, Any, Any, Any) =>
           val (a, b, c, d, e) = tuple
           s"${a}_${b}_${c}_${d}_$e"
+        case list: List[Int] => list.mkString("_")
         case _ => v.toString
       }
       keyName + keySuffix -> JsArray(codomain.map(v1 => JsNumber(pairs.find(_._1 == v1).get._2)))

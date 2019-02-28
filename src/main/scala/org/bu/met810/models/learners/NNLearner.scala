@@ -5,8 +5,9 @@ import neuroflow.core._
 import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.NNVector
+import org.bu.met810.types.copsandrobbersassets._
 
-protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[String], val useNoise: Boolean) extends Learner {
+protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[String], val useNoise: Boolean) extends Learner[Board, Player, Move]{
 
   //  private val f1 = Activators.Double.Sigmoid
   private val f2 = Activators.Double.Linear
@@ -35,6 +36,9 @@ protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[St
     net.train(xs, ys)
     File.writeWeights(net.weights, paramsFile)
   }
+
+  override val vectorToBoard: Seq[Int] => Board = ???
+  override val vectorToMove: Seq[Int] => Move = ???
 }
 
 object NNLearner{

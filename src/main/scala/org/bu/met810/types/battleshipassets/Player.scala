@@ -1,7 +1,9 @@
 package org.bu.met810.types.battleshipassets
 
-sealed case class Player(piecePositions: List[(Int, Int)], id: Int){
+import org.bu.met810.types.Agent
+
+sealed case class Player(positions: List[(Int, Int)], id: Int) extends Agent{
   def removePiece(pos: (Int, Int)): Player = {
-    Player(piecePositions.filter{ p => p == pos}, id)
+    Player(positions.filter{ p => p == pos}, id)
   }
 }

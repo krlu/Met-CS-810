@@ -15,17 +15,17 @@ class CopsAndRobbersSim(initialBoard: Board,
   override var board: Board = initialBoard
 
   def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
-    case (p1, p2) if p1.position == p2.position =>
+    case (p1, p2) if p1.positions.head == p2.positions.head =>
       winner = Some(board.p2)
       None
-    case (p1, _) if p1.position == (initialBoard.length - 1, initialBoard.width - 1) =>
+    case (p1, _) if p1.positions.head == (initialBoard.length - 1, initialBoard.width - 1) =>
       winner = Some(board.p1)
       None
     case _ =>
       val move = if (turn == P1TURN) model1.selectMove(board.p1, board) else model2.selectMove(board.p2, board)
       val oldBoard =
         if(shouldApplyNoise){ // TODO: noise only gets applied to P2 position for now!!
-           val (_, pos) = choose(applyNoise(board.p2.position, 1, 0.5)) // TODO: noise arguments hard coded for now!!
+           val (_, pos) = choose(applyNoise(board.p2.positions.head, 1, 0.5)) // TODO: noise arguments hard coded for now!!
            val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
           board.copy(p2 = newP2)
         }
@@ -37,7 +37,7 @@ class CopsAndRobbersSim(initialBoard: Board,
 
   private def updateBoard(turn: Int, move: Move): Board = {
     val player: Player = if (board.p1.id == turn) board.p1 else board.p2
-    val (x, y) = player.position
+    val (x, y) = player.positions.head
     val updatedPlayer = player match {
       case c: Cop => c.copy(position = move(x, y))
       case r: Robber => r.copy(position = move(x, y))

@@ -14,7 +14,7 @@ import org.bu.met810.types.copsandrobbersassets._
 
 /** Given the dimensions of the board we build up our initial distributions*/
 class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Boolean)
-  extends JsonModelLoader with BoardValidation with Learner {
+  extends JsonModelLoader with BoardValidation with Learner[Board, Player, Move] {
 
   private val allMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
 
@@ -41,7 +41,7 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
         */
       def generateTrial(board: Board, move: Move, playerId: Int): Unit = {
         val (player, possiblePositions) = getPlayerData(playerId, board)
-        val (x1, y1) = player.position
+        val (x1, y1) = player.positions.head
         val (x2, y2) = possiblePositions.head
         val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
         val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
@@ -81,6 +81,9 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
     val end = System.currentTimeMillis()
     println(s"Training time: ${(end - start)/1000.0}s")
   }
+
+  override val vectorToBoard: Seq[Turn] => Board = ???
+  override val vectorToMove: Seq[Turn] => Move = ???
 }
 
 object BayesianModelLearner{

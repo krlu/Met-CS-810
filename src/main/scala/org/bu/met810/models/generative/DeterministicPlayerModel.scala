@@ -10,9 +10,9 @@ import org.bu.met810.types.copsandrobbersassets.{Board, Move, Player}
 class DeterministicPlayerModel(val paramsFile: String, val useGenerativeParams: Boolean)
   extends PlayerModel[Board, Player, Move] with JsonModelLoader with BoardValidation{
   override def selectMove(player: Player, board: Board): Move = {
-    val (x1, y1) = player.position
+    val (x1, y1) = player.positions.head
     val opposingPlayer = if(player == board.p1) board.p2 else board.p1
-    val (x2, y2) = opposingPlayer.position
+    val (x2, y2) = opposingPlayer.positions.head
     val queryString = s"${player.id}_${List(x1,y1,x2,y2).mkString("_")}_move"
     (paramsMap(queryString) zip player.moves).filter{ case (_, m) => validMoves(player, (board.width, board.length)).contains(m)}
   }.maxBy(_._1)._2

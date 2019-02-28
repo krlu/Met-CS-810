@@ -2,7 +2,7 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
-import org.bu.met810.types.{Environment, Vectorizable}
+import org.bu.met810.types.{Agent, Environment, Vectorizable}
 import org.bu.met810.{Turn, WinnerId}
 
 
@@ -20,12 +20,12 @@ object DataGenerator{
     * @param sim - generic builder for simulator
     * @param enumStatesFunc - generic enumerator for all possible game states
     * @tparam Env - represents game environment
-    * @tparam Agent - represents agents interacting with game environment
-    * @tparam A - represents action an agent can take
+    * @tparam A - represents agents interacting with game environment
+    * @tparam Action - represents action an agent can take
     */
-  def generateData[Env <: Environment[A, Agent] with Vectorizable, Agent <: Vectorizable, A <: Vectorizable]
+  def generateData[Env <: Environment[Action, A] with Vectorizable, A <: Vectorizable with Agent, Action <: Vectorizable]
   (outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
-   playerId: Int, sim: Env => Simulator[Env, Agent, A],
+   playerId: Int, sim: Env => Simulator[Env, A, Action],
    enumStatesFunc: (Int, Int, Int) => List[Env]): Unit = {
     val start = System.currentTimeMillis()
     val possibleStates: Seq[Env] = enumStatesFunc(boardSize, boardSize, numPlayers)
@@ -39,8 +39,8 @@ object DataGenerator{
     println(s"Data generation time: ${(end - start)/1000.0}s")
   }
 
-  private def generateDataPoint[Env <: Vectorizable with Environment[Action, Agent], Agent <: Vectorizable, Action <: Vectorizable]
-  (playerId: Int, outputFilePath: String, sim: Simulator[Env, Agent, Action]): Unit = {
+  private def generateDataPoint[Env <: Vectorizable with Environment[Action, A], A <: Vectorizable with Agent, Action <: Vectorizable]
+  (playerId: Int, outputFilePath: String, sim: Simulator[Env, A, Action]): Unit = {
     var data = List.empty[(Env, Action, Turn)]
     var result: Option[(Env, Action, Env)] = None
     var prevTurn = if(sim.turn == 0) 1 else 0

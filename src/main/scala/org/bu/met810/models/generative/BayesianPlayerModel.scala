@@ -15,8 +15,8 @@ class BayesianPlayerModel(val paramsFile: String, val useGenerativeParams: Boole
 
   override def selectMove(player: Player, board: Board): Move = {
     Universe.createNew()
-    val possiblePositions = List(player.position)
-    val (x1, y1) = player.position
+    val possiblePositions = List(player.positions.head)
+    val (x1, y1) = player.positions.head
     val (x2, y2) = possiblePositions.head
     val moveDist = {
       val queryString = s"${player.id}_${List(x1, y1, x2, y2).mkString("_")}_move"

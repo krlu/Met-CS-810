@@ -9,7 +9,7 @@ case class Board(p1: Player, p2: Player, length: Int, width: Int,
   private def vectorizeAgents(players: Player*): Seq[Double] = players.flatMap(_.toVector)
 
   override def isValidAction(move: Move, player: Player): Boolean = {
-    val pos = move(player.position._1, player.position._2)
+    val pos = move(player.positions.head._1, player.positions.head._2)
     val (x1, y1) = pos
     x1 >= 0 && x1 < width && y1 >= 0 && y1 < length
   }
