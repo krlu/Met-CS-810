@@ -27,16 +27,11 @@ object DataGenerator{
   (outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
    playerId: Int, sim: Env => Simulator[Env, A, Action],
    enumStatesFunc: (Int, Int, Int) => List[Env]): Unit = {
-    val start = System.currentTimeMillis()
     val possibleStates: Seq[Env] = enumStatesFunc(boardSize, boardSize, numPlayers)
     for{
       _ <- 1 to numSamples
       state <- possibleStates
-    }{
-      generateDataPoint(playerId, outputFilePath, sim(state))
-    }
-    val end = System.currentTimeMillis()
-    println(s"Data generation time: ${(end - start)/1000.0}s")
+    } generateDataPoint(playerId, outputFilePath, sim(state))
   }
 
   private def generateDataPoint[Env <: Vectorizable with Environment[Action, A], A <: Vectorizable with Agent, Action <: Vectorizable]

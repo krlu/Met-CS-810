@@ -14,15 +14,12 @@ trait SimBuilder[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Ac
                p2Model: PlayerModel[Env, A, Action],
                numTrials: Int = 1000, envSize: Int = 4,
                shouldApplyNoise: Boolean = false): Seq[A] = {
-    val start = System.currentTimeMillis()
     val winners: Seq[A] = {
       for(_ <- 1 to numTrials) yield {
         val sim = randomInitialization(p1Model, p2Model, envSize, shouldApplyNoise)
         sim.runFullGame()
       }
     }.flatten
-    val end = System.currentTimeMillis()
-    println(s"runtime: ${(end - start).toDouble/1000}")
     winners
   }
 }

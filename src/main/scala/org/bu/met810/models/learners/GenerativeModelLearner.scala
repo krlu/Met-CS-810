@@ -3,23 +3,22 @@ package org.bu.met810.models.learners
 import java.io.FileWriter
 
 import org.bu.met810.models.BipartiteModel
+import org.bu.met810.{Turn, permutationsWithRepetitions}
 import org.bu.met810.types.{Agent, Environment}
-import org.bu.met810.{Turn, WinnerId}
 import play.api.libs.json._
 
 
 class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
                              override val vectorToBoard: Seq[Turn] => Env,
                              override val vectorToMove: Seq[Turn] => Action,
+                             isValidState: Seq[Int] => Boolean,
                              possibleMoves: Seq[Action]) extends Learner[Env, A, Action]{
 
-  override def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String = ""): Unit = {
-    val start = System.currentTimeMillis()
+  override def learn(trainingDataFilePath: String, boardSize: Int,
+                     numPlayers: Int, playerId: Int, paramsFile: String = ""): Unit = {
     val boardDim = numPlayers * 2 + 2
     val moveDim = 2
-
-    val data: Seq[(Env, Action, Turn, WinnerId)] = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
-
+    val data = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
     val numRows = boardSize
     val numCols = boardSize
 
@@ -31,24 +30,15 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
       (List(playerId) ++ p1State ++ p2State, move)
     }.toList
 
-    val possiblePositions = {
-      for{
-        a <- 0 until boardSize
-        b <- 0 until boardSize
-        c <- 0 until boardSize
-        d <- 0 until boardSize
-      } yield{
-        List(playerId, a, b, c, d)
-      }
-    }.filter{ state  => state(1) != state(3) || state(2) != state(4)}
+    val possiblePositions =
+      permutationsWithRepetitions((0 until boardSize).toList, boardSize)
+        .map{ state => List(playerId) ++ state}
+        .filter(isValidState)
 
-    println("training player model...")
     val playerModel = BipartiteModel(Seq(playerData), possiblePositions, possibleMoves)
     val combinedJson: JsValue = JsObject(playerModel.asJson("_move").value)
     val paramsFileName = if(paramsFile == "") s"gen_model_${playerId}_${numRows}by$numCols.json" else paramsFile
     printJsonString(combinedJson, paramsFileName, append = false)
-    val end = System.currentTimeMillis()
-    println(s"Training time: ${(end - start)/1000.0}s")
   }
   private def printJsonString(json: JsValue, outfile: String, append: Boolean = true): Unit = {
     val pw = new FileWriter(outfile, append)

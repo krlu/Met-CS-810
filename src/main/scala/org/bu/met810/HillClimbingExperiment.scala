@@ -9,6 +9,9 @@ import org.bu.met810.models.learners.{GenerativeModelLearner, Learner}
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
+/**
+  * Experiment for Cops and Robbers
+  */
 object HillClimbingExperiment {
 
   val ROBBER_ID = 0
@@ -17,6 +20,7 @@ object HillClimbingExperiment {
   def main(args: Array[String]): Unit = {
 
     val possibleMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
+    val isValidState: Seq[Int] => Boolean = state  => state(1) != state(3) || state(2) != state(4)
 
     val iter1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
     val iter2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
@@ -27,7 +31,7 @@ object HillClimbingExperiment {
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(2,4,8)
-      learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, possibleMoves))
+      learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, isValidState, possibleMoves))
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
     } run(playerId, numPlayers, boardSize, learner, iterationModelBuilder, iterateWithNoise, paramsFile, trainingSize)
@@ -55,14 +59,27 @@ object HillClimbingExperiment {
 
       val sim: Board => Simulator[Board, Player, Move] =
         CopsAndRobbersSim(_, RandomMoveModel.crModel(robberMoves), RandomMoveModel.crModel(copMoves), iterateWithNoise)
+
+      var start = System.currentTimeMillis()
       DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize, numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
+      var end = System.currentTimeMillis()
+      println(s"Data generation time: ${(end - start)/1000.0}s")
+      start = System.currentTimeMillis()
+      println("training player model...")
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
+      end = System.currentTimeMillis()
+      println(s"Training time: ${(end - start)/1000.0}s")
 
       val robberModel: PlayerModel[Board, Player, Move] = iterationModelBuilder(paramsFile, useGenerativeParams)
       val copModel: PlayerModel[Board, Player, Move] = RandomMoveModel.crModel(copMoves)
       val modelName = robberModel.getClass.toString.split('.').toList.last
       val learnerName = learner.getClass.toString.split('.').toList.last
+
+      start = System.currentTimeMillis()
       val winners = CopsAndRobbersSim.runBatch(robberModel, copModel, shouldApplyNoise = iterateWithNoise)
+      end = System.currentTimeMillis()
+      println(s"runtime: ${(end - start).toDouble/1000}")
+
       val numRobberWins = winners.count(_.id == 0)
       val numCopWins =  winners.count(_.id == 1)
       val totalWins = winners.size
