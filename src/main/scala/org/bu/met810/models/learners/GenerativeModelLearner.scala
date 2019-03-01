@@ -31,7 +31,7 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
     }.toList
 
     val possiblePositions =
-      permutationsWithRepetitions((0 until boardSize).toList, boardSize)
+      permutationsWithRepetitions((0 until boardSize).toList, numPlayers*2)
         .map{ state => List(playerId) ++ state}
         .filter(isValidState)
 

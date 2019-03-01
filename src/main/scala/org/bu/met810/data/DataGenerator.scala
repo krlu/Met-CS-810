@@ -2,6 +2,7 @@ package org.bu.met810.data
 
 import java.io.{File, FileWriter}
 
+import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.{Agent, Environment, Vectorizable}
 import org.bu.met810.{Turn, WinnerId}
 
@@ -17,21 +18,23 @@ object DataGenerator{
     * @param numSamples - number of samples per unique board state
     * @param numPlayers - number of agents
     * @param playerId - Id of agent to generate data for
-    * @param sim - generic builder for simulator
-    * @param enumStatesFunc - generic enumerator for all possible game states
+    * @param simBuilder - generic builder for simulator
+    * @param p1Model - move model for p1 assuming 2 players total
+    * @param p2Model - move model for p2 assuming 2 players total
     * @tparam Env - represents game environment
     * @tparam A - represents agents interacting with game environment
     * @tparam Action - represents action an agent can take
     */
-  def generateData[Env <: Environment[Action, A] with Vectorizable, A <: Vectorizable with Agent, Action <: Vectorizable]
-  (outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
-   playerId: Int, sim: Env => Simulator[Env, A, Action],
-   enumStatesFunc: (Int, Int, Int) => List[Env]): Unit = {
-    val possibleStates: Seq[Env] = enumStatesFunc(boardSize, boardSize, numPlayers)
-    for{
-      _ <- 1 to numSamples
-      state <- possibleStates
-    } generateDataPoint(playerId, outputFilePath, sim(state))
+
+  def generateData[Env <: Environment[Action, A] with Vectorizable, A <: Vectorizable with Agent, Action <: Vectorizable](
+                                                outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
+                                                playerId: Int, simBuilder: SimBuilder[Env, A, Action],
+                                                p1Model: PlayerModel[Env, A, Action],
+                                                p2Model: PlayerModel[Env, A, Action]): Unit = {
+    for(_ <- 0 until numSamples) {
+      val state = simBuilder.randomInitialization(p1Model, p2Model, boardSize, shouldApplyNoise = false)
+      generateDataPoint(playerId, outputFilePath, state)
+    }
   }
 
   private def generateDataPoint[Env <: Vectorizable with Environment[Action, A], A <: Vectorizable with Agent, Action <: Vectorizable]
@@ -40,7 +43,7 @@ object DataGenerator{
     var result: Option[(Env, Action, Env)] = None
     var prevTurn = if(sim.turn == 0) 1 else 0
     while(!sim.isGameOver){
-      result = sim.runSimulator()
+      result = sim.runStep()
       if(result.nonEmpty) {
         val (prevState, action, _) = result.get
         data = data :+ (prevState, action, prevTurn)

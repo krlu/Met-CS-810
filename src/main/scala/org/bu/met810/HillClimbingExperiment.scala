@@ -25,10 +25,10 @@ object HillClimbingExperiment {
     val paramsFile = s"temp_model.json"
     val playerId = 0
     val numPlayers = 2
-    val boardSize = 4
+    val boardSize = 9
     for{
       iterateWithNoise <- List(false)
-      trainingSize <- List(2,4,8)
+      trainingSize <- List(500)
       learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, isValidState, Move.robberMoves))
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
@@ -37,28 +37,22 @@ object HillClimbingExperiment {
 
   def run(playerIdToTrainFor: Int, numPlayers: Int, boardSize: Int, learner: Learner[Board, Player, Move],
           iterationModelBuilder: (String, Boolean) => PlayerModel[Board, Player, Move],
-          iterateWithNoise: Boolean, paramsFile: String, numTrainingSamples: Int): Unit ={
-
-    def enumerateAllCopsAndRobbersStates(numRows: Int, numCols: Int, numPlayers: Int): List[Board] = {
-      val pos = possiblePositions(numRows, numRows)
-      pos.combinations(numPlayers).toList.map{ players =>
-        Board(Robber(players.head), Cop(players(1)), boardSize, boardSize, Seq.empty[Building])
-      }
-    }
+          iterateWithNoise: Boolean, paramsFile: String, numTrainingSamples: Int): Unit = {
 
     var maxWins = 0
     val trainingFile = s"training_data_$boardSize.csv"
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner[Board, Player, Move]]
 
     for(_ <- 1 to 300) {
-
-      val sim: Board => Simulator[Board, Player, Move] =
-        CopsAndRobbersSim(_, RandomMoveModel.crModel(Move.robberMoves), RandomMoveModel.crModel(Move.copMoves), iterateWithNoise)
+      val pw = new PrintWriter(trainingFile)
+      pw.write("")
 
       var start = System.currentTimeMillis()
-      DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize, numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
+      DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize, numTrainingSamples, numPlayers, playerIdToTrainFor,
+        CopsAndRobbersSim, RandomMoveModel.crModel(Move.robberMoves), RandomMoveModel.crModel(Move.copMoves))
       var end = System.currentTimeMillis()
       println(s"Data generation time: ${(end - start)/1000.0}s")
+
       start = System.currentTimeMillis()
       println("training player model...")
       learner.learn(trainingFile, boardSize, numPlayers, playerId = playerIdToTrainFor, paramsFile)
@@ -87,8 +81,6 @@ object HillClimbingExperiment {
         pw.write(savedParams)
         pw.close()
       }
-      val pw = new PrintWriter(trainingFile)
-      pw.write("")
     }
   }
 

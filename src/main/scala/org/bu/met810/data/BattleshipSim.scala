@@ -17,7 +17,7 @@ class BattleshipSim(initialBoard: Board,
     * Performs one turn update in the simulation
     * @return
     */
-  override def runSimulator(): Option[(Board, Move, Board)] = {
+  override def runStep(): Option[(Board, Move, Board)] = {
     val model = if(turn == 0) model1 else model2
     val opposingPlayer = if(turn == 0) board.p2 else board.p1
     val player = if(turn == 0) board.p1 else board.p2

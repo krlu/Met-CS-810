@@ -18,7 +18,7 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   def runFullGame(maxCounter: Int = 1000): Option[A] = {
     var counter = 0
     while (!isGameOver && counter < maxCounter) {
-      runSimulator()
+      runStep()
       counter += 1
     }
     winner
@@ -27,7 +27,7 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
     * Performs one turn update in the simulation
     * @return
     */
-  def runSimulator(): Option[(Env, Action, Env)]
+  def runStep(): Option[(Env, Action, Env)]
 
   def getWinner: Option[A] = winner
 

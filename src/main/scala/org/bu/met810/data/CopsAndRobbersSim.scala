@@ -14,7 +14,7 @@ class CopsAndRobbersSim(initialBoard: Board,
   private val P2TURN = 1
   override var board: Board = initialBoard
 
-  def runSimulator(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
+  def runStep(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
     case (p1, p2) if p1.positions.head == p2.positions.head =>
       winner = Some(board.p2)
       None
