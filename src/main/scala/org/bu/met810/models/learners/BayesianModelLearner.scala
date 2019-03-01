@@ -85,8 +85,3 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
   override val vectorToBoard: Seq[Turn] => Board = ???
   override val vectorToMove: Seq[Turn] => Move = ???
 }
-
-object BayesianModelLearner{
-  def apply(paramsFile: String, useGenerativeParams: Boolean): BayesianModelLearner =
-    new BayesianModelLearner(paramsFile, useGenerativeParams)
-}

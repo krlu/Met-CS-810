@@ -18,12 +18,10 @@ object HillClimbingExperiment {
   val COP_ID = 1
 
   def main(args: Array[String]): Unit = {
-
-    val possibleMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
     val isValidState: Seq[Int] => Boolean = state  => state(1) != state(3) || state(2) != state(4)
 
-    val iter1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
-    val iter2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
+    val iter1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply(_, _, Move.robberMoves)
+    val iter2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply(_, _, Move.robberMoves)
     val paramsFile = s"temp_model.json"
     val playerId = 0
     val numPlayers = 2
@@ -31,7 +29,7 @@ object HillClimbingExperiment {
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(2,4,8)
-      learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, isValidState, possibleMoves))
+      learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, isValidState, Move.robberMoves))
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
     } run(playerId, numPlayers, boardSize, learner, iterationModelBuilder, iterateWithNoise, paramsFile, trainingSize)
@@ -52,13 +50,10 @@ object HillClimbingExperiment {
     val trainingFile = s"training_data_$boardSize.csv"
     val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner[Board, Player, Move]]
 
-    val copMoves =  List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
-    val robberMoves = List(Up, Down, Left, Right)
-
     for(_ <- 1 to 300) {
 
       val sim: Board => Simulator[Board, Player, Move] =
-        CopsAndRobbersSim(_, RandomMoveModel.crModel(robberMoves), RandomMoveModel.crModel(copMoves), iterateWithNoise)
+        CopsAndRobbersSim(_, RandomMoveModel.crModel(Move.robberMoves), RandomMoveModel.crModel(Move.copMoves), iterateWithNoise)
 
       var start = System.currentTimeMillis()
       DataGenerator.generateData[Board, Player, Move](trainingFile, boardSize, numTrainingSamples, numPlayers, playerIdToTrainFor, sim, enumerateAllCopsAndRobbersStates)
@@ -71,7 +66,7 @@ object HillClimbingExperiment {
       println(s"Training time: ${(end - start)/1000.0}s")
 
       val robberModel: PlayerModel[Board, Player, Move] = iterationModelBuilder(paramsFile, useGenerativeParams)
-      val copModel: PlayerModel[Board, Player, Move] = RandomMoveModel.crModel(copMoves)
+      val copModel: PlayerModel[Board, Player, Move] = RandomMoveModel.crModel(Move.copMoves)
       val modelName = robberModel.getClass.toString.split('.').toList.last
       val learnerName = learner.getClass.toString.split('.').toList.last
 

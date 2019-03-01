@@ -11,15 +11,12 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class CopsAndRobbersTest extends FlatSpec with Matchers {
 
-  val copMoves =  List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
-  val robberMoves = List(Up, Down, Left, Right)
-
   "Random robber model" should "win infrequently" in {
     List(true, false).foreach { noise =>
 
       val winners = CopsAndRobbersSim.runBatch(
-        RandomMoveModel.crModel(robberMoves),
-        RandomMoveModel.crModel(copMoves),
+        RandomMoveModel.crModel(Move.robberMoves),
+        RandomMoveModel.crModel(Move.copMoves),
         shouldApplyNoise = noise)
 
       val robberWins = winners.count(_.id == 0)
@@ -33,8 +30,8 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
   val bayesian = "Bayesian"
 
   "Bayesian robber model" should "win often with Bayesian model" in {
-    val builder1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply
-    val builder2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply
+    val builder1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply(_, _, Move.possibleMoves)
+    val builder2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply(_, _, Move.possibleMoves)
     val fw = new FileWriter("results.csv", true)
     fw.write("learnerType,iteratorType,trainedWithNoise,testWithNoise,trainingSize,modelName,robberWins,copWins,winPct\n")
     for{
@@ -50,8 +47,8 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
         else builder2(paramsFile, learnerType == generative)
 
       val modelName = model.getClass.toString.split('.').toList.last
-      val trials = if (model.isInstanceOf[DeterministicPlayerModel]) 10000 else 1000
-      val winners: Seq[Player] = CopsAndRobbersSim.runBatch(model, RandomMoveModel.crModel(copMoves), numTrials = trials, shouldApplyNoise = testWithNoise)
+      val trials = if (model.isInstanceOf[DeterministicPlayerModel[Board, Player, Move]]) 10000 else 1000
+      val winners: Seq[Player] = CopsAndRobbersSim.runBatch(model, RandomMoveModel.crModel(Move.copMoves), numTrials = trials, shouldApplyNoise = testWithNoise)
       val robberWins = winners.count(_.id == 0)
       val copWins =  winners.count(_.id == 1)
       val winPct = robberWins.toDouble / (robberWins + copWins)

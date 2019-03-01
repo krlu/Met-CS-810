@@ -3,6 +3,11 @@ package org.bu.met810.types.copsandrobbersassets
 import org.bu.met810.types.Vectorizable
 
 abstract class Move() extends ((Int, Int) => (Int, Int)) with Vectorizable
+object Move{
+  val possibleMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
+  val copMoves =  List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
+  val robberMoves = List(Up, Down, Left, Right)
+}
 
 object Up extends Move { override def apply(x: Int, y: Int): (Int, Int) = (x, y+1)
   override val id: Int = 1
