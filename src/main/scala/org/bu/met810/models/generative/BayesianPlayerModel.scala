@@ -4,23 +4,22 @@ import com.cra.figaro.algorithm.sampling.Importance
 import com.cra.figaro.language.{Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
-import org.bu.met810.models.{BoardValidation, JsonModelLoader, PlayerModel}
+import org.bu.met810.models.{JsonModelLoader, PlayerModel}
 import org.bu.met810.types.{Agent, Environment}
 
 class BayesianPlayerModel[Env <: Environment[Action, A], A <: Agent, Action]
 (val paramsFile: String, val useGenerativeParams: Boolean, possibleMoves: Seq[Action])
-  extends PlayerModel[Env, A, Action] with JsonModelLoader with BoardValidation {
+  extends PlayerModel[Env, A, Action] with JsonModelLoader {
 
   private val modelParams = ModelParameters()
   paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}
 
   override def selectMove(player: A, board: Env): Action = {
     Universe.createNew()
-    val possiblePositions = List(player.positions.head)
-    val (x1, y1) = player.positions.head
-    val (x2, y2) = possiblePositions.head
+    val p1State = board.p1.positions.flatMap(p => List(p._1, p._2))
+    val p2State = board.p2.positions.flatMap(p => List(p._1, p._2))
+    val queryString = s"${(List(player.id) ++ p1State ++ p2State).mkString("_")}_move"
     val moveDist = {
-      val queryString = s"${player.id}_${List(x1, y1, x2, y2).mkString("_")}_move"
       val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
       Select(params, possibleMoves: _*)
     }

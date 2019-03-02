@@ -8,15 +8,18 @@ import com.cra.figaro.language.{Select, Universe}
 import com.cra.figaro.library.atomic.continuous.{AtomicDirichlet, Dirichlet}
 import com.cra.figaro.patterns.learning.ModelParameters
 import org.bu.met810._
-import org.bu.met810.models.{BoardValidation, JsonModelLoader}
-import org.bu.met810.types.copsandrobbersassets._
+import org.bu.met810.models.JsonModelLoader
+import org.bu.met810.types.{Agent, Environment}
 
 
 /** Given the dimensions of the board we build up our initial distributions*/
-class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Boolean)
-  extends JsonModelLoader with BoardValidation with Learner[Board, Player, Move] {
-
-  private val allMoves = List(Up, Down, Left, Right, SkipUp, SkipDown, SkipLeft, SkipRight)
+class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
+                               override val vectorToBoard: Seq[Turn] => Env,
+                               override val vectorToMove: Seq[Turn] => Action,
+                               override val paramsFile: String,
+                               override val useGenerativeParams: Boolean,
+                               isValidState: Seq[Int] => Boolean,
+                               possibleMoves: Seq[Action]) extends Learner[Env, A, Action] with JsonModelLoader {
 
   def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit = {
     val numRows = boardSize
@@ -24,14 +27,14 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
     val boardDim = numPlayers * 2 + 2 //num players * num coordinates + 1 for board length + 1 for board width
     val moveDim = 2
 
-    def train(data: List[(Board, Move)], playerId: Int, useLearnedParams: Boolean): String = {
+    def train(data: List[(Env, Action)], playerId: Int, useLearnedParams: Boolean): String = {
       Universe.createNew()
       val modelParams = ModelParameters()
       if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
       else {
         permutationsWithRepetitions(possiblePositions(numRows, numCols), numPlayers).map{ positions =>
           val name = s"${playerId}_${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
-          Dirichlet(Array.fill(allMoves.size)(1.0):_*)(name, modelParams)
+          Dirichlet(Array.fill(possibleMoves.size)(1.0):_*)(name, modelParams)
         }
       }
       /**
@@ -39,13 +42,12 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
         * @param board - boardState
         * @param move - observed move for player model
         */
-      def generateTrial(board: Board, move: Move, playerId: Int): Unit = {
-        val (player, possiblePositions) = getPlayerData(playerId, board)
-        val (x1, y1) = player.positions.head
-        val (x2, y2) = possiblePositions.head
-        val queryString = s"${playerId}_${List(x1, y1, x2, y2).mkString("_")}_move"
+      def generateTrial(board: Env, move: Action, playerId: Int): Unit = {
+        val p1State = board.p1.positions.flatMap(p => List(p._1, p._2))
+        val p2State = board.p2.positions.flatMap(p => List(p._1, p._2))
+        val queryString = s"${playerId}_${(List(playerId) ++ p1State ++ p2State).mkString("_")}_move"
         val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
-        val moveDist = Select(params, allMoves:_*)
+        val moveDist = Select(params, possibleMoves:_*)
         moveDist.observe(move)
       }
 
@@ -59,15 +61,16 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
     }
 
     def trainForPlayer(playerId: Int): Unit = {
-      val data = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
-      val playerSpecificData: List[(Board, Move)] = data.filter{ case (_, _, turn, winnerId) =>
+      val data: Seq[(Env, Action, Turn, WinnerId)] = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
+      val playerSpecificData: Seq[(Env, Action)] = data.filter{ case (_, _, turn, winnerId) =>
         turn == playerId && winnerId == playerId
       }.map{ case (board, move, _, _) =>
         (board, move)
       }.toList
+
       val chunkedData = playerSpecificData.grouped(20).toList
       chunkedData.indices.foreach{ i =>
-        val row = chunkedData(i)
+        val row = chunkedData(i).toList
         val useParamsFile = i > 0
         val paramsString = train(row, playerId, useParamsFile)
         val pw = new PrintWriter(paramsFile)
@@ -81,7 +84,4 @@ class BayesianModelLearner(val paramsFile: String, val useGenerativeParams: Bool
     val end = System.currentTimeMillis()
     println(s"Training time: ${(end - start)/1000.0}s")
   }
-
-  override val vectorToBoard: Seq[Turn] => Board = ???
-  override val vectorToMove: Seq[Turn] => Move = ???
 }

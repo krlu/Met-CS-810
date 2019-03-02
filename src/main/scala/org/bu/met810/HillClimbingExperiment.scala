@@ -25,10 +25,10 @@ object HillClimbingExperiment {
     val paramsFile = s"temp_model.json"
     val playerId = 0
     val numPlayers = 2
-    val boardSize = 9
+    val boardSize = 4
     for{
       iterateWithNoise <- List(false)
-      trainingSize <- List(500)
+      trainingSize <- List(1000)
       learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, isValidState, Move.robberMoves))
       //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
       iterationModelBuilder <- List(iter1, iter2)
