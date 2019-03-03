@@ -16,7 +16,6 @@ package object met810 {
       if (util.Random.nextInt(col._2) == 0) col else row
     )._1
 
-
   def permutationsFromNBuckets[T](input: List[List[T]]): List[List[T]] = {
     if(input.isEmpty) input
     else if(input.size == 1) input.head.map(List(_))
@@ -30,7 +29,7 @@ package object met810 {
     }
   }
 
-  def permutationsWithRepetitions[T](input : List[T], n : Int) : List[List[T]] = {
+  def permutationsWithRepetitions[T](input: List[T], n: Int) : List[List[T]] = {
     require(input.nonEmpty && n > 0)
     n match {
       case 1 => for (el <- input) yield List(el)
@@ -38,11 +37,8 @@ package object met810 {
     }
   }
 
-  def possiblePositions(numRows: Int, numCols: Int): List[(Int, Int)] = {for{
-      x <- 0 until numCols
-      y <- 0 until numRows
-    }yield(x,y)
-  }.toList
+  def possibleStates(numRows: Int, numCols: Int, agentDim: Int): List[List[Int]] =
+    permutationsWithRepetitions((0 until Math.max(numCols, numRows)).toList, agentDim)
 
   def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
     val (x, y) = pos

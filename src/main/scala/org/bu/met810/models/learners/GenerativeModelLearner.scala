@@ -7,10 +7,20 @@ import org.bu.met810.{Turn, permutationsWithRepetitions}
 import org.bu.met810.types.{Agent, Environment}
 import play.api.libs.json._
 
-
+/**
+  * @param vectorToBoard - function converting a vector to the Environment type
+  * @param vectorToMove - function converting a vector to the Action type
+  * @param agentDim - number of dimensions in attribute space for agent type
+  * @param isValidState - function determining if agent state if valid in the environment
+  * @param possibleMoves - specifies space of actions (currently must be finite)
+  * @tparam Env - Secifies space that contains agent(s)
+  * @tparam A - Defines attributes for an agent
+  * @tparam Action - Defines attributes for an action
+  */
 class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
                              override val vectorToBoard: Seq[Turn] => Env,
                              override val vectorToMove: Seq[Turn] => Action,
+                             override val agentDim: Int,
                              isValidState: Seq[Int] => Boolean,
                              possibleMoves: Seq[Action]) extends Learner[Env, A, Action]{
 
@@ -31,7 +41,7 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
     }.toList
 
     val possiblePositions =
-      permutationsWithRepetitions((0 until boardSize).toList, numPlayers*2)
+      permutationsWithRepetitions((0 until boardSize).toList, agentDim * numPlayers)
         .map{ state => List(playerId) ++ state}
         .filter(isValidState)
 

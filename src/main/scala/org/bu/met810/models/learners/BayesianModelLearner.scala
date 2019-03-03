@@ -11,13 +11,24 @@ import org.bu.met810._
 import org.bu.met810.models.JsonModelLoader
 import org.bu.met810.types.{Agent, Environment}
 
-
-/** Given the dimensions of the board we build up our initial distributions*/
+/**
+  * @param vectorToBoard - function converting a vector to the Environment type
+  * @param vectorToMove - function converting a vector to the Action type
+  * @param paramsFile - for saving learned parameters
+  * @param useGenerativeParams - generative params and bayesian params JSON are parsed differently
+  * @param agentDim - number of dimensions in attribute space for agent type
+  * @param isValidState - function determining if agent state if valid in the environment
+  * @param possibleMoves - specifies space of actions (currently must be finite)
+  * @tparam Env - Secifies space that contains agent(s)
+  * @tparam A - Defines attributes for an agent
+  * @tparam Action - Defines attributes for an action
+  */
 class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
                                override val vectorToBoard: Seq[Turn] => Env,
                                override val vectorToMove: Seq[Turn] => Action,
                                override val paramsFile: String,
                                override val useGenerativeParams: Boolean,
+                               override val agentDim: Int,
                                isValidState: Seq[Int] => Boolean,
                                possibleMoves: Seq[Action]) extends Learner[Env, A, Action] with JsonModelLoader {
 
@@ -30,15 +41,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
     def train(data: List[(Env, Action)], playerId: Int, useLearnedParams: Boolean): String = {
       Universe.createNew()
       val modelParams = ModelParameters()
-      if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
-      else {
-        permutationsWithRepetitions(possiblePositions(numRows, numCols), numPlayers).map{ positions =>
-          val name = s"${playerId}_${positions.flatMap{case(a,b) => List(a,b)}.mkString("_")}_move"
-          Dirichlet(Array.fill(possibleMoves.size)(1.0):_*)(name, modelParams)
-        }
-      }
       /**
-        * TODO: replace boardState with vector of positions
         * @param board - boardState
         * @param move - observed move for player model
         */
@@ -51,6 +54,13 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
         moveDist.observe(move)
       }
 
+      if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
+      else {
+        possibleStates(numRows, numCols, agentDim * numPlayers).map{ state =>
+          val name = s"${playerId}_${state.mkString("_")}_move"
+          Dirichlet(Array.fill(possibleMoves.size)(1.0):_*)(name, modelParams)
+        }
+      }
       data.foreach{ case(p, m) => generateTrial(p,m, playerId) }
       val alg = EMWithVE(2, modelParams)
       alg.start()

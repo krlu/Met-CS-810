@@ -5,7 +5,7 @@ import java.io.PrintWriter
 import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, Simulator}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
-import org.bu.met810.models.learners.{GenerativeModelLearner, Learner}
+import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
@@ -16,6 +16,7 @@ object HillClimbingExperiment {
 
   val ROBBER_ID = 0
   val COP_ID = 1
+  val agentDim = 2
 
   def main(args: Array[String]): Unit = {
     val isValidState: Seq[Int] => Boolean = state  => state(1) != state(3) || state(2) != state(4)
@@ -29,8 +30,11 @@ object HillClimbingExperiment {
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(1000)
-      learner <- List(new GenerativeModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, isValidState, Move.robberMoves))
-      //,BayesianModelLearner(paramsFile, useGenerativeParams = false))
+      learner <- List(
+        new GenerativeModelLearner[Board, Player, Move](vectorToBoard,
+          vectorToMove, agentDim, isValidState, Move.possibleMoves)
+       ,new BayesianModelLearner[Board, Player, Move](vectorToBoard, vectorToMove, paramsFile,
+          useGenerativeParams = true, agentDim, isValidState, Move.possibleMoves))
       iterationModelBuilder <- List(iter1, iter2)
     } run(playerId, numPlayers, boardSize, learner, iterationModelBuilder, iterateWithNoise, paramsFile, trainingSize)
   }
@@ -69,8 +73,8 @@ object HillClimbingExperiment {
       end = System.currentTimeMillis()
       println(s"runtime: ${(end - start).toDouble/1000}")
 
-      val numRobberWins = winners.count(_.id == 0)
-      val numCopWins =  winners.count(_.id == 1)
+      val numRobberWins = winners.count(_.id == ROBBER_ID)
+      val numCopWins =  winners.count(_.id == COP_ID)
       val totalWins = winners.size
       val wins = if(playerIdToTrainFor == ROBBER_ID) numRobberWins else numCopWins
       if(wins > maxWins) {

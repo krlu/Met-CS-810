@@ -39,4 +39,5 @@ trait Learner[Env <: Environment[Action, A], A <:Agent, Action]{
 
   val vectorToBoard: Seq[Int] => Env
   val vectorToMove: Seq[Int] => Action
+  val agentDim: Int
 }

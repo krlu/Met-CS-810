@@ -39,6 +39,7 @@ protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[St
 
   override val vectorToBoard: Seq[Int] => Board = ???
   override val vectorToMove: Seq[Int] => Move = ???
+  override val agentDim: Int = ???
 }
 
 object NNLearner{
