@@ -16,7 +16,6 @@ object DataGenerator{
     * @param outputFilePath - csv file to contain training data
     * @param boardSize - rows and columns of a square board
     * @param numSamples - number of samples per unique board state
-    * @param numPlayers - number of agents
     * @param playerId - Id of agent to generate data for
     * @param simBuilder - generic builder for simulator
     * @param p1Model - move model for p1 assuming 2 players total
@@ -27,7 +26,7 @@ object DataGenerator{
     */
 
   def generateData[Env <: Environment[Action, A] with Vectorizable, A <: Vectorizable with Agent, Action <: Vectorizable](
-                                                outputFilePath: String, boardSize: Int, numSamples: Int, numPlayers: Int,
+                                                outputFilePath: String, boardSize: Int, numSamples: Int,
                                                 playerId: Int, simBuilder: SimBuilder[Env, A, Action],
                                                 p1Model: PlayerModel[Env, A, Action],
                                                 p2Model: PlayerModel[Env, A, Action]): Unit = {
