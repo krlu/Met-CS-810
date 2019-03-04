@@ -3,7 +3,7 @@ package org.bu.met810.types.copsandrobbersassets
 import org.bu.met810.types.{Environment, Vectorizable}
 
 case class Board(p1: Player, p2: Player, length: Int, width: Int,
-                 objects: Seq[Building], override val id: Int = 0) extends Vectorizable with Environment[Move, Player] {
+                 objects: Seq[Building]) extends Vectorizable with Environment[Move, Player] {
   val toVector: Seq[Double] = vectorizeAgents(p1, p2) ++ Seq(length, width).map(_.toDouble) ++ objects.flatMap(_.toVector)
 
   private def vectorizeAgents(players: Player*): Seq[Double] = players.flatMap(_.toVector)

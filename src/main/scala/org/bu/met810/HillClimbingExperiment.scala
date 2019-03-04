@@ -70,7 +70,7 @@ object HillClimbingExperiment {
       require(numPlayers == 2)
       var maxWins = 0
       val trainingFile = s"training_data_$boardSize.csv"
-      val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner[Board, Player, Move]]
+      val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner[Env, A, Action]]
 
       for(_ <- 1 to 300) {
         val pw = new PrintWriter(trainingFile)

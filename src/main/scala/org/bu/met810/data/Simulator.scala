@@ -4,7 +4,7 @@ import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.{Agent, Environment}
 
 trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
-  var board: Env
+  protected var board: Env
   val model1: PlayerModel[Env, A, Action]
   val model2: PlayerModel[Env, A, Action]
   var turn: Int

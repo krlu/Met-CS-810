@@ -11,24 +11,32 @@ class BattleshipSim(initialBoard: Board,
                     var turn: Int = 0,
                     val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
 
-  override var board: Board = initialBoard
+  override protected var board: Board = initialBoard
+  private val P1TURN = 0
+  private val P2TURN = 1
 
   /**
     * Performs one turn update in the simulation
     * @return
     */
   override def runStep(): Option[(Board, Move, Board)] = {
-    val model = if(turn == 0) model1 else model2
-    val opposingPlayer = if(turn == 0) board.p2 else board.p1
-    val player = if(turn == 0) board.p1 else board.p2
+    winner =
+      if(board.p2.hasDestroyedOpponent(board.p1)) Some(board.p1)
+      else if(board.p1.hasDestroyedOpponent(board.p2)) Some(board.p1)
+      else None
+
+    val model = if(turn == P1TURN) model1 else model2
+    val opposingPlayer = if(turn == P1TURN) board.p2 else board.p1
+    val player = if(turn == P1TURN) board.p1 else board.p2
     val move = model.selectMove(player, board)
     val prevBoard = board
-    val newMovesMade: Map[Int, Set[Move]] = board.movesMade ++ Map(turn -> Set(move))
+    val newMovesMade = (List(move) ++ player.movesMade).distinct
     board =
-      if(turn == 0)
-        board.copy(p2 = opposingPlayer.removePiece(move.pos), movesMade = newMovesMade)
+      if(turn == P1TURN)
+        board.copy(p1 = opposingPlayer.copy(movesMade = newMovesMade))
       else
-        board.copy(p1 = opposingPlayer.removePiece(move.pos), movesMade = newMovesMade)
+        board.copy(p2 = opposingPlayer.copy(movesMade = newMovesMade))
+    turn = if(turn == P1TURN) P2TURN else P1TURN
     Some(prevBoard, move, board)
   }
 }
