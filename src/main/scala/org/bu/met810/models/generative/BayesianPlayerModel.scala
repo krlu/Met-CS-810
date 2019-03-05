@@ -16,8 +16,8 @@ class BayesianPlayerModel[Env <: Environment[Action, A], A <: Agent, Action]
 
   override def selectMove(player: A, board: Env): Action = {
     Universe.createNew()
-    val p1State = board.p1.positions.flatMap(p => List(p._1, p._2))
-    val p2State = board.p2.positions.flatMap(p => List(p._1, p._2))
+    val p1State = board.p1.state
+    val p2State = board.p2.state
     val queryString = s"${(List(player.id) ++ p1State ++ p2State).mkString("_")}_move"
     val moveDist = {
       val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]

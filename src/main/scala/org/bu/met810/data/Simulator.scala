@@ -32,4 +32,5 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   def getWinner: Option[A] = winner
 
   def isGameOver: Boolean = winner.nonEmpty
+  def getBoard: Env = board
 }

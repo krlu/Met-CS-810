@@ -9,8 +9,8 @@ class BattleshipTest extends FlatSpec with Matchers {
     val boardSize = 5
     for(_ <- 0 to 100) {
       val sim = BattleshipSim.randomInitialization(envSize = boardSize)
-      val p1PiecePos = sim.board.p1.positions
-      val p2PiecePos = sim.board.p2.positions
+      val p1PiecePos = sim.getBoard.p1.positions
+      val p2PiecePos = sim.getBoard.p2.positions
       List(p1PiecePos, p2PiecePos).foreach { positions =>
         assert(positions.forall { case (x, y) => x < boardSize && y < boardSize })
         assert(positions.size <= BattleshipSim.pieceLengths.max * numPieces)

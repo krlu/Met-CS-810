@@ -46,8 +46,8 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
         * @param move - observed move for player model
         */
       def generateTrial(board: Env, move: Action, playerId: Int): Unit = {
-        val p1State = board.p1.positions.flatMap(p => List(p._1, p._2))
-        val p2State = board.p2.positions.flatMap(p => List(p._1, p._2))
+        val p1State = board.p1.state
+        val p2State = board.p2.state
         val queryString = s"${playerId}_${(List(playerId) ++ p1State ++ p2State).mkString("_")}_move"
         val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
         val moveDist = Select(params, possibleMoves:_*)

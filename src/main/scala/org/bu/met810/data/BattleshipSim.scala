@@ -21,8 +21,8 @@ class BattleshipSim(initialBoard: Board,
     */
   override def runStep(): Option[(Board, Move, Board)] = {
     winner =
-      if(board.p2.hasDestroyedOpponent(board.p1)) Some(board.p1)
-      else if(board.p1.hasDestroyedOpponent(board.p2)) Some(board.p1)
+      if(board.p2.isDestroyed) Some(board.p1)
+      else if(board.p2.isDestroyed) Some(board.p1)
       else None
 
     val model = if(turn == P1TURN) model1 else model2
@@ -31,11 +31,15 @@ class BattleshipSim(initialBoard: Board,
     val move = model.selectMove(player, board)
     val prevBoard = board
     val newMovesMade = (List(move) ++ player.movesMade).distinct
-    board =
+    val newPosDestroyed =
+      if(opposingPlayer.positions.contains(move.pos)) opposingPlayer.positionsDestroyed :+ move.pos
+      else opposingPlayer.positionsDestroyed
+    val (newP1, newP2) =
       if(turn == P1TURN)
-        board.copy(p1 = opposingPlayer.copy(movesMade = newMovesMade))
+        (player.copy(movesMade = newMovesMade), opposingPlayer.copy(positionsDestroyed = newPosDestroyed))
       else
-        board.copy(p2 = opposingPlayer.copy(movesMade = newMovesMade))
+        (opposingPlayer.copy(positionsDestroyed = newPosDestroyed), player.copy(movesMade = newMovesMade))
+    board = board.copy(p1 = newP1, p2 = newP2)
     turn = if(turn == P1TURN) P2TURN else P1TURN
     Some(prevBoard, move, board)
   }

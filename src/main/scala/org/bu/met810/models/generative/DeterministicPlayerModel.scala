@@ -11,8 +11,8 @@ class DeterministicPlayerModel[Env <: Environment[Action, A], A <: Agent, Action
   extends PlayerModel[Env, A, Action] with JsonModelLoader{
 
   override def selectMove(player: A, board: Env): Action = {
-    val p1State = board.p1.positions.flatMap(p => List(p._1, p._2))
-    val p2State = board.p2.positions.flatMap(p => List(p._1, p._2))
+    val p1State = board.p1.state
+    val p2State = board.p2.state
     val queryString = s"${(List(player.id) ++ p1State ++ p2State).mkString("_")}_move"
     (paramsMap(queryString) zip possibleMoves).filter{ case (_, m) => board.isValidAction(m,player)}
   }.maxBy(_._1)._2

@@ -35,8 +35,8 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
     val playerData  = data.filter{ case (_, _, turn, winnerId) =>
       turn == playerId && winnerId == playerId
     }.map{ case (board, move, _, _) =>
-      val p1State = board.p1.positions.flatMap(p => List(p._1, p._2))
-      val p2State = board.p2.positions.flatMap(p => List(p._1, p._2))
+      val p1State = board.p1.state
+      val p2State = board.p2.state
       (List(playerId) ++ p1State ++ p2State, move)
     }.toList
 

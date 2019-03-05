@@ -2,13 +2,13 @@ package org.bu.met810
 
 import java.io.PrintWriter
 
-import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, SimBuilder, Simulator}
+import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, SimBuilder}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}
 import org.bu.met810.models.random.RandomMoveModel
-import org.bu.met810.types.{Agent, Environment, Vectorizable}
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
+import org.bu.met810.types.{Agent, Environment, Vectorizable}
 
 
 object HillClimbingExperiment {
