@@ -30,7 +30,7 @@ class BattleshipSim(initialBoard: Board,
     val player = if(turn == P1TURN) board.p1 else board.p2
     val move = model.selectMove(player, board)
     val prevBoard = board
-    val newMovesMade = (List(move) ++ player.movesMade).distinct
+    val newMovesMade = player.movesMade.updated(move.pos, 1)
     val newPosDestroyed =
       if(opposingPlayer.positions.contains(move.pos)) opposingPlayer.positionsDestroyed :+ move.pos
       else opposingPlayer.positionsDestroyed
@@ -72,11 +72,11 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
   }
 
   private def initPlayer(width: Int, height: Int, pieces: List[Int], id: Int): Player = {
-
-    var openPositions = {for{
+    def getAllPositions = {for{
       x <- 0 until width
       y <- 0 until height
     } yield (x,y)}.toList
+    var openPositions = getAllPositions
     val positions: Seq[(Int, Int)] = pieces.flatMap{ pieceLength =>
       val orientation = choose(List(NORTHING, EASTING))
       val validPositions = openPositions.filter{ case (x,y) =>
@@ -94,6 +94,6 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
       openPositions = openPositions.filter(!positionsForPiece.contains(_))
       positionsForPiece
     }
-    Player(positions.toList, id)
+    Player(positions.toList, id, getAllPositions.map(p => p -> 0).toMap)
   }
 }

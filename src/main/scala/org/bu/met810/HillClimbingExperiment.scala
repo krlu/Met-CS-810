@@ -2,35 +2,43 @@ package org.bu.met810
 
 import java.io.PrintWriter
 
-import org.bu.met810.data.{CopsAndRobbersSim, DataGenerator, SimBuilder}
+import org.bu.met810.data.{BattleshipSim, DataGenerator, SimBuilder}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}
 import org.bu.met810.models.random.RandomMoveModel
-import org.bu.met810.types.copsandrobbersassets.{Move, _}
+import org.bu.met810.types.battleshipassets._
 import org.bu.met810.types.{Agent, Environment, Vectorizable}
 
 
 object HillClimbingExperiment {
 
   def main(args: Array[String]): Unit = {
-    /** Experiment for Cops and Robbers */
-    val ROBBER_ID = 0
-    val COP_ID = 1
-    val isValidState: Seq[Int] => Boolean = state  => state(1) != state(3) || state(2) != state(4)
+    val P1_ID = 0
+    val P2_ID = 1
+    val isValidState: Seq[Int] => Boolean = _ => true
 
     def vectorToBoard(vector: Seq[Int]): Board = {
-      val p1 = Robber((vector.head, vector(1)))
-      val p2 = Cop((vector(2), vector(3)))
-      Board(p1, p2, vector(4), vector(5), Seq())
+      def vectorToPlayer(playerVector: Seq[Int], id: Int): Player = {
+        val (pos, moves) = playerVector.splitAt(playerVector.size/2)
+        val positions = pos.grouped(3).map{ x =>
+          (x.head, x(1)) -> x(2)
+        }.toList
+        val movesMade = moves.grouped(3).map{ x =>
+          (x.head, x(1)) -> x(2)
+        }.toMap
+        Player(positions.map(p => p._1), id, movesMade, positions.filter(_._2 == 1).map(_._1))
+      }
+      val playerDataVector = vector.dropRight(2)
+      val (p1Vector, p2Vector) = playerDataVector.splitAt(playerDataVector.length/2)
+      val p1 = vectorToPlayer(p1Vector, P1_ID)
+      val p2 = vectorToPlayer(p2Vector, P2_ID)
+      Board(p1, p2, vector(4), vector(5))
     }
-    def vectorToMove(vector: Seq[Int]): Move =
-      Move.possibleMoves.find(_.toVector == vector.map(_.ceil.toInt)) match {
-      case Some(move) => move
-      case None => throw new NoSuchElementException(s"unable to find move with vector ${vector.map(_.ceil.toInt)}!")
-    }
-    runAllExperiments(Move.robberMoves, Move.copMoves, vectorToBoard, vectorToMove,
-      CopsAndRobbersSim, agentDim = 2, Array(ROBBER_ID, COP_ID), isValidState)
+    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
+
+    runAllExperiments(List(Move(0,0)), List(Move(0,0)), vectorToBoard, vectorToMove,
+      BattleshipSim, agentDim = 2, Array(P1_ID, P2_ID), isValidState)
   }
 
   def runAllExperiments[Env <: Environment[Action, A] with Vectorizable, A <: Agent with Vectorizable, Action <: Vectorizable](
