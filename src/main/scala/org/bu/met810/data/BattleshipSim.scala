@@ -12,36 +12,24 @@ class BattleshipSim(initialBoard: Board,
                     val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
 
   override protected var board: Board = initialBoard
-  private val P1TURN = 0
-  private val P2TURN = 1
 
-  /**
-    * Performs one turn update in the simulation
-    * @return
-    */
-  override def runStep(): Option[(Board, Move, Board)] = {
-    winner =
-      if(board.p2.isDestroyed) Some(board.p1)
-      else if(board.p2.isDestroyed) Some(board.p1)
-      else None
-
-    val model = if(turn == P1TURN) model1 else model2
-    val opposingPlayer = if(turn == P1TURN) board.p2 else board.p1
-    val player = if(turn == P1TURN) board.p1 else board.p2
-    val move = model.selectMove(player, board)
-    val prevBoard = board
-    val newMovesMade = player.movesMade.updated(move.pos, 1)
+  override def transition(p1: Player, p2: Player, move: Move, env: Board): Board = {
+    val newMovesMade = p1.movesMade.updated(move.pos, 1)
     val newPosDestroyed =
-      if(opposingPlayer.positions.contains(move.pos)) opposingPlayer.positionsDestroyed :+ move.pos
-      else opposingPlayer.positionsDestroyed
+      if(p2.positions.contains(move.pos)) p2.positionsDestroyed :+ move.pos
+      else p2.positionsDestroyed
     val (newP1, newP2) =
       if(turn == P1TURN)
-        (player.copy(movesMade = newMovesMade), opposingPlayer.copy(positionsDestroyed = newPosDestroyed))
+        (p1.copy(movesMade = newMovesMade), p2.copy(positionsDestroyed = newPosDestroyed))
       else
-        (opposingPlayer.copy(positionsDestroyed = newPosDestroyed), player.copy(movesMade = newMovesMade))
-    board = board.copy(p1 = newP1, p2 = newP2)
-    turn = if(turn == P1TURN) P2TURN else P1TURN
-    Some(prevBoard, move, board)
+        (p2.copy(positionsDestroyed = newPosDestroyed), p1.copy(movesMade = newMovesMade))
+    board.copy(p1 = newP1, p2 = newP2)
+  }
+
+  override def determineWinner(board: Board): Option[Player] = {
+    if(board.p2.isDestroyed) Some(board.p1)
+    else if(board.p2.isDestroyed) Some(board.p1)
+    else None
   }
 }
 

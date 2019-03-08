@@ -10,40 +10,22 @@ class CopsAndRobbersSim(initialBoard: Board,
                         var turn: Int = 0,
                         val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
 
-  private val P1TURN = 0
-  private val P2TURN = 1
   override var board: Board = initialBoard
 
-  def runStep(): Option[(Board, Move, Board)] = (board.p1, board.p2) match {
-    case (p1, p2) if p1.positions.head == p2.positions.head =>
-      winner = Some(board.p2)
-      None
-    case (p1, _) if p1.positions.head == (initialBoard.length - 1, initialBoard.width - 1) =>
-      winner = Some(board.p1)
-      None
-    case _ =>
-      val move = if (turn == P1TURN) model1.selectMove(board.p1, board) else model2.selectMove(board.p2, board)
-      val oldBoard =
-        if(shouldApplyNoise){ // TODO: noise only gets applied to P2 position for now!!
-           val (_, pos) = choose(applyNoise(board.p2.positions.head, 1, 0.5)) // TODO: noise arguments hard coded for now!!
-           val newP2 = board.p2.asInstanceOf[Cop].copy(pos)
-          board.copy(p2 = newP2)
-        }
-        else board
-      board = updateBoard(turn, move)
-      turn = if (turn == P1TURN) P2TURN else P1TURN
-      Some(oldBoard, move, board)
-  }
-
-  private def updateBoard(turn: Int, move: Move): Board = {
-    val player: Player = if (board.p1.id == turn) board.p1 else board.p2
-    val (x, y) = player.positions.head
-    val updatedPlayer = player match {
-      case c: Cop => c.copy(position = move(x, y))
-      case r: Robber => r.copy(position = move(x, y))
+  override def transition(agent1: Player, agent2: Player, action: Move, env: Board): Board = {
+    val (x, y) = agent1.positions.head
+    val updatedPlayer = agent1 match {
+      case c: Cop => c.copy(position = action(x, y))
+      case r: Robber => r.copy(position = action(x, y))
     }
     if (board.p1.id == turn) board.copy(p1 = updatedPlayer)
     else board.copy(p2 = updatedPlayer)
+  }
+
+  override def determineWinner(board: Board): Option[Player] = (board.p1, board.p2) match {
+    case (p1, p2) if p1.positions.head == p2.positions.head => Some(board.p2)
+    case (p1, _) if p1.positions.head == (initialBoard.length - 1, initialBoard.width - 1) => Some(board.p1)
+    case _ => None
   }
 }
 
