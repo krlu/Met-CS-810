@@ -7,8 +7,8 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   protected var board: Env
   val model1: PlayerModel[Env, A, Action]
   val model2: PlayerModel[Env, A, Action]
-  var turn: Int
-  val shouldApplyNoise: Boolean
+  protected var turn: Int = 0
+  val shouldApplyNoise: Boolean = false
   protected val P1TURN = 0
   protected val P2TURN = 1
   protected var winner: Option[A] = None
@@ -33,21 +33,20 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
     winner = determineWinner(board)
     if(winner.nonEmpty) return None
     val model = if(turn == P1TURN) model1 else model2
-    val opposingPlayer = if(turn == P1TURN) board.p2 else board.p1
     val player = if(turn == P1TURN) board.p1 else board.p2
     val move = model.selectMove(player, board)
     val prevBoard = board
-    board = transition(player, opposingPlayer, move, prevBoard)
+    board = transition(player, move, prevBoard)
     turn = if(turn == P1TURN) P2TURN else P1TURN
     Some(prevBoard, move, board)
   }
 
-  def transition(agent1: A, agent2: A, action: Action, env: Env): Env
+  def transition(agent1: A, action: Action, env: Env): Env
 
   def determineWinner(env: Env): Option[A]
 
   def getWinner: Option[A] = winner
-
+  def getTurn: Int = turn
   def isGameOver: Boolean = winner.nonEmpty
   def getBoard: Env = board
 }

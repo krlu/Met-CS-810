@@ -27,13 +27,14 @@ object HillClimbingExperiment {
         val movesMade = moves.grouped(3).map{ x =>
           (x.head, x(1)) -> x(2)
         }.toMap
-        Player(positions.map(p => p._1), id, movesMade, positions.filter(_._2 == 1).map(_._1))
+        Player(positions, id, movesMade)
       }
       val playerDataVector = vector.dropRight(2)
+      val dimensions = vector.takeRight(2)
       val (p1Vector, p2Vector) = playerDataVector.splitAt(playerDataVector.length/2)
       val p1 = vectorToPlayer(p1Vector, P1_ID)
       val p2 = vectorToPlayer(p2Vector, P2_ID)
-      Board(p1, p2, vector(4), vector(5))
+      Board(p1, p2, dimensions.head, dimensions(1))
     }
     def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
 

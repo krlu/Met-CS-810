@@ -1,18 +1,16 @@
 package org.bu.met810.data
 
-import org.bu.met810.{applyNoise, choose}
+import org.bu.met810.choose
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],
-                        val model2: PlayerModel[Board, Player, Move],
-                        var turn: Int = 0,
-                        val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
+                        val model2: PlayerModel[Board, Player, Move]) extends Simulator[Board, Player, Move]{
 
   override var board: Board = initialBoard
 
-  override def transition(agent1: Player, agent2: Player, action: Move, env: Board): Board = {
+  override def transition(agent1: Player, action: Move, env: Board): Board = {
     val (x, y) = agent1.positions.head
     val updatedPlayer = agent1 match {
       case c: Cop => c.copy(position = action(x, y))

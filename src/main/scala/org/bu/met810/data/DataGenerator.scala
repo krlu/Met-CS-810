@@ -40,14 +40,14 @@ object DataGenerator{
   (playerId: Int, outputFilePath: String, sim: Simulator[Env, A, Action]): Unit = {
     var data = List.empty[(Env, Action, Turn)]
     var result: Option[(Env, Action, Env)] = None
-    var prevTurn = if(sim.turn == 0) 1 else 0
+    var prevTurn = if(sim.getTurn == 0) 1 else 0
     while(!sim.isGameOver){
       result = sim.runStep()
       if(result.nonEmpty) {
         val (prevState, action, _) = result.get
         data = data :+ (prevState, action, prevTurn)
       }
-      prevTurn = if(sim.turn == 0) 1 else 0
+      prevTurn = if(sim.getTurn == 0) 1 else 0
     }
     val winnerId: WinnerId = sim.getWinner.get.id
     if(winnerId == playerId)

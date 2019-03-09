@@ -14,7 +14,6 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
 
   "Random robber model" should "win infrequently" in {
     List(true, false).foreach { noise =>
-
       val winners = CopsAndRobbersSim.runBatch(
         RandomMoveModel.crModel(Move.robberMoves),
         RandomMoveModel.crModel(Move.copMoves),
@@ -55,13 +54,13 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
     val fw = new FileWriter("results.csv", true)
     fw.write("learnerType,iteratorType,trainedWithNoise,testWithNoise,trainingSize,modelName,robberWins,copWins,winPct\n")
     for{
-      testWithNoise <- List(true, false)
-      trainedWithNoise <- List(true, false)
+      testWithNoise <- List(false)
+      trainedWithNoise <- List(false)
       learnerType <- List(generative)
-      iteratorType <- List(deterministic, bayesian)
-      trainingSize <- List(2,4,8)
+      iteratorType <- List(deterministic)
+      trainingSize <- List(1000)
     }{
-      val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
+      val paramsFile = s"${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       val model =
         if(iteratorType == deterministic) builder1(paramsFile, learnerType == generative)
         else builder2(paramsFile, learnerType == generative)

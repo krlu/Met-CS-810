@@ -7,22 +7,19 @@ import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 
 class BattleshipSim(initialBoard: Board,
                     val model1: PlayerModel[Board, Player, Move],
-                    val model2: PlayerModel[Board, Player, Move],
-                    var turn: Int = 0,
-                    val shouldApplyNoise: Boolean = false) extends Simulator[Board, Player, Move]{
+                    val model2: PlayerModel[Board, Player, Move]) extends Simulator[Board, Player, Move]{
 
   override protected var board: Board = initialBoard
 
-  override def transition(p1: Player, p2: Player, move: Move, env: Board): Board = {
+  override def transition(p1: Player, move: Move, env: Board): Board = {
+    val p2 = if(turn == P1TURN) board.p2 else board.p1
     val newMovesMade = p1.movesMade.updated(move.pos, 1)
-    val newPosDestroyed =
-      if(p2.positions.contains(move.pos)) p2.positionsDestroyed :+ move.pos
-      else p2.positionsDestroyed
+    val newPosDestroyed = p2.positions.map{case (pos, _) => (pos, if( pos == move.pos) 0 else 1)}
     val (newP1, newP2) =
       if(turn == P1TURN)
-        (p1.copy(movesMade = newMovesMade), p2.copy(positionsDestroyed = newPosDestroyed))
+        (p1.copy(movesMade = newMovesMade), p2.copy(positions = newPosDestroyed))
       else
-        (p2.copy(positionsDestroyed = newPosDestroyed), p1.copy(movesMade = newMovesMade))
+        (p1.copy(positions = newPosDestroyed), p2.copy(movesMade = newMovesMade))
     board.copy(p1 = newP1, p2 = newP2)
   }
 
@@ -46,8 +43,8 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
     * @param shouldApplyNoise - whether to apply noise, default false
     * @return BattleshipSim
     */
-  def randomInitialization(model1: PlayerModel[Board, Player, Move] = new RandomMoveModel[Board, Player, Move](null),
-                           model2: PlayerModel[Board, Player, Move] = new RandomMoveModel[Board, Player, Move](null),
+  def randomInitialization(model1: PlayerModel[Board, Player, Move],
+                           model2: PlayerModel[Board, Player, Move],
                            envSize: Int, shouldApplyNoise: Boolean = false): BattleshipSim = {
     val numPieces = envSize/2
     val pieces = (0 until numPieces).map(_ => choose(pieceLengths)).toList
@@ -82,6 +79,6 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
       openPositions = openPositions.filter(!positionsForPiece.contains(_))
       positionsForPiece
     }
-    Player(positions.toList, id, getAllPositions.map(p => p -> 0).toMap)
+    Player(positions.map(p => (p, 1)).toList, id, getAllPositions.map(p => p -> 0).toMap)
   }
 }
