@@ -7,6 +7,25 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class BattleshipTest extends FlatSpec with Matchers {
   "Battleship simulator" should "initialize random start state" in {
+    def vectorToBoard(vector: Seq[Int]): Board = {
+      def vectorToPlayer(playerVector: Seq[Int], id: Int): Player = {
+        val (pos, moves) = playerVector.splitAt(playerVector.size/2)
+        val positions = pos.grouped(3).map{ x =>
+          (x.head, x(1)) -> x(2)
+        }.toMap
+        val movesMade = moves.grouped(3).map{ x =>
+          (x.head, x(1)) -> x(2)
+        }.toMap
+        Player(positions, id, movesMade)
+      }
+      val playerDataVector = vector.dropRight(2)
+      val dimensions = vector.takeRight(2)
+      val (p1Vector, p2Vector) = playerDataVector.splitAt(playerDataVector.length/2)
+      val p1 = vectorToPlayer(p1Vector, 0)
+      val p2 = vectorToPlayer(p2Vector, 1)
+      Board(p1, p2, dimensions.head, dimensions(1))
+    }
+
     val numPieces = 2
     val boardSize = 5
     val dim = 2
@@ -23,6 +42,8 @@ class BattleshipTest extends FlatSpec with Matchers {
         assert(positions.count(_._2 == 1) <= BattleshipSim.pieceLengths.max * numPieces)
         assert(positions.size == boardSize * boardSize)
       }
+      val vec = sim.getBoard.toVector
+      assert(vectorToBoard(vec.map(_.toInt)) == sim.getBoard)
     }
   }
 

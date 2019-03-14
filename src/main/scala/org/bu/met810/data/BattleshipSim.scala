@@ -8,7 +8,7 @@ class BattleshipSim(initialBoard: Board,
                     val model1: PlayerModel[Board, Player, Move],
                     val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move]{
 
-  turn = firstMove
+  override protected var turn: Int = firstMove
   override protected var board: Board = initialBoard
   private val DESTROYED_ID = 0
 
@@ -26,6 +26,7 @@ class BattleshipSim(initialBoard: Board,
     else if(board.p1.isDestroyed) Some(board.p2)
     else None
   }
+
 }
 
 object BattleshipSim extends SimBuilder[Board, Player, Move]{

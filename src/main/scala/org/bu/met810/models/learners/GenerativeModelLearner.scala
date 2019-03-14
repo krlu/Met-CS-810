@@ -26,7 +26,7 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
 
   override def learn(trainingDataFilePath: String, boardSize: Int,
                      numPlayers: Int, playerId: Int, paramsFile: String = ""): Unit = {
-    val boardDim = numPlayers * 2 + 2
+    val boardDim = numPlayers * agentDim + 2
     val moveDim = 2
     val data = getFeaturizedTrainingData(trainingDataFilePath, boardDim, moveDim)
     val numRows = boardSize

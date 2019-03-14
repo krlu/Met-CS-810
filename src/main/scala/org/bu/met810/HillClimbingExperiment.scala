@@ -18,7 +18,7 @@ object HillClimbingExperiment {
     val P2_ID = 1
     val boardSize = 5
     val moveDim = 2
-    val agentDim = 2
+    val agentDim = boardSize*boardSize*3*2
     val isValidState: Seq[Int] => Boolean = _ => true
 
     def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
