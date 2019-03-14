@@ -16,14 +16,18 @@ object HillClimbingExperiment {
   def main(args: Array[String]): Unit = {
     val P1_ID = 0
     val P2_ID = 1
+    val boardSize = 4
+    val moveDim = 2
+    val agentDim = 2
     val isValidState: Seq[Int] => Boolean = _ => true
 
+    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
     def vectorToBoard(vector: Seq[Int]): Board = {
       def vectorToPlayer(playerVector: Seq[Int], id: Int): Player = {
         val (pos, moves) = playerVector.splitAt(playerVector.size/2)
         val positions = pos.grouped(3).map{ x =>
           (x.head, x(1)) -> x(2)
-        }.toList
+        }.toMap
         val movesMade = moves.grouped(3).map{ x =>
           (x.head, x(1)) -> x(2)
         }.toMap
@@ -36,10 +40,11 @@ object HillClimbingExperiment {
       val p2 = vectorToPlayer(p2Vector, P2_ID)
       Board(p1, p2, dimensions.head, dimensions(1))
     }
-    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
 
-    runAllExperiments(List(Move(0,0)), List(Move(0,0)), vectorToBoard, vectorToMove,
-      BattleshipSim, agentDim = 2, Array(P1_ID, P2_ID), isValidState)
+    val possibleMoves = possibleStates(boardSize, boardSize, moveDim).map{vectorToMove}
+
+    runAllExperiments(possibleMoves, possibleMoves, vectorToBoard, vectorToMove,
+      BattleshipSim, agentDim, Array(P1_ID, P2_ID), isValidState, playerId = P1_ID, boardSize)
   }
 
   def runAllExperiments[Env <: Environment[Action, A] with Vectorizable, A <: Agent with Vectorizable, Action <: Vectorizable](
@@ -49,14 +54,14 @@ object HillClimbingExperiment {
     vectorToMove: Seq[Int] => Action,
     simBuilder: SimBuilder[Env, A, Action],
     agentDim: Int, ids: Array[Int],
-    isValidState: Seq[Int] => Boolean): Unit = {
+    isValidState: Seq[Int] => Boolean,
+    playerId: Int,
+    boardSize: Int): Unit = {
 
     require(ids.length == 2)
     val iter1: (String, Boolean) => PlayerModel[Env, A, Action]= DeterministicPlayerModel.apply(_, _, p1Moves)
     val iter2: (String, Boolean) => PlayerModel[Env, A, Action] = BayesianPlayerModel.apply(_, _, p1Moves)
     val paramsFile = s"temp_model.json"
-    val playerId = 0
-    val boardSize = 4
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(1000)

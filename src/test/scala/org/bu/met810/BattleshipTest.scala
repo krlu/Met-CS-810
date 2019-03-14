@@ -9,7 +9,8 @@ class BattleshipTest extends FlatSpec with Matchers {
   "Battleship simulator" should "initialize random start state" in {
     val numPieces = 2
     val boardSize = 5
-    val possibleMoves = possibleStates(5,5,2).map{ pos =>
+    val dim = 2
+    val possibleMoves = possibleStates(boardSize,boardSize,dim).map{ pos =>
       Move(pos.head, pos(1))
     }
     val model1 = new RandomMoveModel[Board, Player, Move](possibleMoves)
@@ -19,7 +20,8 @@ class BattleshipTest extends FlatSpec with Matchers {
       val p2PiecePos = sim.getBoard.p2.positions
       List(p1PiecePos, p2PiecePos).foreach { positions =>
         assert(positions.forall { case ((x, y), _) => x < boardSize && y < boardSize })
-        assert(positions.size <= BattleshipSim.pieceLengths.max * numPieces)
+        assert(positions.count(_._2 == 1) <= BattleshipSim.pieceLengths.max * numPieces)
+        assert(positions.size == boardSize * boardSize)
       }
     }
   }
