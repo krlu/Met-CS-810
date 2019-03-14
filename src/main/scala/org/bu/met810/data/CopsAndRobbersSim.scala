@@ -6,8 +6,8 @@ import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],
-                        val model2: PlayerModel[Board, Player, Move]) extends Simulator[Board, Player, Move]{
-
+                        val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move]{
+  override var turn = firstMove
   override var board: Board = initialBoard
 
   override def transition(agent1: Player, action: Move, env: Board): Board = {
@@ -35,7 +35,7 @@ object CopsAndRobbersSim extends SimBuilder[Board, Player, Move]{
 
   def randomInitialization(robberModel: PlayerModel[Board, Player, Move],
                            copModel: PlayerModel[Board, Player, Move],
-                           boardSize: Int = 4, shouldApplyNoise: Boolean): CopsAndRobbersSim = {
+                           boardSize: Int = 4, shouldApplyNoise: Boolean, firstMove: Int = 0): CopsAndRobbersSim = {
     val positions = 0 until boardSize
     val rX = choose(positions.iterator)
     val rY = choose(positions.iterator)

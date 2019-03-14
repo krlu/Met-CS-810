@@ -16,7 +16,7 @@ object HillClimbingExperiment {
   def main(args: Array[String]): Unit = {
     val P1_ID = 0
     val P2_ID = 1
-    val boardSize = 4
+    val boardSize = 5
     val moveDim = 2
     val agentDim = 2
     val isValidState: Seq[Int] => Boolean = _ => true

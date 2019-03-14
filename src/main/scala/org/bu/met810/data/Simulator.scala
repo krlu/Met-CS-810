@@ -7,7 +7,7 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   protected var board: Env
   val model1: PlayerModel[Env, A, Action]
   val model2: PlayerModel[Env, A, Action]
-  protected var turn: Int = 0
+  protected var turn: Int
   val shouldApplyNoise: Boolean = false
   protected val P1TURN = 0
   protected val P2TURN = 1

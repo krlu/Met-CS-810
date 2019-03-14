@@ -25,4 +25,18 @@ class BattleshipTest extends FlatSpec with Matchers {
       }
     }
   }
+
+  "Random BS Ship Models" should "win equally" in {
+    val boardSize = 5
+    val moveDim = 2
+    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
+    val possibleMoves = possibleStates(boardSize, boardSize, moveDim).map{vectorToMove}
+    val winners = BattleshipSim.runBatch(
+      RandomMoveModel.BShipModel(possibleMoves),
+      RandomMoveModel.BShipModel(possibleMoves), envSize = 5, numTrials = 10000)
+    val p1Wins = winners.count(_.id == 0)
+    val p2Wins =  winners.count(_.id == 1)
+    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)
+    println(p1Wins, p2Wins)
+  }
 }

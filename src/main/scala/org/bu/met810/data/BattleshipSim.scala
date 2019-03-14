@@ -6,8 +6,9 @@ import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 
 class BattleshipSim(initialBoard: Board,
                     val model1: PlayerModel[Board, Player, Move],
-                    val model2: PlayerModel[Board, Player, Move]) extends Simulator[Board, Player, Move]{
+                    val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move]{
 
+  turn = firstMove
   override protected var board: Board = initialBoard
   private val DESTROYED_ID = 0
 
@@ -15,17 +16,14 @@ class BattleshipSim(initialBoard: Board,
     val p2 = if (turn == P1TURN) board.p2 else board.p1
     val newMovesMade =  p1.movesMade.updated(move.pos, p2.positions(move.pos))
     val newPosDestroyed = p2.positions.updated(move.pos, DESTROYED_ID)
-    val (newP1, newP2) =
-      if(turn == P1TURN)
-        (p1.copy(movesMade = newMovesMade), p2.copy(positions = newPosDestroyed))
-      else
-        (p1.copy(positions = newPosDestroyed), p2.copy(movesMade = newMovesMade))
-    board.copy(p1 = newP1, p2 = newP2)
+    val (newP1, newP2) = (p1.copy(movesMade = newMovesMade), p2.copy(positions = newPosDestroyed))
+    if(turn == P1TURN) board.copy(p1 = newP1, p2 = newP2)
+    else board.copy(p1 = newP2, p2 = newP1)
   }
 
   override def determineWinner(board: Board): Option[Player] = {
     if(board.p2.isDestroyed) Some(board.p1)
-    else if(board.p2.isDestroyed) Some(board.p1)
+    else if(board.p1.isDestroyed) Some(board.p2)
     else None
   }
 }
@@ -45,7 +43,7 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
     */
   def randomInitialization(model1: PlayerModel[Board, Player, Move],
                            model2: PlayerModel[Board, Player, Move],
-                           envSize: Int, shouldApplyNoise: Boolean = false): BattleshipSim = {
+                           envSize: Int, shouldApplyNoise: Boolean = false, firstMove: Int): BattleshipSim = {
     val numPieces = 2
     val pieces = (0 until numPieces).map(_ => choose(pieceLengths)).toList
     val width = envSize
@@ -53,7 +51,7 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
     val p1 = initPlayer(width, height, pieces, 0)
     val p2 = initPlayer(width, height, pieces, 1)
     val initialBoard = Board(p1, p2, width, height)
-    new BattleshipSim(initialBoard, model1, model2)
+    new BattleshipSim(initialBoard, model1, model2, firstMove)
   }
 
   private def initPlayer(width: Int, height: Int, pieces: List[Int], id: Int): Player = {
