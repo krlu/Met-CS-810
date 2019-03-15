@@ -29,7 +29,7 @@ class BattleshipTest extends FlatSpec with Matchers {
     val numPieces = 2
     val boardSize = 5
     val dim = 2
-    val possibleMoves = possibleStates(boardSize,boardSize,dim).map{ pos =>
+    val possibleMoves = possiblePositions(boardSize,boardSize,dim).map{ pos =>
       Move(pos.head, pos(1))
     }
     val model1 = new RandomMoveModel[Board, Player, Move](possibleMoves)
@@ -51,7 +51,7 @@ class BattleshipTest extends FlatSpec with Matchers {
     val boardSize = 5
     val moveDim = 2
     def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
-    val possibleMoves = possibleStates(boardSize, boardSize, moveDim).map{vectorToMove}
+    val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
     val winners = BattleshipSim.runBatch(
       RandomMoveModel.BShipModel(possibleMoves),
       RandomMoveModel.BShipModel(possibleMoves), envSize = 5, numTrials = 10000)

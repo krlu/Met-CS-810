@@ -18,6 +18,7 @@ object HillClimbingExperiment {
     val P2_ID = 1
     val boardSize = 5
     val moveDim = 2
+    val numPlayers = 2
     val agentDim = boardSize*boardSize*3*2
     val isValidState: Seq[Int] => Boolean = _ => true
 
@@ -41,10 +42,14 @@ object HillClimbingExperiment {
       Board(p1, p2, dimensions.head, dimensions(1))
     }
 
-    val possibleMoves = possibleStates(boardSize, boardSize, moveDim).map{vectorToMove}
+    val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
+    val possibleStates =
+      permutationsWithRepetitions((0 until boardSize).toList, agentDim * numPlayers)
+        .map{ state => List(P1_ID) ++ state}
+        .filter(isValidState)
 
     runAllExperiments(possibleMoves, possibleMoves, vectorToBoard, vectorToMove,
-      BattleshipSim, agentDim, Array(P1_ID, P2_ID), isValidState, playerId = P1_ID, boardSize)
+      BattleshipSim, agentDim, Array(P1_ID, P2_ID), isValidState,possibleStates, playerId = P1_ID, boardSize)
   }
 
   def runAllExperiments[Env <: Environment[Action, A] with Vectorizable, A <: Agent with Vectorizable, Action <: Vectorizable](
@@ -55,6 +60,7 @@ object HillClimbingExperiment {
     simBuilder: SimBuilder[Env, A, Action],
     agentDim: Int, ids: Array[Int],
     isValidState: Seq[Int] => Boolean,
+    possibleStates: Seq[Seq[Int]],
     playerId: Int,
     boardSize: Int): Unit = {
 
@@ -67,7 +73,7 @@ object HillClimbingExperiment {
       trainingSize <- List(1000)
       learner <- List(
         new GenerativeModelLearner[Env, A, Action](vectorToBoard,
-          vectorToMove, agentDim, isValidState, (p1Moves ++ p2Moves).distinct)
+          vectorToMove, agentDim, isValidState, (p1Moves ++ p2Moves).distinct, possibleStates)
         ,new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove, paramsFile,
           useGenerativeParams = true, agentDim, isValidState, (p1Moves ++ p2Moves).distinct))
       iterationModelBuilder <- List(iter1, iter2)

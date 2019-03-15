@@ -22,7 +22,8 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
                              override val vectorToMove: Seq[Turn] => Action,
                              override val agentDim: Int,
                              isValidState: Seq[Int] => Boolean,
-                             possibleMoves: Seq[Action]) extends Learner[Env, A, Action]{
+                             possibleMoves: Seq[Action],
+                             possibleStates: Seq[Seq[Int]]) extends Learner[Env, A, Action]{
 
   override def learn(trainingDataFilePath: String, boardSize: Int,
                      numPlayers: Int, playerId: Int, paramsFile: String = ""): Unit = {
@@ -40,12 +41,7 @@ class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
       (List(playerId) ++ p1State ++ p2State, move)
     }.toList
 
-    val possiblePositions =
-      permutationsWithRepetitions((0 until boardSize).toList, agentDim * numPlayers)
-        .map{ state => List(playerId) ++ state}
-        .filter(isValidState)
-
-    val playerModel = BipartiteModel(Seq(playerData), possiblePositions, possibleMoves)
+    val playerModel = BipartiteModel(Seq(playerData), possibleStates, possibleMoves)
     val combinedJson: JsValue = JsObject(playerModel.asJson("_move").value)
     val paramsFileName = if(paramsFile == "") s"gen_model_${playerId}_${numRows}by$numCols.json" else paramsFile
     printJsonString(combinedJson, paramsFileName, append = false)

@@ -35,7 +35,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
   def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit = {
     val numRows = boardSize
     val numCols = boardSize
-    val boardDim = numPlayers * 2 + 2 //num players * num coordinates + 1 for board length + 1 for board width
+    val boardDim = numPlayers * agentDim + 2
     val moveDim = 2
 
     def train(data: List[(Env, Action)], playerId: Int, useLearnedParams: Boolean): String = {
@@ -56,7 +56,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
 
       if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
       else {
-        possibleStates(numRows, numCols, agentDim * numPlayers).map{ state =>
+        possiblePositions(numRows, numCols, agentDim * numPlayers).map{ state =>
           val name = s"${playerId}_${state.mkString("_")}_move"
           Dirichlet(Array.fill(possibleMoves.size)(1.0):_*)(name, modelParams)
         }
