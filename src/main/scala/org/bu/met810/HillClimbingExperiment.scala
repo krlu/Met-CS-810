@@ -18,38 +18,36 @@ object HillClimbingExperiment {
     val P2_ID = 1
     val boardSize = 5
     val moveDim = 2
-    val numPlayers = 2
-    val agentDim = boardSize*boardSize*3*2
-    val isValidState: Seq[Int] => Boolean = _ => true
+    val agentDim = boardSize*boardSize*2
 
     def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
     def vectorToBoard(vector: Seq[Int]): Board = {
+      val posVectors = possiblePositions(boardSize,boardSize,2)
       def vectorToPlayer(playerVector: Seq[Int], id: Int): Player = {
-        val (pos, moves) = playerVector.splitAt(playerVector.size/2)
-        val positions = pos.grouped(3).map{ x =>
-          (x.head, x(1)) -> x(2)
-        }.toMap
-        val movesMade = moves.grouped(3).map{ x =>
-          (x.head, x(1)) -> x(2)
-        }.toMap
+        val (posStatuses, moveMadeStatus) = playerVector.splitAt(playerVector.size/2)
+        val positions = (posVectors zip posStatuses).map{ case (pos, status) => (pos.head, pos(1)) -> status}
+        val movesMade = (posVectors zip moveMadeStatus).map{ case (pos, status) => (pos.head, pos(1)) -> status}
         Player(positions, id, movesMade)
       }
       val playerDataVector = vector.dropRight(2)
       val dimensions = vector.takeRight(2)
       val (p1Vector, p2Vector) = playerDataVector.splitAt(playerDataVector.length/2)
-      val p1 = vectorToPlayer(p1Vector, P1_ID)
-      val p2 = vectorToPlayer(p2Vector, P2_ID)
+      val p1 = vectorToPlayer(p1Vector, 0)
+      val p2 = vectorToPlayer(p2Vector, 1)
       Board(p1, p2, dimensions.head, dimensions(1))
     }
 
     val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
-    val possibleStates =
-      permutationsWithRepetitions((0 until boardSize).toList, agentDim * numPlayers)
-        .map{ state => List(P1_ID) ++ state}
-        .filter(isValidState)
-
+    val possiblePositionsStates = permutationsWithRepetitions(List(0,1), agentDim/2)
+    val possibleMovesStates = permutationsWithRepetitions(List(-1, 0,1), agentDim/2)
+    val possibleStates = for{
+        positions <- possiblePositionsStates
+        moves <- possibleMovesStates
+      } yield {
+      List(P1_ID) ++ positions ++ moves
+    }
     runAllExperiments(possibleMoves, possibleMoves, vectorToBoard, vectorToMove,
-      BattleshipSim, agentDim, Array(P1_ID, P2_ID), isValidState,possibleStates, playerId = P1_ID, boardSize)
+      BattleshipSim, agentDim, Array(P1_ID, P2_ID), possibleStates, playerId = P1_ID, boardSize)
   }
 
   def runAllExperiments[Env <: Environment[Action, A] with Vectorizable, A <: Agent with Vectorizable, Action <: Vectorizable](
@@ -59,7 +57,6 @@ object HillClimbingExperiment {
     vectorToMove: Seq[Int] => Action,
     simBuilder: SimBuilder[Env, A, Action],
     agentDim: Int, ids: Array[Int],
-    isValidState: Seq[Int] => Boolean,
     possibleStates: Seq[Seq[Int]],
     playerId: Int,
     boardSize: Int): Unit = {
@@ -73,9 +70,9 @@ object HillClimbingExperiment {
       trainingSize <- List(1000)
       learner <- List(
         new GenerativeModelLearner[Env, A, Action](vectorToBoard,
-          vectorToMove, agentDim, isValidState, (p1Moves ++ p2Moves).distinct, possibleStates)
+          vectorToMove, agentDim,(p1Moves ++ p2Moves).distinct, possibleStates)
         ,new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove, paramsFile,
-          useGenerativeParams = true, agentDim, isValidState, (p1Moves ++ p2Moves).distinct))
+          useGenerativeParams = true, agentDim, (p1Moves ++ p2Moves).distinct))
       iterationModelBuilder <- List(iter1, iter2)
     } {
       runOneExperiment(playerId, ids.length, learner, iterationModelBuilder, iterateWithNoise, trainingSize)

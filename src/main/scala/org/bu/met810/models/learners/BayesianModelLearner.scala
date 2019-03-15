@@ -17,7 +17,6 @@ import org.bu.met810.types.{Agent, Environment}
   * @param paramsFile - for saving learned parameters
   * @param useGenerativeParams - generative params and bayesian params JSON are parsed differently
   * @param agentDim - number of dimensions in attribute space for agent type
-  * @param isValidState - function determining if agent state if valid in the environment
   * @param possibleMoves - specifies space of actions (currently must be finite)
   * @tparam Env - Secifies space that contains agent(s)
   * @tparam A - Defines attributes for an agent
@@ -29,7 +28,6 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
                                override val paramsFile: String,
                                override val useGenerativeParams: Boolean,
                                override val agentDim: Int,
-                               isValidState: Seq[Int] => Boolean,
                                possibleMoves: Seq[Action]) extends Learner[Env, A, Action] with JsonModelLoader {
 
   def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit = {

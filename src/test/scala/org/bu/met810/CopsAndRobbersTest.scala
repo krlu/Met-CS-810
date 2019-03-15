@@ -53,7 +53,7 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
         .filter(isValidState)
 
     runAllExperiments(Move.robberMoves, Move.copMoves, vectorToBoard, vectorToMove,
-      CopsAndRobbersSim, agentDim, Array(ROBBER_ID, COP_ID), isValidState, possibleStates, ROBBER_ID, boardSize)
+      CopsAndRobbersSim, agentDim, Array(ROBBER_ID, COP_ID), possibleStates, ROBBER_ID, boardSize)
   }
 
   "Bayesian robber model" should "win often with Bayesian model" in {

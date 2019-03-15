@@ -37,8 +37,8 @@ package object met810 {
     }
   }
 
-  def possiblePositions(numRows: Int, numCols: Int, agentDim: Int): List[List[Int]] =
-    permutationsWithRepetitions((0 until Math.max(numCols, numRows)).toList, agentDim)
+  def possiblePositions(numRows: Int, numCols: Int, positionDim: Int): List[List[Int]] =
+    permutationsWithRepetitions((0 until Math.max(numCols, numRows)).toList, positionDim)
 
   def applyNoise(pos: (Int, Int), positionRadius: Int, minFactor: Double): List[(Double, (Int, Int))] = {
     val (x, y) = pos

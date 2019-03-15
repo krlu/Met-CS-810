@@ -7,15 +7,18 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class BattleshipTest extends FlatSpec with Matchers {
   "Battleship simulator" should "initialize random start state" in {
+    val numPieces = 2
+    val boardSize = 5
+    val dim = 2
+    val numPlayers = 2
+    val posVectors = possiblePositions(boardSize,boardSize,dim)
+    val possibleMoves = posVectors.map{ pos => Move(pos.head, pos(1))}
+
     def vectorToBoard(vector: Seq[Int]): Board = {
       def vectorToPlayer(playerVector: Seq[Int], id: Int): Player = {
-        val (pos, moves) = playerVector.splitAt(playerVector.size/2)
-        val positions = pos.grouped(3).map{ x =>
-          (x.head, x(1)) -> x(2)
-        }.toMap
-        val movesMade = moves.grouped(3).map{ x =>
-          (x.head, x(1)) -> x(2)
-        }.toMap
+        val (posStatuses, moveMadeStatus) = playerVector.splitAt(playerVector.size/2)
+        val positions = (posVectors zip posStatuses).map{ case (pos, status) => (pos.head, pos(1)) -> status}
+        val movesMade = (posVectors zip moveMadeStatus).map{ case (pos, status) => (pos.head, pos(1)) -> status}
         Player(positions, id, movesMade)
       }
       val playerDataVector = vector.dropRight(2)
@@ -26,12 +29,6 @@ class BattleshipTest extends FlatSpec with Matchers {
       Board(p1, p2, dimensions.head, dimensions(1))
     }
 
-    val numPieces = 2
-    val boardSize = 5
-    val dim = 2
-    val possibleMoves = possiblePositions(boardSize,boardSize,dim).map{ pos =>
-      Move(pos.head, pos(1))
-    }
     val model1 = new RandomMoveModel[Board, Player, Move](possibleMoves)
     for(_ <- 0 to 100) {
       val sim = BattleshipSim.randomInitialization(model1, model1, envSize = boardSize)
@@ -43,6 +40,7 @@ class BattleshipTest extends FlatSpec with Matchers {
         assert(positions.size == boardSize * boardSize)
       }
       val vec = sim.getBoard.toVector
+      assert(vec.size == boardSize*boardSize*2*numPlayers + 2)
       assert(vectorToBoard(vec.map(_.toInt)) == sim.getBoard)
     }
   }

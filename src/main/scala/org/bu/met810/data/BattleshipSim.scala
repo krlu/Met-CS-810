@@ -14,8 +14,9 @@ class BattleshipSim(initialBoard: Board,
 
   override def transition(p1: Player, move: Move, env: Board): Board = {
     val p2 = if (turn == P1TURN) board.p2 else board.p1
-    val newMovesMade =  p1.movesMade.updated(move.pos, p2.positions(move.pos))
-    val newPosDestroyed = p2.positions.updated(move.pos, DESTROYED_ID)
+    val p2PosStatus = p2.positions.find(e => e._1 == move.pos).get._2
+    val newMovesMade =  p1.movesMade.map{case (pos, status) => if(pos == move.pos) pos -> p2PosStatus else pos -> status}
+    val newPosDestroyed = p2.positions.map{case (pos, status) => if(pos == move.pos) pos -> DESTROYED_ID else pos -> status}
     val (newP1, newP2) = (p1.copy(movesMade = newMovesMade), p2.copy(positions = newPosDestroyed))
     if(turn == P1TURN) board.copy(p1 = newP1, p2 = newP2)
     else board.copy(p1 = newP2, p2 = newP1)
@@ -61,7 +62,7 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
       y <- 0 until height
     } yield (x,y)}.toList
     var openPositions = allPositions
-    val positions = pieces.flatMap{ pieceLength =>
+    val takenPositions = pieces.flatMap{ pieceLength =>
       val orientation = choose(List(NORTHING, EASTING))
       val validPositions = openPositions.filter{ case (x,y) =>
         if(orientation == EASTING) (0 until pieceLength).forall(i => openPositions.contains((x + i, y)))
@@ -77,7 +78,8 @@ object BattleshipSim extends SimBuilder[Board, Player, Move]{
       }
       openPositions = openPositions.filter(!positionsForPiece.contains(_))
       positionsForPiece
-    }.map(p => (p, 1)).toMap ++ openPositions.map(p => (p, 0))
-    Player(positions, id, allPositions.map(p => p -> -1).toMap)
+    }
+    val initPositions = allPositions.map(p => if(takenPositions.contains(p)) p -> 1 else p -> 0)
+    Player(initPositions, id, allPositions.map(p => p -> -1))
   }
 }
