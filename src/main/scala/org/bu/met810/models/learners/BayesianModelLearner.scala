@@ -23,16 +23,18 @@ import org.bu.met810.types.{Agent, Environment}
   * @tparam Action - Defines attributes for an action
   */
 class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
-                               override val vectorToBoard: Seq[Turn] => Env,
-                               override val vectorToMove: Seq[Turn] => Action,
-                               override val paramsFile: String,
-                               override val useGenerativeParams: Boolean,
-                               override val agentDim: Int,
-                               possibleMoves: Seq[Action]) extends Learner[Env, A, Action] with JsonModelLoader {
+                               val vectorToBoard: Seq[Turn] => Env,
+                               val vectorToMove: Seq[Turn] => Action,
+                               val paramsFile: String,
+                               val useGenerativeParams: Boolean,
+                               val agentDim: Int,
+                               possibleMoves: Seq[Action],
+                               possibleStates: Seq[Seq[Int]]) extends Learner[Env, A, Action] with JsonModelLoader {
 
   def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit = {
     val numRows = boardSize
     val numCols = boardSize
+    val paramsFileName = if(paramsFile == "") s"gen_model_${playerId}_${numRows}by$numCols.json" else paramsFile
     val boardDim = numPlayers * agentDim + 2
     val moveDim = 2
 
@@ -54,7 +56,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
 
       if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
       else {
-        possiblePositions(numRows, numCols, agentDim * numPlayers).map{ state =>
+        possibleStates.map{ state =>
           val name = s"${playerId}_${state.mkString("_")}_move"
           Dirichlet(Array.fill(possibleMoves.size)(1.0):_*)(name, modelParams)
         }
@@ -81,7 +83,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
         val row = chunkedData(i).toList
         val useParamsFile = i > 0
         val paramsString = train(row, playerId, useParamsFile)
-        val pw = new PrintWriter(paramsFile)
+        val pw = new PrintWriter(paramsFileName)
         pw.println(paramsString)
         pw.close()
       }

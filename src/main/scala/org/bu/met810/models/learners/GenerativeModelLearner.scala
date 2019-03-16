@@ -17,9 +17,9 @@ import play.api.libs.json._
   * @tparam Action - Defines attributes for an action
   */
 class GenerativeModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
-                             override val vectorToBoard: Seq[Turn] => Env,
-                             override val vectorToMove: Seq[Turn] => Action,
-                             override val agentDim: Int,
+                             val vectorToBoard: Seq[Turn] => Env,
+                             val vectorToMove: Seq[Turn] => Action,
+                             val agentDim: Int,
                              possibleMoves: Seq[Action],
                              possibleStates: Seq[Seq[Int]]) extends Learner[Env, A, Action]{
 

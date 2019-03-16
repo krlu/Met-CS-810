@@ -69,10 +69,10 @@ object HillClimbingExperiment {
       iterateWithNoise <- List(false)
       trainingSize <- List(1000)
       learner <- List(
-        new GenerativeModelLearner[Env, A, Action](vectorToBoard,
-          vectorToMove, agentDim,(p1Moves ++ p2Moves).distinct, possibleStates)
-        ,new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove, paramsFile,
-          useGenerativeParams = true, agentDim, (p1Moves ++ p2Moves).distinct))
+        new GenerativeModelLearner[Env, A, Action](vectorToBoard, vectorToMove, agentDim,
+          (p1Moves ++ p2Moves).distinct, possibleStates),
+        new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove, paramsFile,
+          useGenerativeParams = true, agentDim, (p1Moves ++ p2Moves).distinct, possibleStates))
       iterationModelBuilder <- List(iter1, iter2)
     } {
       runOneExperiment(playerId, ids.length, learner, iterationModelBuilder, iterateWithNoise, trainingSize)

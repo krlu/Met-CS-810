@@ -4,11 +4,15 @@ import neuroflow.application.plugin.IO.{File, _}
 import neuroflow.core._
 import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
-import org.bu.met810.NNVector
-import org.bu.met810.types.copsandrobbersassets._
+import org.bu.met810.types.{Agent, Environment}
+import org.bu.met810.{NNVector, Turn}
 
-protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[String], val useNoise: Boolean) extends Learner[Board, Player, Move]{
-
+class NNLearner[Env <: Environment[Action, A], A <: Agent ,Action](inputDim: Int, outputDim: Int,
+                                                                   savedWeights: Option[String],
+                                                                   val useNoise: Boolean,
+                                                                   val vectorToBoard: Seq[Turn] => Env,
+                                                                   val vectorToMove: Seq[Turn] => Action,
+                                                                   val agentDim: Int) extends Learner[Env, A, Action]{
   //  private val f1 = Activators.Double.Sigmoid
   private val f2 = Activators.Double.Linear
 
@@ -37,12 +41,4 @@ protected class NNLearner(inputDim: Int, outputDim: Int, savedWeights: Option[St
     File.writeWeights(net.weights, paramsFile)
   }
 
-  override val vectorToBoard: Seq[Int] => Board = ???
-  override val vectorToMove: Seq[Int] => Move = ???
-  override val agentDim: Int = ???
-}
-
-object NNLearner{
-  def apply(inputDim: Int = 6, outputDim: Int = 2, savedWeights: Option[String] = None, useNoise: Boolean): NNLearner =
-    new NNLearner(inputDim, outputDim, savedWeights, useNoise)
 }
