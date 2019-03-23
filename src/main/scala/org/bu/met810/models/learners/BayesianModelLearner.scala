@@ -26,10 +26,10 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
                                val vectorToBoard: Seq[Turn] => Env,
                                val vectorToMove: Seq[Turn] => Action,
                                val paramsFile: String,
-                               val useGenerativeParams: Boolean,
                                val agentDim: Int,
                                possibleMoves: Seq[Action],
-                               possibleStates: Seq[Seq[Int]]) extends Learner[Env, A, Action] with JsonModelLoader {
+                               possibleStates: Seq[Seq[Int]],
+                               val useGenerativeParams: Boolean = false) extends Learner[Env, A, Action] with JsonModelLoader {
 
   def learn(trainingDataFilePath: String, boardSize: Int, numPlayers: Int, playerId: Int, paramsFile: String): Unit = {
     val numRows = boardSize
@@ -48,7 +48,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
       def generateTrial(board: Env, move: Action, playerId: Int): Unit = {
         val p1State = board.p1.state
         val p2State = board.p2.state
-        val queryString = s"${playerId}_${(List(playerId) ++ p1State ++ p2State).mkString("_")}_move"
+        val queryString = s"${(List(playerId) ++ p1State ++ p2State).mkString("_")}_move"
         val params = modelParams.getElementByReference(queryString).asInstanceOf[AtomicDirichlet]
         val moveDist = Select(params, possibleMoves:_*)
         moveDist.observe(move)
@@ -57,7 +57,7 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
       if(useLearnedParams) paramsMap.map{case(k,v) => Dirichlet(v:_*)(k, modelParams)}.toList
       else {
         possibleStates.map{ state =>
-          val name = s"${playerId}_${state.mkString("_")}_move"
+          val name = s"${state.mkString("_")}_move"
           Dirichlet(Array.fill(possibleMoves.size)(1.0):_*)(name, modelParams)
         }
       }
@@ -88,10 +88,6 @@ class BayesianModelLearner[Env <: Environment[Action, A], A <: Agent ,Action](
         pw.close()
       }
     }
-
-    val start = System.currentTimeMillis()
     trainForPlayer(playerId)
-    val end = System.currentTimeMillis()
-    println(s"Training time: ${(end - start)/1000.0}s")
   }
 }

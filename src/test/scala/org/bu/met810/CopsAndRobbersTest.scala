@@ -64,9 +64,9 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
     for{
       testWithNoise <- List(false)
       trainedWithNoise <- List(false)
-      learnerType <- List(generative)
-      iteratorType <- List(deterministic)
-      trainingSize <- List(1000)
+      learnerType <- List(generative, bayesian)
+      iteratorType <- List(deterministic, bayesian)
+      trainingSize <- List(250,500,1000)
     }{
       val paramsFile = s"${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       val model =
