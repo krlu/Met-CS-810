@@ -22,7 +22,7 @@ class NNLearner[Env <: Environment[Action, A], A <: Agent ,Action](inputDim: Int
   }
 
   val net = Network(
-    layout = Vector (inputDim) :: Dense  (outputDim, f2)  ::  SquaredError(),
+    layout = Vector (inputDim) :: Dense(outputDim, f2) :: SquaredError(),
     settings = Settings[Double](
       updateRule = Vanilla(),
       batchSize = Some(100),

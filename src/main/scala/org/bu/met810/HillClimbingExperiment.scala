@@ -65,18 +65,17 @@ object HillClimbingExperiment {
     val iter1: (String, Boolean) => PlayerModel[Env, A, Action]= DeterministicPlayerModel.apply(_, _, p1Moves)
     val iter2: (String, Boolean) => PlayerModel[Env, A, Action] = BayesianPlayerModel.apply(_, _, p1Moves)
     val paramsFile = s"temp_model.json"
+    val learner1 = new GenerativeModelLearner[Env, A, Action](vectorToBoard,
+      vectorToMove, agentDim, (p1Moves ++ p2Moves).distinct, possibleStates)
+    val learner2 = new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove,
+      paramsFile, agentDim, (p1Moves ++ p2Moves).distinct, possibleStates)
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(1000)
-      learner <- List(
-        new GenerativeModelLearner[Env, A, Action](vectorToBoard, vectorToMove, agentDim,
-          (p1Moves ++ p2Moves).distinct, possibleStates),
-        new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove, paramsFile,
-          useGenerativeParams = true, agentDim, (p1Moves ++ p2Moves).distinct, possibleStates))
+      learner <- List(learner1, learner2)
       iterationModelBuilder <- List(iter1, iter2)
-    } {
-      runOneExperiment(playerId, ids.length, learner, iterationModelBuilder, iterateWithNoise, trainingSize)
-    }
+    } runOneExperiment(playerId, ids.length, learner, iterationModelBuilder, iterateWithNoise, trainingSize)
+
 
     def runOneExperiment(playerIdToTrainFor: Int,
                          numPlayers: Int,
