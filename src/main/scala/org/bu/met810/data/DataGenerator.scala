@@ -30,9 +30,10 @@ object DataGenerator{
                                                 playerId: Int, simBuilder: SimBuilder[Env, A, Action],
                                                 p1Model: PlayerModel[Env, A, Action],
                                                 p2Model: PlayerModel[Env, A, Action]): Unit = {
-    for(_ <- 0 until numSamples) {
+    for(i <- 0 until numSamples) {
       val state = simBuilder.randomInitialization(p1Model, p2Model, boardSize, shouldApplyNoise = false)
       generateDataPoint(playerId, outputFilePath, state)
+      println(i)
     }
   }
 

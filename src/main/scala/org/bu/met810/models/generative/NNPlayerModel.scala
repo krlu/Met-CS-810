@@ -15,10 +15,10 @@ import org.bu.met810.types.{Agent, Environment}
   * Reason is that a Neural Net is purely domain agnostic
   */
 class NNPlayerModel[Env <: Environment[Action, A], A <: Agent, Action](
-                                          inputDim: Int,
-                                          outputDim: Int,
-                                          val paramsFile: Option[String],
-                                          val vectorToMove: Seq[Int] => Action) extends PlayerModel[Env, A, Action]{
+                                          val vectorToMove: Seq[Int] => Action,
+                                          val paramsFile: Option[String] = None,
+                                          inputDim: Int = 102,
+                                          outputDim: Int = 2) extends PlayerModel[Env, A, Action]{
   //  private val f1 = Activators.Double.Sigmoid
   private val f2 = Activators.Double.Linear
 
@@ -40,13 +40,13 @@ class NNPlayerModel[Env <: Environment[Action, A], A <: Agent, Action](
     )
   )
 
-  def learn(trainingDataFilePath: String, paramsFile: String): Unit = {
+  def learn(trainingDataFilePath: String, outputFile: String): Unit = {
     val (xs, ys) = getNNTrainingData(trainingDataFilePath).map{ case (x,y, _, _) => (x,y)}.unzip[NNVector, NNVector]
     net.train(xs, ys)
-    File.writeWeights(net.weights, paramsFile)
+    File.writeWeights(net.weights, outputFile)
   }
 
-  def getNNTrainingData(filePath: String, boardDim: Int = 6, moveDim: Int = 2):
+  def getNNTrainingData(filePath: String, boardDim: Int = 102, moveDim: Int = 2):
   List[(NNVector, NNVector, Turn, WinnerId)] =
     getTrainingData(filePath, boardDim, moveDim).map{ case (boardVec, moveVec, turn, winner) =>
       (->(boardVec.map(_.toDouble):_*), ->(moveVec.map(_.toDouble):_*), turn, winner)

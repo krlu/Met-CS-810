@@ -2,53 +2,15 @@ package org.bu.met810
 
 import java.io.PrintWriter
 
-import org.bu.met810.data.{BattleshipSim, DataGenerator, SimBuilder}
+import org.bu.met810.data.{DataGenerator, SimBuilder}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}
 import org.bu.met810.models.random.RandomMoveModel
-import org.bu.met810.types.battleshipassets._
 import org.bu.met810.types.{Agent, Environment, Vectorizable}
 
 
 object HillClimbingExperiment {
-
-  def main(args: Array[String]): Unit = {
-    val P1_ID = 0
-    val P2_ID = 1
-    val boardSize = 5
-    val moveDim = 2
-    val agentDim = boardSize*boardSize*2
-
-    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
-    def vectorToBoard(vector: Seq[Int]): Board = {
-      val posVectors = possiblePositions(boardSize,boardSize,2)
-      def vectorToPlayer(playerVector: Seq[Int], id: Int): Player = {
-        val (posStatuses, moveMadeStatus) = playerVector.splitAt(playerVector.size/2)
-        val positions = (posVectors zip posStatuses).map{ case (pos, status) => (pos.head, pos(1)) -> status}
-        val movesMade = (posVectors zip moveMadeStatus).map{ case (pos, status) => (pos.head, pos(1)) -> status}
-        Player(positions, id, movesMade)
-      }
-      val playerDataVector = vector.dropRight(2)
-      val dimensions = vector.takeRight(2)
-      val (p1Vector, p2Vector) = playerDataVector.splitAt(playerDataVector.length/2)
-      val p1 = vectorToPlayer(p1Vector, 0)
-      val p2 = vectorToPlayer(p2Vector, 1)
-      Board(p1, p2, dimensions.head, dimensions(1))
-    }
-
-    val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
-    val possiblePositionsStates = permutationsWithRepetitions(List(0,1), agentDim/2)
-    val possibleMovesStates = permutationsWithRepetitions(List(-1, 0,1), agentDim/2)
-    val possibleStates = for{
-        positions <- possiblePositionsStates
-        moves <- possibleMovesStates
-      } yield {
-      List(P1_ID) ++ positions ++ moves
-    }
-    runAllExperiments(possibleMoves, possibleMoves, vectorToBoard, vectorToMove,
-      BattleshipSim, agentDim, Array(P1_ID, P2_ID), possibleStates, playerId = P1_ID, boardSize)
-  }
 
   def runAllExperiments[Env <: Environment[Action, A] with Vectorizable, A <: Agent with Vectorizable, Action <: Vectorizable](
     p1Moves: List[Action],

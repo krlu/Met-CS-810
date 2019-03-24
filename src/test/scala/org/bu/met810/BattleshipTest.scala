@@ -1,6 +1,7 @@
 package org.bu.met810
 
-import org.bu.met810.data.BattleshipSim
+import org.bu.met810.data.{BattleshipSim, DataGenerator}
+import org.bu.met810.models.generative.NNPlayerModel
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
@@ -43,6 +44,23 @@ class BattleshipTest extends FlatSpec with Matchers {
       assert(vec.size == boardSize*boardSize*2*numPlayers + 2)
       assert(vectorToBoard(vec.map(_.toInt)) == sim.getBoard)
     }
+  }
+
+  "BS Model" should "learn" in {
+    val P1_ID = 0
+    val boardSize = 5
+    val moveDim = 2
+    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
+
+    val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
+    val trainingFile = s"training_data_$boardSize.csv"
+    val paramsFile = "weights.nf"
+    DataGenerator.generateData[Board, Player, Move](
+      trainingFile, boardSize, 100, P1_ID, BattleshipSim,
+      new RandomMoveModel[Board, Player, Move](possibleMoves),
+      new RandomMoveModel[Board, Player, Move](possibleMoves))
+    val model = new NNPlayerModel[Board, Player, Move](vectorToMove, Some(paramsFile))
+    model.learn(trainingFile, paramsFile)
   }
 
   "Random BS Ship Models" should "win equally" in {
