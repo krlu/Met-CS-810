@@ -1,5 +1,7 @@
 package org.bu
 
+import scala.io.Source
+
 
 /**
   * Consists of miscellaneous/generic utility functions and type aliases
@@ -47,4 +49,19 @@ package object met810 {
       yDelta <- -positionRadius to positionRadius
     } yield (1.0, (x + xDelta, y + yDelta))
   }.toList
+
+
+  def getTrainingData(filePath: String, boardDim: Int, moveDim: Int): List[(Seq[Int], Seq[Int], Turn, WinnerId)] = {
+    val bufferedSource = Source.fromFile(filePath)
+    val data = {for (line <- bufferedSource.getLines) yield {
+      val cols = line.split(",").map(_.trim.toDouble.toInt).toList
+      val input = cols.take(boardDim)
+      val output = cols.slice(boardDim, boardDim + moveDim)
+      val turn = cols(cols.size - 2)
+      val winner = cols.last
+      (input, output, turn, winner)
+    }}.toList
+    bufferedSource.close
+    data
+  }
 }
