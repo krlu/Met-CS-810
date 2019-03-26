@@ -68,13 +68,13 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
       iteratorType <- List(deterministic, bayesian)
       trainingSize <- List(250,500,1000)
     }{
-      val paramsFile = s"${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
+      val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       val model =
         if(iteratorType == deterministic) builder1(paramsFile, learnerType == generative)
         else builder2(paramsFile, learnerType == generative)
 
       val modelName = model.getClass.toString.split('.').toList.last
-      val trials = if (model.isInstanceOf[DeterministicPlayerModel[Board, Player, Move]]) 10000 else 1000
+      val trials = 10000
       val winners: Seq[Player] = CopsAndRobbersSim.runBatch(model, RandomMoveModel.crModel(Move.copMoves), numTrials = trials, shouldApplyNoise = testWithNoise)
       val robberWins = winners.count(_.id == 0)
       val copWins =  winners.count(_.id == 1)
@@ -83,6 +83,7 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
         trainingSize, modelName, robberWins, copWins, winPct
       ).mkString(",") + "\n"
       )
+      println(paramsFile)
     }
     fw.close()
   }

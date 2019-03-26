@@ -7,14 +7,14 @@ import neuroflow.dsl._
 import neuroflow.nets.cpu.DenseNetwork._
 import org.bu.met810.{NNVector, Turn, WinnerId, getTrainingData}
 import org.bu.met810.models.PlayerModel
-import org.bu.met810.types.{Agent, Environment}
+import org.bu.met810.types.{Agent, Environment, Vectorizable}
 
 /**
   * This class is different in that it is self-trainable.
   * Therefore there is no learner used to generate the parameters for this class
   * Reason is that a Neural Net is purely domain agnostic
   */
-class NNPlayerModel[Env <: Environment[Action, A], A <: Agent, Action](
+class NNPlayerModel[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action](
                                           val vectorToMove: Seq[Int] => Action,
                                           val paramsFile: Option[String] = None,
                                           inputDim: Int = 102,
@@ -53,7 +53,7 @@ class NNPlayerModel[Env <: Environment[Action, A], A <: Agent, Action](
     }
 
   override def selectMove(agent: A, e: Env): Action = {
-    val stateVector = List(agent.id.toDouble)
+    val stateVector = e.toVector
     vectorToMove(net.evaluate(->(stateVector:_*)).toArray.toList.map(_.round.toInt))
   }
 }
