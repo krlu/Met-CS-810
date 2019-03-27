@@ -42,6 +42,10 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   }
 
   def transition(agent1: A, action: Action, env: Env): Env
+  def setBoard(newBoard: Env): Unit = {
+    winner = None
+    board = newBoard
+  }
 
   def determineWinner(env: Env): Option[A]
 
