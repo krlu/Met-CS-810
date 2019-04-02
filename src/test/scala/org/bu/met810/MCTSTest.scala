@@ -8,8 +8,8 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class MCTSTest extends FlatSpec with Matchers{
   "Tree structure" should "update values" in {
-    var parentOf = Map.empty[Node[Int, Int], Node[Int, Int]]
-    def update(leaf: Node[Int, Int], isWin: Boolean): Unit = {
+    var parentOf = Map.empty[Node[Int], Node[Int]]
+    def update(leaf: Node[Int], isWin: Boolean): Unit = {
       var currentNode = leaf
       while(parentOf.contains(currentNode)){
         currentNode = parentOf(currentNode)
@@ -17,9 +17,9 @@ class MCTSTest extends FlatSpec with Matchers{
         else currentNode.addLoss()
       }
     }
-    val root = Node[Int, Int](1)
-    val child1 = Node[Int, Int](2)
-    val child2 = Node[Int, Int](3)
+    val root = Node[Int]()
+    val child1 = Node[Int]()
+    val child2 = Node[Int]()
 
     root.addChild(0,child1)
     child1.addChild(0, child2)
@@ -48,7 +48,7 @@ class MCTSTest extends FlatSpec with Matchers{
       initialBoard = Board(Robber((0,0)), Cop((1,1)), 1,1, Seq.empty[Building]),
       RandomMoveModel.crModel(Move.robberMoves),
       RandomMoveModel.crModel(Move.copMoves))
-    val robberModel = new MCTS(sim, Move.robberMoves.toSet)
+    val robberModel = new MCTS(sim, Move.robberMoves)
     val winners: Seq[Player] = CopsAndRobbersSim.runBatch(robberModel, RandomMoveModel.crModel(Move.copMoves), numTrials = 1000)
     val robberWins = winners.count(_.id == 0)
     val copWins =  winners.count(_.id == 1)
