@@ -22,15 +22,15 @@ object HillClimbingExperiment {
     possibleStates: Seq[Seq[Int]],
     playerId: Int,
     boardSize: Int): Unit = {
-
+    val possibleMoves = if(playerId == ids(0)) p1Moves else p2Moves
     require(ids.length == 2)
-    val iter1: (String, Boolean) => PlayerModel[Env, A, Action]= DeterministicPlayerModel.apply(_, _, p1Moves)
-    val iter2: (String, Boolean) => PlayerModel[Env, A, Action] = BayesianPlayerModel.apply(_, _, p1Moves)
+    val iter1: (String, Boolean) => PlayerModel[Env, A, Action]= DeterministicPlayerModel.apply(_, _, possibleMoves)
+    val iter2: (String, Boolean) => PlayerModel[Env, A, Action] = BayesianPlayerModel.apply(_, _, possibleMoves)
     val paramsFile = s"temp_model.json"
     val learner1 = new GenerativeModelLearner[Env, A, Action](vectorToBoard,
-      vectorToMove, agentDim, (p1Moves ++ p2Moves).distinct, possibleStates)
+      vectorToMove, agentDim, possibleMoves, possibleStates)
     val learner2 = new BayesianModelLearner[Env, A, Action](vectorToBoard, vectorToMove,
-      paramsFile, agentDim, (p1Moves ++ p2Moves).distinct, possibleStates)
+      paramsFile, agentDim, possibleMoves, possibleStates)
     for{
       iterateWithNoise <- List(false)
       trainingSize <- List(1000)
@@ -50,6 +50,13 @@ object HillClimbingExperiment {
       val trainingFile = s"training_data_$boardSize.csv"
       val useGenerativeParams = learner.isInstanceOf[GenerativeModelLearner[Env, A, Action]]
 
+      def whichModel(playerId: Int): (PlayerModel[Env, A, Action], PlayerModel[Env, A, Action]) = {
+        if(playerId == ids(0))
+          (iterationModelBuilder(paramsFile, useGenerativeParams), new RandomMoveModel[Env, A, Action](p2Moves))
+        else
+          (new RandomMoveModel[Env, A, Action](p1Moves), iterationModelBuilder(paramsFile, useGenerativeParams))
+      }
+
       for(_ <- 1 to 300) {
         val pw = new PrintWriter(trainingFile)
         pw.write("")
@@ -57,7 +64,8 @@ object HillClimbingExperiment {
         var start = System.currentTimeMillis()
         DataGenerator.generateData[Env, A, Action](
           trainingFile, boardSize, numTrainingSamples, playerIdToTrainFor, simBuilder,
-          new RandomMoveModel[Env, A, Action](p1Moves), new RandomMoveModel[Env, A, Action](p2Moves))
+          new RandomMoveModel[Env, A, Action](p1Moves),
+          new RandomMoveModel[Env, A, Action](p2Moves))
         var end = System.currentTimeMillis()
         println(s"Data generation time: ${(end - start)/1000.0}s")
 
@@ -67,8 +75,7 @@ object HillClimbingExperiment {
         end = System.currentTimeMillis()
         println(s"Training time: ${(end - start)/1000.0}s")
 
-        val p1Model: PlayerModel[Env, A, Action] = iterationModelBuilder(paramsFile, useGenerativeParams)
-        val p2Model: PlayerModel[Env, A, Action] = new RandomMoveModel[Env, A, Action](p2Moves)
+        val (p1Model, p2Model) = whichModel(playerId)
         val modelName = p1Model.getClass.toString.split('.').toList.last
         val learnerName = learner.getClass.toString.split('.').toList.last
 
@@ -92,4 +99,6 @@ object HillClimbingExperiment {
       }
     }
   }
+
+
 }

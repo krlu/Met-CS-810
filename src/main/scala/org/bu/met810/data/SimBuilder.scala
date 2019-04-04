@@ -16,7 +16,7 @@ trait SimBuilder[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Ac
                shouldApplyNoise: Boolean = false): Seq[A] = {
     val winners: Seq[A] = {
       for(i <- 1 to numTrials) yield {
-        println(i)
+//        println(i)
         val sim = randomInitialization(p1Model, p2Model, envSize, shouldApplyNoise, firstMove = i%2)
         sim.runFullGame()
       }

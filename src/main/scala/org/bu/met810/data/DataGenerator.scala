@@ -11,7 +11,6 @@ import org.bu.met810.{Turn, WinnerId}
   * If the player with id=PlayerId wins, we save all moves from that game as training data
   */
 object DataGenerator{
-
   /**
     * @param outputFilePath - csv file to contain training data
     * @param boardSize - rows and columns of a square board
@@ -30,10 +29,9 @@ object DataGenerator{
                                                 playerId: Int, simBuilder: SimBuilder[Env, A, Action],
                                                 p1Model: PlayerModel[Env, A, Action],
                                                 p2Model: PlayerModel[Env, A, Action]): Unit = {
-    for(i <- 0 until numSamples) {
+    for(_ <- 0 until numSamples) {
       val state = simBuilder.randomInitialization(p1Model, p2Model, boardSize)
       generateDataPoint(playerId, outputFilePath, state)
-      println(i)
     }
   }
 
@@ -41,20 +39,20 @@ object DataGenerator{
   (playerId: Int, outputFilePath: String, sim: Simulator[Env, A, Action]): Unit = {
     var data = List.empty[(Env, Action, Turn)]
     var result: Option[(Env, Action, Env)] = None
-    var prevTurn = if(sim.getTurn == 0) 1 else 0
     while(!sim.isGameOver){
+      val prevTurn = sim.getTurn
       result = sim.runStep()
       if(result.nonEmpty) {
         val (prevState, action, _) = result.get
         data = data :+ (prevState, action, prevTurn)
       }
-      prevTurn = if(sim.getTurn == 0) 1 else 0
     }
     val winnerId: WinnerId = sim.getWinner.get.id
-    if(winnerId == playerId)
+    if(winnerId == playerId) {
       data.foreach { case (state, action, turn) =>
         saveVectors(outputFilePath, state.toVector, action.toVector, turn, winnerId)
       }
+    }
   }
 
   private def saveVectors(filePath: String, stateVec: Seq[Double], moveVec: Seq[Double], turn: Int, winnerId: WinnerId): Unit ={

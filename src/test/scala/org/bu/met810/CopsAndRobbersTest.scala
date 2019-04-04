@@ -35,6 +35,7 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
     val boardSize = 4
     val agentDim = 2
     val numPlayers = 2
+    val idForPlayer = COP_ID
     val isValidState: Seq[Int] => Boolean = state  => state(1) != state(3) || state(2) != state(4)
 
     def vectorToBoard(vector: Seq[Int]): Board = {
@@ -49,11 +50,11 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
       }
     val possibleStates =
       permutationsWithRepetitions((0 until boardSize).toList, agentDim * numPlayers)
-        .map{ state => List(ROBBER_ID) ++ state}
+        .map{ state => List(idForPlayer) ++ state}
         .filter(isValidState)
 
     runAllExperiments(Move.robberMoves, Move.copMoves, vectorToBoard, vectorToMove,
-      CopsAndRobbersSim, agentDim, Array(ROBBER_ID, COP_ID), possibleStates, ROBBER_ID, boardSize)
+      CopsAndRobbersSim, agentDim, Array(ROBBER_ID, COP_ID), possibleStates, idForPlayer, boardSize)
   }
 
   "Bayesian robber model" should "win often with Bayesian model" in {
