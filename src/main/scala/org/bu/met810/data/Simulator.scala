@@ -42,7 +42,8 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   }
 
   def transition(agent1: A, action: Action, env: Env): Env
-  def setBoard(newBoard: Env): Unit = {
+  def setBoard(newBoard: Env, playerId: Int): Unit = {
+    turn = if(playerId == P2TURN) P1TURN else P2TURN
     winner = None
     board = newBoard
   }

@@ -33,15 +33,15 @@ class MCTSTest extends FlatSpec with Matchers{
 
     update(child1, isWin = true)
     assert(root.getWins == 1)
-    assert(root.getLosses == 0)
+    assert(root.getNumVisits == 0)
     assert(child1.getWins == 0)
-    assert(child1.getLosses == 0)
+    assert(child1.getNumVisits == 0)
 
     update(child2, isWin = false)
     assert(child1.getWins == 0)
-    assert(child1.getLosses == 1)
+    assert(child1.getNumVisits == 1)
     assert(root.getWins == 1)
-    assert(root.getLosses == 1)
+    assert(root.getNumVisits == 1)
   }
   "MCTS" should "find optimal moves" in {
     val sim = new CopsAndRobbersSim(
