@@ -14,7 +14,7 @@ class MCTSTest extends FlatSpec with Matchers{
       while(parentOf.contains(currentNode)){
         currentNode = parentOf(currentNode)
         if(isWin) currentNode.addWin()
-        else currentNode.addLoss()
+        else currentNode.addVisit()
       }
     }
     val root = Node[Int]()
@@ -49,7 +49,7 @@ class MCTSTest extends FlatSpec with Matchers{
       RandomMoveModel.crModel(Move.robberMoves),
       RandomMoveModel.crModel(Move.copMoves))
     val robberModel = new MCTS(sim, Move.robberMoves)
-    val winners: Seq[Player] = CopsAndRobbersSim.runBatch(robberModel, RandomMoveModel.crModel(Move.copMoves), numTrials = 1000)
+    val winners: Seq[Player] = CopsAndRobbersSim.runBatch(robberModel, RandomMoveModel.crModel(Move.copMoves), envSize = 5)
     val robberWins = winners.count(_.id == 0)
     val copWins =  winners.count(_.id == 1)
     println(robberWins, copWins)

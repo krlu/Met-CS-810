@@ -13,31 +13,31 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
   var playoutsSoFar = 0
 
   def playout(currState: Env, player: Agent): Int = {
-    sim.setBoard(currState, player.id)
     sim.runFullGame() match {
       case Some(winner) => if(winner.id == player.id) 1 else -1
-      case _ => 0
+      case _ => throw new IllegalStateException("")
     }
   }
 
   def expandTree(player: Agent, currState: Env): Option[Int] = {
     sim.setBoard(currState,player.id)
     var currentNode = root
-    while(sim.getTurn != player.id && sim.getWinner.isEmpty) sim.runStep()
+//    while(sim.getTurn != player.id && sim.getWinner.isEmpty) sim.runStep()
     val newStateOpt: Option[(Env, Action, Env)] = sim.runStep()
     newStateOpt match {
       case Some((_, move, newState)) =>
         currentNode = currentNode.getChildren(move)
         val result = playout(newState, player)
-        if(result > 0) currentNode.addWin() else currentNode.addLoss()
+        currentNode.addVisit()
+        if(result > 0) currentNode.addWin()
         Some(result)
       case None =>
+        currentNode.addVisit()
         if(sim.getWinner.get.id == player.id) {
           currentNode.addWin()
           Some(1)
         }
         else {
-          currentNode.addLoss()
           Some(-1)
         }
     }
@@ -52,7 +52,7 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
       expandTree(agent, e)
       playoutsSoFar = i
     }
-    if(root.getChildren.filter(x => e.isValidAction(x._1, agent)).exists(_._2.getWins > 0)) {
+    if(root.getChildren.exists(x => e.isValidAction(x._1, agent))) {
       val (maxMove, _) = root.getChildren.filter(x => e.isValidAction(x._1, agent)).maxBy(_._2.value(playoutsSoFar))
       maxMove
     }

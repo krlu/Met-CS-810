@@ -2,6 +2,7 @@ package org.bu.met810
 
 import org.bu.met810.data.{BattleshipSim, DataGenerator}
 import org.bu.met810.models.generative.NNPlayerModel
+import org.bu.met810.models.mcts.MCTS
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
@@ -30,7 +31,7 @@ class BattleshipTest extends FlatSpec with Matchers {
       Board(p1, p2, dimensions.head, dimensions(1))
     }
 
-    val model1 = new RandomMoveModel[Board, Player, Move](possibleMoves)
+    val model1 = RandomMoveModel.BShipModel(possibleMoves)
     for(_ <- 0 to 100) {
       val sim = BattleshipSim.randomInitialization(model1, model1, envSize = boardSize)
       val p1PiecePos = sim.getBoard.p1.positions
@@ -46,34 +47,25 @@ class BattleshipTest extends FlatSpec with Matchers {
     }
   }
 
-  "BS Model" should "learn" in {
-    val P1_ID = 0
-    val boardSize = 5
-    val moveDim = 2
-    def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
-
-    val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
-    val trainingFile = s"training_data_$boardSize.csv"
-    val paramsFile = "weights.nf"
-    DataGenerator.generateData[Board, Player, Move](
-      trainingFile, boardSize, 100, P1_ID, BattleshipSim,
-      new RandomMoveModel[Board, Player, Move](possibleMoves),
-      new RandomMoveModel[Board, Player, Move](possibleMoves))
-    val model = new NNPlayerModel[Board, Player, Move](vectorToMove, Some(paramsFile))
-    model.learn(trainingFile, paramsFile)
-  }
 
   "Random BS Ship Models" should "win equally" in {
     val boardSize = 5
     val moveDim = 2
     def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
     val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
-    val winners = BattleshipSim.runBatch(
+    val sim = BattleshipSim.randomInitialization(
       RandomMoveModel.BShipModel(possibleMoves),
-      RandomMoveModel.BShipModel(possibleMoves), envSize = 5, numTrials = 10000)
+      RandomMoveModel.BShipModel(possibleMoves),
+      boardSize
+    )
+    val p1Model = new MCTS(sim, possibleMoves)
+
+    val winners = BattleshipSim.runBatch(
+      p1Model,
+      RandomMoveModel.BShipModel(possibleMoves), envSize = 5)
     val p1Wins = winners.count(_.id == 0)
     val p2Wins =  winners.count(_.id == 1)
-    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)
+//    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)
     println(p1Wins, p2Wins)
   }
 }

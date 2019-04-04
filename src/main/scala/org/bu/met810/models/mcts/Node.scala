@@ -7,7 +7,7 @@ case class Node[T](private var children: Map[T, Node[T]] = Map.empty[T, Node[T]]
     else wins.toDouble/ numVisits.toDouble + Math.sqrt(2) * Math.sqrt(Math.log(totalVisits)/numVisits.toDouble)
 
   def addWin(): Unit = wins += 1
-  def addLoss(): Unit = numVisits += 1
+  def addVisit(): Unit = numVisits += 1
   def addChild(action: T, node: Node[T]): Unit = children = children ++ Map(action -> node)
 
   def getChildren: Map[T, Node[T]] = children
