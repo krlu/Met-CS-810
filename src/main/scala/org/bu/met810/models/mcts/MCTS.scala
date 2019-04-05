@@ -12,14 +12,14 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
   var numIterations = 0
   var playoutsSoFar = 0
 
-  def playout(currState: Env, player: Agent): Int = {
+  def playout(currState: Env, player: Agent): Boolean = {
     sim.runFullGame() match {
-      case Some(winner) => if(winner.id == player.id) 1 else -1
+      case Some(winner) => winner.id == player.id
       case _ => throw new IllegalStateException("")
     }
   }
 
-  def expandTree(player: Agent, currState: Env): Option[Int] = {
+  def expandTree(player: Agent, currState: Env): Unit = {
     sim.setBoard(currState,player.id)
     var currentNode = root
 //    while(sim.getTurn != player.id && sim.getWinner.isEmpty) sim.runStep()
@@ -27,22 +27,12 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
     newStateOpt match {
       case Some((_, move, newState)) =>
         currentNode = currentNode.getChildren(move)
+        currentNode.addVisit()
         val result = playout(newState, player)
-        currentNode.addVisit()
-        if(result > 0) currentNode.addWin()
-        Some(result)
+        if(result) currentNode.addWin()
       case None =>
-        currentNode.addVisit()
-        if(sim.getWinner.get.id == player.id) {
-          currentNode.addWin()
-          Some(1)
-        }
-        else {
-          Some(-1)
-        }
     }
   }
-
 
   override def selectMove(agent: A, e: Env): Action = {
     val children = possibleMoves.map{ _ -> Node[Action]()}.toMap

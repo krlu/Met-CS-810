@@ -3,7 +3,7 @@ package org.bu.met810.models.mcts
 case class Node[T](private var children: Map[T, Node[T]] = Map.empty[T, Node[T]],
                    private var wins: Int = 0, private var numVisits: Int = 0){
   def value(totalVisits: Int): Double =
-    if(numVisits == 0) Int.MaxValue
+    if(numVisits == 0) -1
     else wins.toDouble/ numVisits.toDouble + Math.sqrt(2) * Math.sqrt(Math.log(totalVisits)/numVisits.toDouble)
 
   def addWin(): Unit = wins += 1

@@ -48,8 +48,8 @@ class MCTSTest extends FlatSpec with Matchers{
       initialBoard = Board(Robber((0,0)), Cop((1,1)), 1,1, Seq.empty[Building]),
       RandomMoveModel.crModel(Move.robberMoves),
       RandomMoveModel.crModel(Move.copMoves))
-    val robberModel = new MCTS(sim, Move.robberMoves)
-    val winners: Seq[Player] = CopsAndRobbersSim.runBatch(robberModel, RandomMoveModel.crModel(Move.copMoves), envSize = 5)
+    val robberModel = new MCTS(sim, Move.copMoves)
+    val winners: Seq[Player] = CopsAndRobbersSim.runBatch(RandomMoveModel.crModel(Move.robberMoves), robberModel, numTrials = 1000)
     val robberWins = winners.count(_.id == 0)
     val copWins =  winners.count(_.id == 1)
     println(robberWins, copWins)

@@ -1,13 +1,13 @@
 package org.bu.met810.data
 
-import org.bu.met810.choose
+import org.bu.met810.{Turn, choose}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],
-                        val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move]{
-  override var turn = firstMove
+                        val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move] {
+  override var turn: Turn = firstMove
   override var board: Board = initialBoard
 
   override def transition(agent1: Player, action: Move, env: Board): Board = {
@@ -20,10 +20,11 @@ class CopsAndRobbersSim(initialBoard: Board,
     else board.copy(p2 = updatedPlayer)
   }
 
-  override def determineWinner(board: Board): Option[Player] = (board.p1, board.p2) match {
-    case (p1, p2) if p1.positions.head == p2.positions.head => Some(board.p2)
-    case (p1, _) if p1.positions.head == (initialBoard.length - 1, initialBoard.width - 1) => Some(board.p1)
-    case _ => None
+  override def determineWinner(board: Board): Option[Player] ={
+    val (p1, p2) = (board.p1, board.p2)
+    if(p1.positions.head == p2.positions.head) Some(p2)
+    else if(p1.positions.head == (initialBoard.length - 1, initialBoard.width - 1)) Some(p1)
+    else None
   }
 }
 

@@ -61,8 +61,9 @@ class BattleshipTest extends FlatSpec with Matchers {
     val p1Model = new MCTS(sim, possibleMoves)
 
     val winners = BattleshipSim.runBatch(
+      RandomMoveModel.BShipModel(possibleMoves),
       p1Model,
-      RandomMoveModel.BShipModel(possibleMoves), envSize = 5)
+      envSize = 5)
     val p1Wins = winners.count(_.id == 0)
     val p2Wins =  winners.count(_.id == 1)
 //    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)

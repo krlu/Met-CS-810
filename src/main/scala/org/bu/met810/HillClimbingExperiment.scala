@@ -38,7 +38,6 @@ object HillClimbingExperiment {
       iterationModelBuilder <- List(iter1, iter2)
     } runOneExperiment(playerId, ids.length, learner, iterationModelBuilder, iterateWithNoise, trainingSize)
 
-
     def runOneExperiment(playerIdToTrainFor: Int,
                          numPlayers: Int,
                          learner: Learner[Env, A, Action],
@@ -76,7 +75,10 @@ object HillClimbingExperiment {
         println(s"Training time: ${(end - start)/1000.0}s")
 
         val (p1Model, p2Model) = whichModel(playerId)
-        val modelName = p1Model.getClass.toString.split('.').toList.last
+        val modelName =
+          if(playerId == ids(0)) p1Model.getClass.toString.split('.').toList.last
+          else if(playerId == ids(1)) p2Model.getClass.toString.split('.').toList.last
+          else throw new IllegalArgumentException(s"playerId should be one of ${ids.mkString(",")} but was $playerId")
         val learnerName = learner.getClass.toString.split('.').toList.last
 
         start = System.currentTimeMillis()
