@@ -56,7 +56,7 @@ object HillClimbingExperiment {
           (new RandomMoveModel[Env, A, Action](p1Moves), iterationModelBuilder(paramsFile, useGenerativeParams))
       }
 
-      for(_ <- 1 to 300) {
+      for(_ <- 1 to 50) {
         val pw = new PrintWriter(trainingFile)
         pw.write("")
 

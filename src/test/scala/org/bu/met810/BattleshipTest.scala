@@ -1,7 +1,6 @@
 package org.bu.met810
 
-import org.bu.met810.data.{BattleshipSim, DataGenerator}
-import org.bu.met810.models.generative.NNPlayerModel
+import org.bu.met810.data.BattleshipSim
 import org.bu.met810.models.mcts.MCTS
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}
@@ -58,15 +57,19 @@ class BattleshipTest extends FlatSpec with Matchers {
       RandomMoveModel.BShipModel(possibleMoves),
       boardSize
     )
-    val p1Model = new MCTS(sim, possibleMoves)
-
-    val winners = BattleshipSim.runBatch(
-      RandomMoveModel.BShipModel(possibleMoves),
-      p1Model,
-      envSize = 5)
-    val p1Wins = winners.count(_.id == 0)
-    val p2Wins =  winners.count(_.id == 1)
-//    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)
-    println(p1Wins, p2Wins)
+    for{
+      p1Model <- List(RandomMoveModel.BShipModel(possibleMoves), new MCTS(sim, possibleMoves))
+      p2Model <- List(RandomMoveModel.BShipModel(possibleMoves), new MCTS(sim, possibleMoves))
+    }{
+      println(p1Model, p2Model)
+      val winners = BattleshipSim.runBatch(
+        p1Model,
+        p2Model,
+        envSize = 5)
+      val p1Wins = winners.count(_.id == 0)
+      val p2Wins =  winners.count(_.id == 1)
+      //    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)
+      println(p1Wins, p2Wins)
+    }
   }
 }

@@ -43,15 +43,22 @@ class MCTSTest extends FlatSpec with Matchers{
     assert(root.getWins == 1)
     assert(root.getNumVisits == 1)
   }
+
   "MCTS" should "find optimal moves" in {
-    val sim = new CopsAndRobbersSim(
-      initialBoard = Board(Robber((0,0)), Cop((1,1)), 1,1, Seq.empty[Building]),
+    val sim1 = CopsAndRobbersSim.randomInitialization(
       RandomMoveModel.crModel(Move.robberMoves),
       RandomMoveModel.crModel(Move.copMoves))
-    val robberModel = new MCTS(sim, Move.copMoves)
-    val winners: Seq[Player] = CopsAndRobbersSim.runBatch(RandomMoveModel.crModel(Move.robberMoves), robberModel, numTrials = 1000)
-    val robberWins = winners.count(_.id == 0)
-    val copWins =  winners.count(_.id == 1)
-    println(robberWins, copWins)
+    val sim2 = CopsAndRobbersSim.randomInitialization(
+      RandomMoveModel.crModel(Move.robberMoves),
+      RandomMoveModel.crModel(Move.copMoves))
+    for {
+      mctsModel1 <- List(new MCTS(sim1, Move.robberMoves))
+      mctsModel2 <- List(new MCTS(sim2, Move.copMoves, numPlayouts = 1000))
+    } yield {
+      val winners: Seq[Player] = CopsAndRobbersSim.runBatch(mctsModel1, mctsModel2, numTrials = 10000)
+      val robberWins = winners.count(_.id == 0)
+      val copWins = winners.count(_.id == 1)
+      println(mctsModel1, mctsModel2, robberWins, copWins)
+    }
   }
 }

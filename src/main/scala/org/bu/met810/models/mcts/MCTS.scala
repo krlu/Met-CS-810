@@ -9,7 +9,6 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
 (sim: Simulator[Env, A, Action], possibleMoves: List[Action], numPlayouts: Int = 300) extends PlayerModel[Env, A , Action]{
   var root: Node[Action] = _
   var path = List.empty[Node[Action]]
-  var numIterations = 0
   var playoutsSoFar = 0
 
   def playout(currState: Env, player: Agent): Boolean = {
@@ -34,11 +33,10 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
     }
   }
 
-  override def selectMove(agent: A, e: Env): Action = {
+  override def selectMove(agent: A, e: Env): Action  = {
     val children = possibleMoves.map{ _ -> Node[Action]()}.toMap
     root = Node[Action](children)
     for(i <- 0 until numPlayouts){
-      numIterations = i
       expandTree(agent, e)
       playoutsSoFar = i
     }

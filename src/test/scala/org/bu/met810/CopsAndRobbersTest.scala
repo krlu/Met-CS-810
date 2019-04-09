@@ -68,9 +68,9 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
       trainedWithNoise <- List(false)
       learnerType <- List(generative, bayesian)
       iteratorType <- List(deterministic, bayesian)
-      trainingSize <- List(250,500,1000)
+      trainingSize <- List(1000)
     }{
-      val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
+      val paramsFile = s"${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       val model =
         if(iteratorType == deterministic) builder1(paramsFile, learnerType == generative)
         else builder2(paramsFile, learnerType == generative)
