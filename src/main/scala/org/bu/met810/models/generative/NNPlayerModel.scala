@@ -56,4 +56,6 @@ class NNPlayerModel[Env <: Environment[Action, A] with Vectorizable, A <: Agent,
     val stateVector = e.toVector
     vectorToMove(net.evaluate(->(stateVector:_*)).toArray.toList.map(_.round.toInt))
   }
+
+  override def modelName: String = "NeuralNet"
 }

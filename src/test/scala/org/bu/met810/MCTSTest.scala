@@ -52,8 +52,8 @@ class MCTSTest extends FlatSpec with Matchers{
       RandomMoveModel.crModel(Move.robberMoves),
       RandomMoveModel.crModel(Move.copMoves))
     for {
-      mctsModel1 <- List(new MCTS(sim1, Move.robberMoves))
-      mctsModel2 <- List(new MCTS(sim2, Move.copMoves, numPlayouts = 1000))
+      mctsModel1 <- List(MCTS(sim1, Move.robberMoves))
+      mctsModel2 <- List(MCTS(sim2, Move.copMoves, numPlayouts = 1000))
     } yield {
       val winners: Seq[Player] = CopsAndRobbersSim.runBatch(mctsModel1, mctsModel2, numTrials = 10000)
       val robberWins = winners.count(_.id == 0)

@@ -1,8 +1,12 @@
 package org.bu.met810
 
+import java.io.FileWriter
+
 import org.bu.met810.data.BattleshipSim
+import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.mcts.MCTS
 import org.bu.met810.models.random.RandomMoveModel
+import org.bu.met810.models.random.RandomMoveModel.{BsBoard, BsMove, BsPlayer}
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -46,30 +50,39 @@ class BattleshipTest extends FlatSpec with Matchers {
     }
   }
 
-
-  "Random BS Ship Models" should "win equally" in {
-    val boardSize = 5
-    val moveDim = 2
+  "Random BS Ship Models" should "win with varying amounts" in {
+    val fw = new FileWriter("battleship_results.csv", true)
+    fw.write("learnerType,iteratorType,trainedWithNoise,testWithNoise,trainingSize,modelName,robberWins,copWins,winPct\n")
     def vectorToMove(vector: Seq[Int]): Move = Move(vector.head, vector(1))
-    val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map{vectorToMove}
-    val sim = BattleshipSim.randomInitialization(
-      RandomMoveModel.BShipModel(possibleMoves),
-      RandomMoveModel.BShipModel(possibleMoves),
-      boardSize
-    )
-    for{
-      p1Model <- List(RandomMoveModel.BShipModel(possibleMoves), new MCTS(sim, possibleMoves))
-      p2Model <- List(RandomMoveModel.BShipModel(possibleMoves), new MCTS(sim, possibleMoves))
-    }{
-      println(p1Model, p2Model)
-      val winners = BattleshipSim.runBatch(
-        p1Model,
-        p2Model,
-        envSize = 5)
-      val p1Wins = winners.count(_.id == 0)
-      val p2Wins =  winners.count(_.id == 1)
-      //    assert(Math.abs(p1Wins.toDouble/(p1Wins + p2Wins) - 0.5) < 0.01)
-      println(p1Wins, p2Wins)
+    def constructRandomModel(possibleMoves: List[Move], boardSize: Int): BattleshipSim =
+      BattleshipSim.randomInitialization(
+        RandomMoveModel.BShipModel(possibleMoves),
+        RandomMoveModel.BShipModel(possibleMoves),
+        boardSize
+      )
+    for(boardSize <- List(5, 10, 20)) {
+      val moveDim = 2
+      val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map(vectorToMove)
+      val sim1 = constructRandomModel(possibleMoves, boardSize)
+      val sim2 = constructRandomModel(possibleMoves, boardSize)
+      for {
+        p1Model <- List(RandomMoveModel.BShipModel(possibleMoves), MCTS(sim1, possibleMoves))
+        p2Model <- List(RandomMoveModel.BShipModel(possibleMoves), MCTS(sim2, possibleMoves))
+      }{
+        val start = System.currentTimeMillis()
+        val winners = BattleshipSim.runBatch(
+          p1Model,
+          p2Model,
+          envSize = boardSize)
+        val p1Wins = winners.count(_.id == 0)
+        val p2Wins = winners.count(_.id == 1)
+        val end = System.currentTimeMillis()
+        val time = (end - start).toDouble/1000
+        println(List(p1Model.modelName, p2Model.modelName, p1Wins, p2Wins, boardSize, time).mkString(","))
+        val winPct = p1Wins.toDouble / (p1Wins + p2Wins)
+        fw.write(List(boardSize, p1Model.modelName, p2Model.modelName, p1Wins, p2Wins, winPct).mkString(",") + "\n")
+      }
     }
+    fw.close()
   }
 }

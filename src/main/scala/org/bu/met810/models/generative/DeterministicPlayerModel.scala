@@ -16,6 +16,8 @@ class DeterministicPlayerModel[Env <: Environment[Action, A], A <: Agent, Action
     val queryString = s"${(List(player.id) ++ p1State ++ p2State).mkString("_")}_move"
     (paramsMap(queryString) zip possibleMoves).filter{ case (_, m) => board.isValidAction(m,player)}
   }.maxBy(_._1)._2
+
+  override def modelName: String = "Deterministic"
 }
 
 object DeterministicPlayerModel{

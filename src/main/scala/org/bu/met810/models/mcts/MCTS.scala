@@ -46,4 +46,12 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
     }
     else choose(possibleMoves.filter(e.isValidAction(_, agent)))
   }
+
+  override def modelName = "MCTS"
+}
+
+object MCTS{
+  def apply[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
+  (sim: Simulator[Env, A, Action], possibleMoves: List[Action], numPlayouts: Int = 300): MCTS[Env, A, Action] =
+    new MCTS(sim, possibleMoves, numPlayouts)
 }

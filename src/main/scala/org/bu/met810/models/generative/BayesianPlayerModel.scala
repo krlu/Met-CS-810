@@ -33,6 +33,8 @@ class BayesianPlayerModel[Env <: Environment[Action, A], A <: Agent, Action]
     alg.kill()
     desiredMove
   }
+
+  override def modelName: String = "Bayesian"
 }
 
 object BayesianPlayerModel{

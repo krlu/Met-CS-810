@@ -7,6 +7,7 @@ import org.bu.met810.types._
 
 class RandomMoveModel[Env <: Environment[Action, A], A <: Agent, Action](moveSet: List[Action]) extends PlayerModel[Env, A, Action]{
   def selectMove(player: A, env: Env): Action = choose(moveSet.filter(m => env.isValidAction(m, player)))
+  def modelName = "Random"
 }
 
 object RandomMoveModel{
