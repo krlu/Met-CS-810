@@ -11,7 +11,7 @@ class CopsAndRobbersSim(initialBoard: Board,
   override var board: Board = initialBoard
 
   override def transition(agent1: Player, action: Move, env: Board): Board = {
-    val (x, y) = agent1.positions.head
+    val (x, y) = agent1.position
     val updatedPlayer = agent1 match {
       case c: Cop => c.copy(position = action(x, y))
       case r: Robber => r.copy(position = action(x, y))
@@ -22,8 +22,8 @@ class CopsAndRobbersSim(initialBoard: Board,
 
   override def determineWinner(board: Board): Option[Player] ={
     val (p1, p2) = (board.p1, board.p2)
-    if(p1.positions.head == p2.positions.head) Some(p2)
-    else if(p1.positions.head == (initialBoard.length - 1, initialBoard.width - 1)) Some(p1)
+    if(p1.position== p2.position) Some(p2)
+    else if(p1.position == (initialBoard.length - 1, initialBoard.width - 1)) Some(p1)
     else None
   }
 }

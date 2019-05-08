@@ -33,7 +33,7 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
   val boardSize = 4
   val agentDim = 2
   val numPlayers = 2
-  val idForPlayer: Int = COP_ID
+  val idForPlayer: Int = ROBBER_ID
 
   "Cops and robbers model" should "successfully train" in {
 
@@ -59,8 +59,8 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
   }
 
   "Bayesian robber model" should "win often with Bayesian model" in {
-    val builder1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply(_, _, Move.possibleMoves)
-    val builder2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply(_, _, Move.possibleMoves)
+    val builder1: (String, Boolean) => PlayerModel[Board, Player, Move]= DeterministicPlayerModel.apply(_, _, Move.robberMoves)
+    val builder2: (String, Boolean) => PlayerModel[Board, Player, Move]= BayesianPlayerModel.apply(_, _, Move.robberMoves)
     val fw = new FileWriter("results.csv", true)
     fw.write("learnerType,iteratorType,trainedWithNoise,testWithNoise,trainingSize,modelName,robberWins,copWins,winPct\n")
     for{
@@ -70,7 +70,7 @@ class CopsAndRobbersTest extends FlatSpec with Matchers {
       iteratorType <- List(deterministic, bayesian)
       trainingSize <- List(1000)
     }{
-      val paramsFile = s"${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
+      val paramsFile = s"trainedModels/${learnerType}ModelLearner_${iteratorType}PlayerModel_${trainedWithNoise}_$trainingSize.json"
       val model =
         if(iteratorType == deterministic) builder1(paramsFile, learnerType == generative)
         else builder2(paramsFile, learnerType == generative)

@@ -59,7 +59,7 @@ class BattleshipTest extends FlatSpec with Matchers {
         boardSize
       )
     for{
-      boardSize <- List(10, 20)
+      boardSize <- List(5)
       numPlayouts <- List(100, 250, 500, 1000)
     }{
       val moveDim = 2

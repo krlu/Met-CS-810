@@ -10,6 +10,9 @@ import org.bu.simmba.models.random.RandomMoveModel
 import org.bu.simmba.types.{Agent, Environment, Vectorizable}
 
 
+/**
+  * Iterates over a set of models an arbitrary number of times and save a running maximum of the best parameters
+  */
 object HillClimbingExperiment {
 
   def runAllExperiments[Env <: Environment[Action, A] with Vectorizable, A <: Agent with Vectorizable, Action <: Vectorizable](

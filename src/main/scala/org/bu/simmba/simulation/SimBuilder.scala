@@ -13,10 +13,11 @@ trait SimBuilder[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Ac
   def runBatch(p1Model: PlayerModel[Env, A, Action],
                p2Model: PlayerModel[Env, A, Action],
                numTrials: Int = 1000, envSize: Int = 4,
-               shouldApplyNoise: Boolean = false): Seq[A] = {
+               shouldApplyNoise: Boolean = false, printTrialNums: Boolean = false): Seq[A] = {
     val winners: Seq[A] = {
       for(i <- 1 to numTrials) yield {
-        println(i)
+        if(printTrialNums)
+          println(i)
         val sim = randomInitialization(p1Model, p2Model, envSize, shouldApplyNoise, firstMove = i%2)
         sim.runFullGame()
       }

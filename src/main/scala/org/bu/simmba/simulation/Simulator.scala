@@ -3,6 +3,11 @@ package org.bu.simmba.simulation
 import org.bu.simmba.models.PlayerModel
 import org.bu.simmba.types.{Agent, Environment}
 
+/**
+  * @tparam Env -Must extend Environment trait
+  * @tparam A - Must extend Agent trait
+  * @tparam Action - Can be anything (for now)
+  */
 trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   protected var board: Env
   val model1: PlayerModel[Env, A, Action]

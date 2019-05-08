@@ -3,7 +3,8 @@ package org.bu.simmba.types.battleshipassets
 import org.bu.simmba.types.{Agent, Vectorizable}
 
 /**
-  * @param positions - maps position to 1 or 0. 1 for alive 0 for dead
+  * @param positions - (x,y) coordinates all ships in this players fleet,
+  *                    maps position to 1 or 0. 1 for alive 0 for dead
   * @param id - playerId
   * @param movesMade - maps position to -1, 0, or 1
   *                  1 = hit,
