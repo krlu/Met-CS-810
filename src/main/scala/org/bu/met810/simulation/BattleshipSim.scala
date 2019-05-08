@@ -1,4 +1,4 @@
-package org.bu.met810.data
+package org.bu.met810.simulation
 
 import org.bu.met810.choose
 import org.bu.met810.models.PlayerModel

@@ -2,7 +2,7 @@ package org.bu.met810
 
 import java.io.PrintWriter
 
-import org.bu.met810.data.{DataGenerator, SimBuilder}
+import org.bu.met810.simulation.{DataGenerator, SimBuilder}
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.learners.{BayesianModelLearner, GenerativeModelLearner, Learner}

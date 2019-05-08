@@ -2,7 +2,7 @@ package org.bu.met810
 
 import java.io.FileWriter
 
-import org.bu.met810.data.BattleshipSim
+import org.bu.met810.simulation.BattleshipSim
 import org.bu.met810.models.mcts.MCTS
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.battleshipassets.{Board, Move, Player}

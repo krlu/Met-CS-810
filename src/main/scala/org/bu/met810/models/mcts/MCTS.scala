@@ -1,6 +1,6 @@
 package org.bu.met810.models.mcts
 
-import org.bu.met810.data.Simulator
+import org.bu.met810.simulation.Simulator
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.types.{Agent, Environment, Vectorizable}
 import org.bu.met810.choose

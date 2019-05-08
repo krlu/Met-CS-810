@@ -3,7 +3,7 @@ package org.bu.met810
 import java.io.FileWriter
 
 import org.bu.met810.HillClimbingExperiment.runAllExperiments
-import org.bu.met810.data.CopsAndRobbersSim
+import org.bu.met810.simulation.CopsAndRobbersSim
 import org.bu.met810.models.PlayerModel
 import org.bu.met810.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.met810.models.random.RandomMoveModel

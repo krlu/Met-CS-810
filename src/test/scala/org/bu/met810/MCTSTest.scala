@@ -1,6 +1,6 @@
 package org.bu.met810
 
-import org.bu.met810.data.CopsAndRobbersSim
+import org.bu.met810.simulation.CopsAndRobbersSim
 import org.bu.met810.models.mcts.{MCTS, Node}
 import org.bu.met810.models.random.RandomMoveModel
 import org.bu.met810.types.copsandrobbersassets._
