@@ -21,7 +21,11 @@ First define the following:
 
 Note: We plan to support an "ambient" state transition function that updates the environment without Agents taking an action
 
+### Generating Data 
 
+### Training a Model 
+
+### Testing the Model
 
 
 
