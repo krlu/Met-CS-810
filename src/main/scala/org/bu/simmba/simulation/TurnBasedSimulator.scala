@@ -4,11 +4,12 @@ import org.bu.simmba.models.PlayerModel
 import org.bu.simmba.types.{Agent, Environment}
 
 /**
-  * @tparam Env -Must extend Environment trait
+  * Typically used for (but not limited to) turn based games like battleships, chess, checkers
+  * @tparam Env - Must extend Environment trait
   * @tparam A - Must extend Agent trait
   * @tparam Action - Can be anything (for now)
   */
-trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
+trait TurnBasedSimulator[Env <: Environment[Action, A], A <: Agent, Action]{
   protected var board: Env
   val model1: PlayerModel[Env, A, Action]
   val model2: PlayerModel[Env, A, Action]
@@ -60,3 +61,4 @@ trait Simulator[Env <: Environment[Action, A], A <: Agent, Action]{
   def isGameOver: Boolean = winner.nonEmpty
   def getBoard: Env = board
 }
+

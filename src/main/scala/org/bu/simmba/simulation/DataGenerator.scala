@@ -36,7 +36,7 @@ object DataGenerator{
   }
 
   private def generateDataPoint[Env <: Vectorizable with Environment[Action, A], A <: Vectorizable with Agent, Action <: Vectorizable]
-  (playerId: Int, outputFilePath: String, sim: Simulator[Env, A, Action]): Unit = {
+  (playerId: Int, outputFilePath: String, sim: TurnBasedSimulator[Env, A, Action]): Unit = {
     var data = List.empty[(Env, Action, Turn)]
     var result: Option[(Env, Action, Env)] = None
     while(!sim.isGameOver){

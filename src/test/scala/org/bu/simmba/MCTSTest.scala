@@ -51,14 +51,22 @@ class MCTSTest extends FlatSpec with Matchers{
     val sim2 = CopsAndRobbersSim.randomInitialization(
       RandomMoveModel.crModel(Move.robberMoves),
       RandomMoveModel.crModel(Move.copMoves))
-    for {
-      mctsModel1 <- List(MCTS(sim1, Move.robberMoves))
-      mctsModel2 <- List(MCTS(sim2, Move.copMoves, numPlayouts = 1000))
+    val results = for {
+      mctsModel1 <- List(RandomMoveModel.crModel(Move.robberMoves), MCTS(sim1, Move.robberMoves))
+      mctsModel2 <- List(RandomMoveModel.crModel(Move.robberMoves), MCTS(sim2, Move.copMoves, numPlayouts = 100))
     } yield {
       val winners: Seq[Player] = CopsAndRobbersSim.runBatch(mctsModel1, mctsModel2, numTrials = 10000)
       val robberWins = winners.count(_.id == 0)
       val copWins = winners.count(_.id == 1)
-      println(mctsModel1, mctsModel2, robberWins, copWins)
+      (robberWins, copWins)
     }
+    val (rw0, cw0) = results.head
+    val (rw1, cw1) = results(1)
+    val (rw2, cw2) = results(2)
+    val (rw3, cw3) = results(3)
+    assert(condition = 2500 < rw0 && rw0 < 3000 && rw0 + cw0 == 10000)
+    assert(condition = 1000 < rw1 && rw1 < 2000 && rw1 + cw1 == 10000)
+    assert(condition = 8500 < rw2 && rw2 < 9500 && rw2 + cw2 == 10000)
+    assert(condition = 5000 < rw3 && rw3 < 6000 && rw3 + cw3 == 10000)
   }
 }

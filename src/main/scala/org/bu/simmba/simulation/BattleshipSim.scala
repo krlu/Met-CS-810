@@ -6,7 +6,8 @@ import org.bu.simmba.types.battleshipassets.{Board, Move, Player}
 
 class BattleshipSim(initialBoard: Board,
                     val model1: PlayerModel[Board, Player, Move],
-                    val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move]{
+                    val model2: PlayerModel[Board, Player, Move],
+                    val firstMove: Int = 0) extends TurnBasedSimulator[Board, Player, Move]{
 
   override protected var turn: Int = firstMove
   override protected var board: Board = initialBoard

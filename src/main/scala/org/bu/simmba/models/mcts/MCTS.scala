@@ -1,12 +1,12 @@
 package org.bu.simmba.models.mcts
 
-import org.bu.simmba.simulation.Simulator
+import org.bu.simmba.simulation.TurnBasedSimulator
 import org.bu.simmba.models.PlayerModel
 import org.bu.simmba.types.{Agent, Environment, Vectorizable}
 import org.bu.simmba.choose
 
 class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
-(sim: Simulator[Env, A, Action], possibleMoves: List[Action], numPlayouts: Int = 300) extends PlayerModel[Env, A , Action]{
+(sim: TurnBasedSimulator[Env, A, Action], possibleMoves: List[Action], numPlayouts: Int = 300) extends PlayerModel[Env, A , Action]{
   var root: Node[Action] = _
   var path = List.empty[Node[Action]]
   var playoutsSoFar = 0
@@ -52,6 +52,6 @@ class MCTS[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
 
 object MCTS{
   def apply[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Action]
-  (sim: Simulator[Env, A, Action], possibleMoves: List[Action], numPlayouts: Int = 300): MCTS[Env, A, Action] =
+  (sim: TurnBasedSimulator[Env, A, Action], possibleMoves: List[Action], numPlayouts: Int = 300): MCTS[Env, A, Action] =
     new MCTS(sim, possibleMoves, numPlayouts)
 }

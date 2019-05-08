@@ -8,7 +8,7 @@ trait SimBuilder[Env <: Environment[Action, A] with Vectorizable, A <: Agent, Ac
 
   def randomInitialization(p1Model: PlayerModel[Env, A, Action],
                            p2Model: PlayerModel[Env, A, Action],
-                           envSize: Int, shouldApplyNoise: Boolean = false, firstMove: Int = 0): Simulator[Env, A, Action]
+                           envSize: Int, shouldApplyNoise: Boolean = false, firstMove: Int = 0): TurnBasedSimulator[Env, A, Action]
 
   def runBatch(p1Model: PlayerModel[Env, A, Action],
                p2Model: PlayerModel[Env, A, Action],

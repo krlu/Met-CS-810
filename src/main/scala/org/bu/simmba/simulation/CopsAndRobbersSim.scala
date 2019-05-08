@@ -6,7 +6,8 @@ import org.bu.simmba.types.copsandrobbersassets.{Move, _}
 
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],
-                        val model2: PlayerModel[Board, Player, Move], val firstMove: Int = 0) extends Simulator[Board, Player, Move] {
+                        val model2: PlayerModel[Board, Player, Move],
+                        val firstMove: Int = 0) extends TurnBasedSimulator[Board, Player, Move] {
   override var turn: Turn = firstMove
   override var board: Board = initialBoard
 
