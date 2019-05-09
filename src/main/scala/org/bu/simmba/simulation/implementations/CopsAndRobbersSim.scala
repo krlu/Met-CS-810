@@ -1,8 +1,9 @@
-package org.bu.simmba.simulation
+package org.bu.simmba.simulation.implementations
 
-import org.bu.simmba.{Turn, choose}
 import org.bu.simmba.models.PlayerModel
+import org.bu.simmba.simulation.{SimBuilder, TurnBasedSimulator}
 import org.bu.simmba.types.copsandrobbersassets.{Move, _}
+import org.bu.simmba.{Turn, choose}
 
 class CopsAndRobbersSim(initialBoard: Board,
                         val model1: PlayerModel[Board, Player, Move],

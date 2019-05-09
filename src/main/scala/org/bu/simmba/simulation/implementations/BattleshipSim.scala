@@ -1,7 +1,8 @@
-package org.bu.simmba.simulation
+package org.bu.simmba.simulation.implementations
 
 import org.bu.simmba.choose
 import org.bu.simmba.models.PlayerModel
+import org.bu.simmba.simulation.{SimBuilder, TurnBasedSimulator}
 import org.bu.simmba.types.battleshipassets.{Board, Move, Player}
 
 class BattleshipSim(initialBoard: Board,

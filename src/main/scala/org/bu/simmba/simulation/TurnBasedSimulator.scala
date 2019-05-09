@@ -9,15 +9,13 @@ import org.bu.simmba.types.{Agent, Environment}
   * @tparam A - Must extend Agent trait
   * @tparam Action - Can be anything (for now)
   */
-trait TurnBasedSimulator[Env <: Environment[Action, A], A <: Agent, Action]{
+trait TurnBasedSimulator[Env <: Environment[Action, A], A <: Agent, Action] extends Simulator[Env, A, Action]{
   protected var board: Env
   val model1: PlayerModel[Env, A, Action]
   val model2: PlayerModel[Env, A, Action]
   protected var turn: Int
-  val shouldApplyNoise: Boolean = false
   protected val P1TURN = 0
   protected val P2TURN = 1
-  protected var winner: Option[A] = None
 
   /**
     * Runs the simulation from start to finish
@@ -47,18 +45,14 @@ trait TurnBasedSimulator[Env <: Environment[Action, A], A <: Agent, Action]{
     Some(prevBoard, move, board)
   }
 
-  def transition(agent1: A, action: Action, env: Env): Env
-  def setBoard(newBoard: Env, playerId: Int): Unit = {
+  override def setBoard(newBoard: Env, playerId: Int): Unit = {
     turn = playerId
     winner = None
     board = newBoard
   }
-
-  def determineWinner(env: Env): Option[A]
-
-  def getWinner: Option[A] = winner
   def getTurn: Int = turn
-  def isGameOver: Boolean = winner.nonEmpty
-  def getBoard: Env = board
+
+  def transition(agent1: A, action: Action, env: Env): Env
+  def determineWinner(env: Env): Option[A]
 }
 

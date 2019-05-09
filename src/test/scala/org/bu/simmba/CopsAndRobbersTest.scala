@@ -3,10 +3,10 @@ package org.bu.simmba
 import java.io.FileWriter
 
 import org.bu.simmba.HillClimbingExperiment.runAllExperiments
-import org.bu.simmba.simulation.CopsAndRobbersSim
 import org.bu.simmba.models.PlayerModel
 import org.bu.simmba.models.generative.{BayesianPlayerModel, DeterministicPlayerModel}
 import org.bu.simmba.models.random.RandomMoveModel
+import org.bu.simmba.simulation.implementations.CopsAndRobbersSim
 import org.bu.simmba.types.copsandrobbersassets._
 import org.scalatest.{FlatSpec, Matchers}
 

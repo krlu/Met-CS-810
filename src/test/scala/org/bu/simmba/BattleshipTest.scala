@@ -2,9 +2,9 @@ package org.bu.simmba
 
 import java.io.FileWriter
 
-import org.bu.simmba.simulation.BattleshipSim
 import org.bu.simmba.models.mcts.MCTS
 import org.bu.simmba.models.random.RandomMoveModel
+import org.bu.simmba.simulation.implementations.BattleshipSim
 import org.bu.simmba.types.battleshipassets.{Board, Move, Player}
 import org.scalatest.{FlatSpec, Matchers}
 
