@@ -1,6 +1,5 @@
 package org.bu.simmba.simulation
 
-import org.bu.simmba.models.PlayerModel
 import org.bu.simmba.types.{Agent, Environment}
 
 /**
@@ -11,8 +10,6 @@ import org.bu.simmba.types.{Agent, Environment}
   */
 trait TurnBasedSimulator[Env <: Environment[Action, A], A <: Agent, Action] extends Simulator[Env, A, Action]{
   protected var board: Env
-  val model1: PlayerModel[Env, A, Action]
-  val model2: PlayerModel[Env, A, Action]
   protected var turn: Int
   protected val P1TURN = 0
   protected val P2TURN = 1

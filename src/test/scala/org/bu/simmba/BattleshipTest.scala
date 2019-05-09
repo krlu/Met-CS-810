@@ -60,7 +60,7 @@ class BattleshipTest extends FlatSpec with Matchers {
       )
     for{
       boardSize <- List(5)
-      numPlayouts <- List(100, 250, 500, 1000)
+      numPlayouts <- List(100)
     }{
       val moveDim = 2
       val possibleMoves = possiblePositions(boardSize, boardSize, moveDim).map(vectorToMove)
@@ -71,17 +71,17 @@ class BattleshipTest extends FlatSpec with Matchers {
         p2Model <- List(RandomMoveModel.BShipModel(possibleMoves), MCTS(sim2, possibleMoves, numPlayouts = numPlayouts))
       }{
         val start = System.currentTimeMillis()
-        val winners = BattleshipSim.runBatch(p1Model, p2Model, envSize = boardSize)
+        val winners = BattleshipSim.runBatch(p1Model, p2Model, envSize = boardSize, numTrials = 100)
         val p1Wins = winners.count(_.id == 0)
         val p2Wins = winners.count(_.id == 1)
         val winPct = p1Wins.toDouble / (p1Wins + p2Wins)
         val end = System.currentTimeMillis()
         val time = (end - start).toDouble/1000
-        val results = List(p1Model.modelName, p2Model.modelName, p1Wins, p2Wins, boardSize, numPlayouts, winPct, time)
-        println(results.mkString(","))
-        fw.write( results.mkString(",") + "\n")
+        println(p1Model.modelName, p2Model.modelName, p1Wins, p2Wins, boardSize, numPlayouts, winPct, time)
+        if(p2Model.isInstanceOf[MCTS[Board, Player, Move]])
+          assert(40 < p1Wins && p1Wins < 60 && p1Wins + p2Wins == 100)
+        else assert(p1Wins > 80)
       }
     }
-    fw.close()
   }
 }
